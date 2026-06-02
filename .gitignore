@@ -1,0 +1,16 @@
+# Ambiente Python
+.venv/
+__pycache__/
+*.pyc
+
+# Configuracao local
+.env
+
+# Dados (PDFs e texto processado podem ser grandes/variaveis)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Modelos baixados pelo sentence-transformers (cache)
+.cache/
