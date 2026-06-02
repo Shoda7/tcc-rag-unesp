@@ -9,8 +9,10 @@ __pycache__/
 # Dados (PDFs e texto processado podem ser grandes/variaveis)
 data/raw/*
 data/processed/*
+data/legislacao/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+!data/legislacao/.gitkeep
 
 # Modelos baixados pelo sentence-transformers (cache)
 .cache/
