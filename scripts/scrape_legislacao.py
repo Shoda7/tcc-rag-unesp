@@ -63,10 +63,22 @@ def _save_manifest(manifest: dict) -> None:
     )
 
 
+def _get_with_retry(url: str, timeout: int = 45, max_retries: int = 5) -> requests.Response:
+    """GET com retry exponencial para lidar com instabilidade do servidor."""
+    for attempt in range(1, max_retries + 1):
+        try:
+            return requests.get(url, headers=HEADERS, timeout=timeout)
+        except (requests.RequestException, OSError) as exc:
+            wait = 30 * attempt
+            print(f"  [retry {attempt}/{max_retries}] {exc} — aguardando {wait}s...")
+            time.sleep(wait)
+    raise RuntimeError(f"Falha apos {max_retries} tentativas: {url}")
+
+
 def _fetch_doc_list() -> list[dict]:
     """Le a arvore do site e retorna lista de {numero, ano, data_doc, label}."""
     print("Carregando arvore de documentos...")
-    r = requests.get(BASE_URL, headers=HEADERS, timeout=20)
+    r = _get_with_retry(BASE_URL)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
 
@@ -94,9 +106,9 @@ def _fetch_text(numero: str, ano: str, data_doc: str) -> str | None:
     """Busca o texto de um documento pelo numero/ano/data."""
     url = f"{BASE_URL}?base=R&numero={numero}&ano={ano}&dataDocumento={data_doc}"
     try:
-        r = requests.get(url, headers=HEADERS, timeout=20)
+        r = _get_with_retry(url)
         r.raise_for_status()
-    except requests.RequestException as exc:
+    except Exception as exc:
         print(f"    [erro http] {exc}")
         return None
 

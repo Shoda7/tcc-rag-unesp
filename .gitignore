@@ -16,3 +16,9 @@ data/legislacao/*
 
 # Modelos baixados pelo sentence-transformers (cache)
 .cache/
+
+# Node.js
+node_modules/
+
+# Docx descompactados (artefatos de inspeção, redundantes com os binários)
+DOCUMENTO-ENVIO/unpacked_*/

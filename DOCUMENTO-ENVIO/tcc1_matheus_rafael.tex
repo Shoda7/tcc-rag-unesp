@@ -1,0 +1,282 @@
+% ============================================================
+% TCC I — Preliminar
+% Curso: Bacharelado em Sistemas de Informação
+% UNESP Bauru — 2026
+% Compilar no Overleaf com pdfLaTeX
+% ============================================================
+\documentclass[
+  12pt,
+  openright,
+  twoside,
+  a4paper,
+  brazil
+]{abntex2}
+
+% ── Pacotes ─────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath} % Times New Roman (substitui mathptmx, melhor bold)
+\usepackage{microtype}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf,abnt-emphasize=bf]{abntex2cite}
+
+% ── Fontes dos títulos: TNR 12pt bold (igual ao DOCX) ────────
+\renewcommand{\ABNTEXchapterfont}{\normalfont\bfseries}
+\renewcommand{\ABNTEXchapterfontsize}{\normalsize}
+\renewcommand{\ABNTEXsectionfont}{\normalfont\bfseries}
+\renewcommand{\ABNTEXsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsectionfont}{\normalfont\bfseries}
+\renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+\renewcommand{\ABNTEXsubsubsectionfont}{\normalfont\bfseries}
+\renewcommand{\ABNTEXsubsubsectionfontsize}{\normalsize}
+
+% ── Configurações gerais ─────────────────────────────────────
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+
+% Hiperlinks sem caixa colorida
+\hypersetup{
+  hidelinks,
+  colorlinks=false,
+}
+
+% ── Dados do documento ───────────────────────────────────────
+\titulo{Implementação e Avaliação de um Sistema de Recuperação Aumentada por Geração (RAG) para Consulta de Documentos Regulatórios da UNESP Bauru}
+\autor{Matheus Shoda Lima \and Rafael Panhozzi Rubio}
+\local{Bauru}
+\data{2026}
+\orientador{Prof.\ Dr.\ Clayton Reginaldo Pereira}
+\instituicao{%
+  Universidade Estadual Paulista ``Júlio de Mesquita Filho''\\
+  Faculdade de Ciências --- Câmpus de Bauru\\
+  Bacharelado em Sistemas de Informação
+}
+\tipotrabalho{Trabalho de Conclusão de Curso}
+\preambulo{Trabalho de Conclusão de Curso apresentado ao Curso de Sistemas de Informação da Faculdade de Ciências --- Câmpus de Bauru, Universidade Estadual Paulista ``Júlio de Mesquita Filho'', como parte dos requisitos para obtenção do grau de Bacharel em Sistemas de Informação.}
+
+% ============================================================
+\begin{document}
+\frenchspacing
+
+% ── Elementos pré-textuais ───────────────────────────────────
+\pretextual
+
+\imprimircapa
+\imprimirfolhaderosto*
+
+% ── Folha de aprovação (placeholder) ────────────────────────
+\begin{folhadeaprovacao}
+  \begin{center}
+    {\ABNTEXchapterfont\large\imprimirautor}
+    \vspace*{\fill}
+    \begin{center}
+      \ABNTEXchapterfont\bfseries\large\imprimirtitulo
+    \end{center}
+    \vspace*{\fill}
+    \hspace{.45\textwidth}
+    \begin{minipage}{.5\textwidth}
+      \imprimirpreambulo
+    \end{minipage}
+    \vspace*{\fill}
+    Bauru, \underline{\hspace{2cm}} de \underline{\hspace{3cm}} de \underline{\hspace{1.5cm}}.
+    \vspace*{\fill}
+    \begin{center}
+      \textbf{Componentes da Banca Examinadora:}
+    \end{center}
+    \vspace{0.5cm}
+    \assinatura{\textbf{\imprimirorientador} \\ Presidente e Orientador}
+    \assinatura{\textbf{Prof.\ Dr.\ [Nome do Membro Titular]} \\ Membro Titular}
+    \assinatura{\textbf{Prof.\ Dr.\ [Nome do Membro Titular]} \\ Membro Titular}
+  \end{center}
+\end{folhadeaprovacao}
+
+% ── Resumo ──────────────────────────────────────────────────
+\begin{resumo}
+Este trabalho apresenta a implementação e avaliação de um sistema de Recuperação Aumentada por Geração (RAG, do inglês \textit{Retrieval-Augmented Generation}) voltado à consulta em linguagem natural de documentos regulatórios da Universidade Estadual Paulista (UNESP) Bauru. O problema central abordado é a dificuldade enfrentada por estudantes e servidores para localizar informações específicas em um extenso corpus de resoluções, portarias e regulamentos institucionais. A solução proposta combina modelos de linguagem de grande porte (LLMs) com recuperação de documentos, reduzindo o fenômeno de alucinação por meio do aterramento das respostas nas fontes originais. O sistema implementa dois mecanismos de busca --- vetorial (embeddings densos) e textual (BM25/\textit{Full-Text Search}) --- cujo desempenho é avaliado comparativamente com métricas de recuperação de informação (Precision@K, Recall@K e \textit{Mean Reciprocal Rank}). O corpus utilizado compreende resoluções e portarias da UNESP referentes ao período de 2016 a 2026, além de documentos curriculares e regulamentares dos cursos de Bacharelado em Sistemas de Informação e Ciência da Computação da Faculdade de Ciências de Bauru. Os resultados preliminares indicam a viabilidade técnica da abordagem, com o protótipo respondendo corretamente a perguntas sobre estrutura curricular, requisitos de estágio e atividades complementares.
+
+\vspace{\onelineskip}
+\noindent\textbf{Palavras-chave:} Recuperação Aumentada por Geração. RAG. Modelos de Linguagem. Busca Vetorial. Documentos Regulatórios. UNESP.
+\end{resumo}
+
+% ── Abstract ────────────────────────────────────────────────
+\begin{resumo}[Abstract]
+\begin{otherlanguage*}{english}
+This paper presents the implementation and evaluation of a Retrieval-Augmented Generation (RAG) system for natural language querying of regulatory documents from the Universidade Estadual Paulista (UNESP) Bauru. The central problem addressed is the difficulty faced by students and staff in locating specific information within an extensive corpus of institutional resolutions, ordinances, and regulations. The proposed solution combines large language models (LLMs) with document retrieval, mitigating hallucination by grounding responses in original sources. The system implements two retrieval mechanisms --- dense vector search (embeddings) and sparse text search (BM25/Full-Text Search) --- whose performance is comparatively evaluated using information retrieval metrics (Precision@K, Recall@K, and Mean Reciprocal Rank). The corpus comprises UNESP resolutions and ordinances from 2016 to 2026, along with curricular and regulatory documents from the Bachelor's programs in Information Systems and Computer Science at the Faculdade de Ciências de Bauru. Preliminary results indicate the technical feasibility of the approach, with the prototype correctly answering questions about curriculum structure, internship requirements, and extracurricular activities.
+
+\vspace{\onelineskip}
+\noindent\textbf{Keywords:} Retrieval-Augmented Generation. RAG. Language Models. Vector Search. Regulatory Documents. UNESP.
+\end{otherlanguage*}
+\end{resumo}
+
+% ── Sumário ─────────────────────────────────────────────────
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+% ============================================================
+% Elementos textuais
+% ============================================================
+\textual
+
+% ── Capítulo 1 ───────────────────────────────────────────────
+\chapter{Introdução}
+
+As instituições de ensino superior brasileiras produzem e mantêm um expressivo volume de documentos regulatórios --- resoluções, portarias, regulamentos de curso, normas de atividades complementares e regimentos gerais --- que regem os direitos e deveres de estudantes, docentes e servidores. Na Universidade Estadual Paulista ``Júlio de Mesquita Filho'' (UNESP), esses documentos estão dispersos em diferentes portais e sistemas institucionais, tornando a busca por informações específicas uma tarefa onerosa para o usuário final.
+
+O advento dos Modelos de Linguagem de Grande Porte (LLMs, do inglês \textit{Large Language Models}) introduziu novas possibilidades para sistemas de resposta a perguntas em linguagem natural. Contudo, modelos como GPT-4 e LLaMA 3 apresentam uma limitação crítica: a tendência a gerar respostas factualmente incorretas, fenômeno conhecido como alucinação \cite{ji2023survey}. Quando aplicados a domínios institucionais específicos, nos quais precisão e rastreabilidade das fontes são requisitos fundamentais, essa limitação torna-se especialmente problemática.
+
+A Recuperação Aumentada por Geração (RAG, do inglês \textit{Retrieval-Augmented Generation}), proposta por \citeonline{lewis2020rag}, surge como solução ao combinar a capacidade generativa dos LLMs com a recuperação de trechos relevantes de uma base de conhecimento. Em vez de depender exclusivamente do conhecimento paramétrico do modelo, o sistema RAG recupera documentos pertinentes à consulta do usuário e os fornece como contexto ao LLM, restringindo a geração às informações presentes nas fontes.
+
+\section{Problema de Pesquisa}
+
+Dada a dificuldade de acesso eficiente à legislação institucional da UNESP Bauru, o presente trabalho formula a seguinte questão de pesquisa: em que medida um sistema RAG, baseado em busca vetorial por similaridade semântica, supera uma abordagem de busca textual tradicional (BM25/\textit{Full-Text Search}) na recuperação de informações regulatórias institucionais em língua portuguesa?
+
+\section{Objetivos}
+
+\subsection{Objetivo Geral}
+
+Implementar e avaliar um sistema de Recuperação Aumentada por Geração (RAG) para consulta em linguagem natural de documentos regulatórios da UNESP Bauru, comparando seu desempenho com um \textit{baseline} de busca textual tradicional.
+
+\subsection{Objetivos Específicos}
+
+\begin{enumerate}[label=\alph*)]
+  \item Coletar, pré-processar e organizar o corpus de documentos regulatórios da UNESP Bauru;
+  \item Implementar o pipeline de indexação composto por segmentação em \textit{chunks}, geração de \textit{embeddings} e armazenamento em banco de dados vetorial (pgvector);
+  \item Implementar o pipeline de consulta RAG integrando recuperação vetorial e modelo de linguagem para geração de respostas fundamentadas nas fontes;
+  \item Implementar o \textit{baseline} de busca textual utilizando BM25/\textit{Full-Text Search} sobre o mesmo corpus;
+  \item Avaliar e comparar os dois sistemas utilizando métricas de recuperação de informação: Precision@K, Recall@K e \textit{Mean Reciprocal Rank} (MRR).
+\end{enumerate}
+
+\section{Justificativa}
+
+A adoção de sistemas de resposta a perguntas baseados em RAG para documentos institucionais representa uma contribuição tanto prática quanto científica. Do ponto de vista prático, reduz a carga administrativa ao automatizar respostas a dúvidas recorrentes de estudantes --- sobre requisitos de estágio, atividades complementares, grades curriculares e prazos regulamentares ---, liberando servidores para demandas mais complexas. Do ponto de vista científico, a avaliação comparativa entre busca vetorial e busca textual em um corpus institucional em língua portuguesa contribui para a literatura sobre sistemas RAG em domínios especializados, ainda escassa para o português.
+
+% ── Capítulo 2 ───────────────────────────────────────────────
+\chapter{Referencial Teórico}
+
+\section{Modelos de Linguagem de Grande Porte e o Problema das Alucinações}
+
+Os Modelos de Linguagem de Grande Porte (LLMs) são redes neurais treinadas em vastos corpora textuais com o objetivo de modelar a distribuição probabilística de sequências de \textit{tokens}. Modelos como a família GPT (OpenAI), LLaMA (Meta) e Claude (Anthropic) demonstraram capacidade notável de geração de texto coerente, tradução, sumarização e resposta a perguntas em linguagem natural.
+
+Entretanto, \citeonline{ji2023survey} identificam e sistematizam o problema das alucinações em modelos de linguagem natural: a geração de conteúdo factualmente incorreto, porém fluente e aparentemente plausível. Os autores categorizam as alucinações em intrínsecas (contradição com o contexto fornecido) e extrínsecas (informações não verificáveis ou falsas). Em aplicações de alta precisão, como consulta a documentos regulatórios, essa característica representa um risco crítico, pois respostas incorretas sobre prazos, requisitos ou normas podem prejudicar diretamente os usuários.
+
+\section{Recuperação Aumentada por Geração (RAG)}
+
+\citeonline{lewis2020rag} introduziram o paradigma de Recuperação Aumentada por Geração (RAG) como solução para o problema do conhecimento estático nos LLMs. A arquitetura RAG combina um componente de recuperação (\textit{retriever}), responsável por selecionar documentos relevantes de uma base de conhecimento externa, com um componente gerador (LLM), que produz respostas condicionadas tanto à pergunta do usuário quanto aos documentos recuperados.
+
+\citeonline{gao2023rag} apresentam uma revisão abrangente das variantes de RAG, categorizando-as em: RAG \textit{Naive} (recuperação simples seguida de geração), RAG Avançado (com pré e pós-processamento da recuperação) e RAG Modular (com componentes especializados e intercambiáveis). Os autores destacam que a qualidade do componente de recuperação é determinante para o desempenho do sistema, sendo a escolha entre busca vetorial e busca esparsa um dos principais fatores de diferenciação.
+
+\section{Busca Vetorial e Modelos de \textit{Embedding}}
+
+A busca vetorial por similaridade semântica baseia-se na representação de textos como vetores densos em espaços de alta dimensão, nos quais textos semanticamente similares ocupam regiões próximas. Modelos de \textit{embedding} como o \texttt{multilingual-e5-large} \cite{wang2022text} e o \texttt{paraphrase-multilingual-MiniLM-L12-v2} \cite{reimers2019sentence} são treinados para produzir representações que capturam similaridade semântica entre sentenças em múltiplos idiomas, incluindo o português.
+
+O armazenamento e a recuperação eficiente de vetores em larga escala são viabilizados por bancos de dados vetoriais. O pgvector \cite{pgvector2021} é uma extensão \textit{open-source} para PostgreSQL que adiciona suporte a tipos de dados vetoriais e operações de busca por vizinhos mais próximos aproximados (ANN), utilizando índices HNSW (\textit{Hierarchical Navigable Small World}) ou IVFFlat. Sua integração ao PostgreSQL permite combinar busca vetorial e busca textual no mesmo sistema gerenciador de banco de dados, simplificando a arquitetura de sistemas RAG.
+
+\section{Busca Textual Esparsa: BM25 e \textit{Full-Text Search}}
+
+O BM25 (\textit{Best Match 25}), formalizado por \citeonline{robertson2009bm25} como parte do \textit{Probabilistic Relevance Framework}, é uma função de ranqueamento baseada em frequência de termos (TF) e frequência inversa de documentos (IDF), com normalização pelo comprimento do documento. Amplamente adotado como \textit{baseline} em sistemas de recuperação de informação, o BM25 demonstra desempenho competitivo mesmo frente a métodos neurais em domínios com vocabulário técnico e especializado.
+
+O PostgreSQL implementa busca de texto completo (\textit{Full-Text Search}) nativa por meio do tipo \texttt{tsvector} e do índice GIN (\textit{Generalized Inverted Index}), com suporte a ranqueamento \texttt{ts\_rank} compatível com BM25. Essa funcionalidade permite utilizar o mesmo banco de dados tanto para busca vetorial (via pgvector) quanto para busca textual, viabilizando a comparação experimental proposta neste trabalho.
+
+% ── Capítulo 3 ───────────────────────────────────────────────
+\chapter{Metodologia}
+
+O trabalho está organizado em quatro fases sequenciais, descritas a seguir.
+
+\section{Fase 1: Coleta e Pré-processamento do Corpus}
+
+O corpus documental é composto por duas fontes complementares:
+
+\begin{enumerate}[label=\alph*)]
+  \item Resoluções e portarias oficiais da UNESP, coletadas do sistema de legislação institucional (\texttt{sistemas.unesp.br/legislacao-web}), compreendendo o período de 2016 a 2026 e totalizando aproximadamente 937 documentos em formato HTML;
+
+  \item Documentos curriculares e regulamentares dos cursos de Bacharelado em Sistemas de Informação (BSI) e Bacharelado em Ciência da Computação (BCC) da Faculdade de Ciências de Bauru, obtidos nos portais dos respectivos cursos e compostos por 17 arquivos em formato PDF, cobrindo grades curriculares, regulamentos de estágio, normas de atividades complementares (AACC) e projetos político-pedagógicos.
+\end{enumerate}
+
+A coleta foi realizada por meio de \textit{scripts} de \textit{web scraping} desenvolvidos em Python, utilizando as bibliotecas \texttt{requests} e \texttt{BeautifulSoup} para extração de conteúdo HTML, e \texttt{pdfplumber} para extração de texto de PDFs. Os textos extraídos passaram por etapas de limpeza (remoção de cabeçalhos e rodapés repetidos, normalização de codificação UTF-8 e eliminação de caracteres de controle) e foram armazenados em arquivos de texto plano com metadados de origem (documento, seção, data).
+
+\section{Fase 2: Indexação --- \textit{Chunking}, \textit{Embeddings} e pgvector}
+
+Os textos pré-processados são segmentados em \textit{chunks} pelo método de janela deslizante (\textit{sliding window}), com tamanho de 350 palavras e sobreposição de 60 palavras. Esse parâmetro foi definido com base nas recomendações de \citeonline{gao2023rag} para balancear granularidade e contexto preservado.
+
+Os \textit{embeddings} são gerados pelo modelo \texttt{multilingual-e5-large} (dimensão 1024), executado localmente via biblioteca \texttt{sentence-transformers}, sem custo de API. Os vetores resultantes são armazenados na tabela \texttt{chunks} do PostgreSQL com a extensão pgvector, com índice HNSW para busca eficiente por similaridade cosseno. A mesma tabela mantém uma coluna \texttt{tsvector} indexada por GIN para suporte ao \textit{baseline} de busca textual.
+
+\section{Fase 3: Pipeline de Consulta RAG e \textit{Baseline} FTS}
+
+O pipeline de consulta RAG recebe a pergunta do usuário, gera seu \textit{embedding}, realiza busca por similaridade no pgvector e fornece os $K$ \textit{chunks} mais similares como contexto a um LLM, que gera a resposta fundamentada nas fontes recuperadas. O \textit{baseline} de \textit{Full-Text Search} utiliza o mesmo mecanismo de recuperação, substituindo a busca vetorial pela busca textual nativa do PostgreSQL com ranqueamento BM25.
+
+\section{Fase 4: Avaliação Experimental}
+
+A avaliação compara os dois sistemas com um conjunto de perguntas-teste elaboradas manualmente, com respostas de referência identificadas no corpus. As métricas utilizadas são:
+
+\begin{enumerate}[label=\alph*)]
+  \item \textbf{Precision@K}: proporção de documentos relevantes entre os $K$ recuperados;
+  \item \textbf{Recall@K}: proporção de documentos relevantes recuperados entre todos os relevantes existentes;
+  \item \textbf{\textit{Mean Reciprocal Rank} (MRR)}: média do recíproco da posição do primeiro documento relevante no \textit{ranking}.
+\end{enumerate}
+
+% ── Capítulo 4 ───────────────────────────────────────────────
+\chapter{Desenvolvimento}
+
+\section{Arquitetura do Sistema}
+
+O sistema foi desenvolvido em Python 3.11 e organizado em módulos independentes: coleta (\textit{scraper}), extração e limpeza de texto (\textit{extract}), segmentação (\textit{chunk}), geração de \textit{embeddings} (\textit{embeddings}), persistência no banco de dados (\textit{db}) e orquestração (\textit{pipeline}). O banco de dados PostgreSQL 16 com a extensão pgvector é executado via Docker, garantindo reprodutibilidade do ambiente.
+
+\section{Coleta do Corpus}
+
+O corpus de legislação institucional foi coletado do sistema \texttt{sistemas.unesp.br/legislacao-web}, que disponibiliza o texto integral das resoluções e portarias da UNESP. O \textit{scraper} desenvolvido lê a árvore de documentos disponível no HTML da página inicial, extrai os metadados de cada resolução (número, ano, data) e realiza requisições GET individuais para cada documento, extraindo o texto do elemento \texttt{div.painelTexto}. Um intervalo de 1,2 segundos entre requisições foi adotado para respeitar os recursos do servidor. O processo foi registrado em um arquivo \texttt{manifest.json} para permitir retomada incremental.
+
+Os documentos curriculares dos cursos de BSI e BCC foram obtidos nos portais dos respectivos departamentos e processados com a biblioteca \texttt{pymupdf4llm}, que converte PDFs para formato Markdown preservando a estrutura de tabelas --- especialmente relevante para grades curriculares.
+
+\section{Protótipo Funcional}
+
+Um protótipo completo do sistema foi implementado em Jupyter Notebooks, permitindo validação \textit{end-to-end} do fluxo antes da migração para a arquitetura de produção. O protótipo utiliza ChromaDB como banco vetorial, o modelo \texttt{paraphrase-multilingual-MiniLM-L12-v2} para \textit{embeddings} e o LLaMA 3 (executado localmente via Ollama) como modelo gerador. A busca híbrida combina BM25 e busca vetorial utilizando \textit{Reciprocal Rank Fusion} (RRF) para fusão dos \textit{rankings}, com filtragem automática por curso (BSI ou BCC) quando identificado na pergunta do usuário.
+
+Testes qualitativos com o protótipo demonstraram respostas corretas a perguntas como ``Quais são as disciplinas optativas do BSI?'', ``Qual é a carga horária mínima de estágio?'' e ``Como funciona o aproveitamento de atividades complementares?'', com as fontes devidamente citadas na resposta.
+
+% ── Cronograma ───────────────────────────────────────────────
+\chapter*{Cronograma}
+\addcontentsline{toc}{chapter}{Cronograma}
+
+\begin{table}[htbp]
+\centering
+\caption{Cronograma de atividades}
+\label{tab:cronograma}
+\small
+\begin{tabularx}{\textwidth}{Xccccccccc}
+\toprule
+\textbf{Atividade} & \textbf{Abr} & \textbf{Mai} & \textbf{Jun} & \textbf{Jul} & \textbf{Ago} & \textbf{Set} & \textbf{Out} & \textbf{Nov} & \textbf{Dez} \\
+\midrule
+Levantamento bibliográfico    & X & X &   &   &   &   &   &   &   \\
+Estudo das tecnologias         & X & X & X &   &   &   &   &   &   \\
+Coleta e pré-processamento     &   & X & X &   &   &   &   &   &   \\
+Escrita TCC I                  &   & X & X & X & X &   &   &   &   \\
+Pipeline de indexação          &   &   & X & X &   &   &   &   &   \\
+Banco vetorial (pgvector)      &   &   & X & X &   &   &   &   &   \\
+Pipeline de consulta RAG       &   &   &   & X & X &   &   &   &   \\
+Baseline Full-Text Search      &   &   &   & X & X &   &   &   &   \\
+Experimentos e avaliação       &   &   &   &   & X & X &   &   &   \\
+Análise dos resultados         &   &   &   &   &   & X & X &   &   \\
+Escrita TCC II                 &   &   &   &   &   & X & X & X &   \\
+Banca final                    &   &   &   &   &   &   &   &   & X \\
+\bottomrule
+\end{tabularx}
+\fonte{Elaborado pelos autores (2026).}
+\end{table}
+
+% ============================================================
+% Elementos pós-textuais
+% ============================================================
+\postextual
+
+\bibliography{referencias}
+
+\end{document}
