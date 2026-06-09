@@ -28,8 +28,9 @@ DB = {
 }
 
 # ----- Embeddings -----
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-large")
-EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "1024"))
+# Modelo efetivamente utilizado no projeto: e5-small (384 dims), executado localmente.
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-small")
+EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "384"))
 
 # ----- Chunking -----
 CHUNK_SIZE_WORDS = int(os.getenv("CHUNK_SIZE_WORDS", "350"))

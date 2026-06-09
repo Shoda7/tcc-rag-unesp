@@ -252,6 +252,41 @@ const preTextual = {
 
     pageBreak(),
 
+    // ── FOLHA DE APROVAÇÃO ──────────────────────────────────────────────────
+    br(), br(),
+    pC("MATHEUS SHODA LIMA"),
+    pC("RAFAEL PANHOZZI RUBIO"),
+    br(), br(),
+    pC("IMPLEMENTAÇÃO E AVALIAÇÃO DE UM SISTEMA DE RECUPERAÇÃO AUMENTADA POR GERAÇÃO (RAG) PARA CONSULTA DE DOCUMENTOS REGULATÓRIOS DA UNESP BAURU", { bold: true }),
+    br(), br(),
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      indent: { left: Math.floor(CONTENT_W / 2) },
+      spacing: { line: 300, lineRule: "auto" },
+      children: [new TextRun({
+        text: "Trabalho de Conclusão de Curso apresentado ao Curso de Sistemas de Informação da Faculdade de Ciências — Câmpus de Bauru, Universidade Estadual Paulista \"Júlio de Mesquita Filho\", como parte dos requisitos para obtenção do grau de Bacharel em Sistemas de Informação.",
+        font: FONT, size: SIZE_SM
+      })]
+    }),
+    br(), br(),
+    pSR("Aprovado em: ______ / ______ / __________"),
+    br(), br(), br(),
+    pC("BANCA EXAMINADORA", { bold: true }),
+    br(), br(), br(),
+    pC("_______________________________________________"),
+    pC("Prof. Dr. Clayton Reginaldo Pereira (Orientador)"),
+    pC("Universidade Estadual Paulista — UNESP Bauru"),
+    br(), br(), br(),
+    pC("_______________________________________________"),
+    pC("Prof. Dr. [Nome do Membro Titular]"),
+    pC("Universidade Estadual Paulista — UNESP Bauru"),
+    br(), br(), br(),
+    pC("_______________________________________________"),
+    pC("Prof. Dr. [Nome do Membro Titular]"),
+    pC("Universidade Estadual Paulista — UNESP Bauru"),
+
+    pageBreak(),
+
     // ── RESUMO ─────────────────────────────────────────────────────────────
     titulo("Resumo"),
     p("Este trabalho apresenta a implementação e avaliação experimental de um sistema de Recuperação Aumentada por Geração (RAG) voltado à consulta em linguagem natural de documentos regulatórios da Universidade Estadual Paulista (UNESP) Bauru. O corpus é composto por 936 resoluções e portarias institucionais coletadas do portal sistemas.unesp.br/legislacao-web (período 2016–2026), segmentadas em 4.229 chunks por janela deslizante (350 palavras, sobreposição de 60) e indexadas em PostgreSQL 16 com a extensão pgvector. Três métodos de recuperação são implementados e avaliados em um conjunto de 50 consultas anotadas (26 lexicais e 24 semânticas): busca vetorial densa por similaridade cosseno (embeddings intfloat/multilingual-e5-small, 384 dimensões), busca por texto completo com ranqueamento BM25 nativo do PostgreSQL e busca híbrida por Reciprocal Rank Fusion (RRF). Os resultados mostram que a busca híbrida supera os demais métodos nas métricas globais (Hit@1 = 0,560; MRR = 0,697; Hit@5 = 0,900), enquanto a busca vetorial é superior em consultas semânticas (Hit@1 = 0,375 vs. 0,042 do FTS) e o FTS lidera em consultas lexicais (MRR = 0,840 vs. 0,758 do vetorial). Uma interface web (FastAPI + React) voltada ao uso em bibliotecas universitárias foi desenvolvida como produto adicional."),
