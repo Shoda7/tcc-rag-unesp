@@ -3,103 +3,201 @@
 Implementação e avaliação de um sistema de **Recuperação Aumentada por Geração (RAG)**
 para consulta em linguagem natural de documentos regulatórios da UNESP Bauru.
 
-Projeto de TCC — Bacharelado em Sistemas de Informação.
-Discentes: Matheus Shoda Lima · Rafael Panhozzi Rubio.
+**TCC — Bacharelado em Sistemas de Informação · UNESP Bauru**
+Discentes: Matheus Shoda Lima · Rafael Panhozzi Rubio
 
-## Arquitetura do pipeline de indexação
+---
+
+## Arquitetura
 
 ```
-[Portal UNESP]  ->  scraper  ->  PDFs (data/raw)
-                                    |
-                                  extract  ->  texto limpo (data/processed)
-                                    |
-                                  chunk (sliding window)
-                                    |
-                                  embeddings (modelo local: multilingual-e5-large)
-                                    |
-                                  PostgreSQL + pgvector  (tabela `chunks`)
+[sistemas.unesp.br/legislacao-web]
+        |
+   scrape_legislacao.py  →  data/legislacao/*.txt  (936 resoluções)
+        |
+   chunk.py (sliding window 350 palavras, overlap 60)
+        |
+   embeddings.py (intfloat/multilingual-e5-small, 384 dims, local)
+        |
+   PostgreSQL 16 + pgvector
+     ├── busca vetorial  (HNSW, similaridade cossenoidal)
+     ├── FTS / BM25      (tsvector + unaccent, índice GIN)
+     └── híbrido RRF     (Reciprocal Rank Fusion)
+        |
+   FastAPI (app/main.py)
+        |
+   React + Vite (frontend/)
 ```
 
-A coluna `chunks.embedding` (vetorial, índice HNSW) sustenta a **busca vetorial**.
-A coluna `chunks.content_tsv` (tsvector, índice GIN) já fica pronta para o
-**baseline Full-Text Search** que será implementado na fase seguinte.
-
-## Stack
-
-| Camada | Tecnologia |
-|--------|-----------|
-| Coleta | `requests` + `beautifulsoup4` (crawler do portal) |
-| Extração | `pdfplumber` |
-| Embeddings | `sentence-transformers` (modelo local, sem custo de API) |
-| Banco vetorial | PostgreSQL 16 + `pgvector` (via Docker) |
+---
 
 ## Pré-requisitos
 
-- Python 3.11+ (testado em 3.14)
-- Docker Desktop
+| Ferramenta | Versão mínima |
+|---|---|
+| Python | 3.11 |
+| Node.js | 18 |
+| Docker Desktop | qualquer recente |
 
-## Setup
+---
+
+## Setup rápido
+
+### 1. Clone e ambiente Python
 
 ```powershell
-# 1. Ambiente virtual + dependências
+git clone <repo-url>
+cd TCC
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+```
 
-# 2. Configuração
-Copy-Item .env.example .env   # ajuste SCRAPER_SEEDS, modelo, etc.
+### 2. Variáveis de ambiente
 
-# 3. Subir o banco (PostgreSQL + pgvector)
+Copie `.env` e preencha sua chave do Groq:
+
+```powershell
+# .env já existe no repositório — ajuste apenas:
+GROQ_API_KEY=gsk_...        # obtenha em console.groq.com (free tier)
+```
+
+### 3. Banco de dados (PostgreSQL + pgvector)
+
+```powershell
 docker compose up -d
 ```
 
-## Uso
-
-Todos os comandos passam pelo orquestrador `src.pipeline`:
+Aguarde ~10 s e verifique:
 
 ```powershell
-# Baixar PDFs do portal da UNESP (configure SCRAPER_SEEDS no .env)
-python -m src.pipeline scrape
+docker compose ps   # State deve ser "running"
+```
 
-# Extrair e limpar o texto dos PDFs baixados
-python -m src.pipeline extract
+### 4. Indexar os documentos
 
-# Chunking + embeddings + armazenamento no banco
+Os textos já estão em `data/legislacao/` (936 resoluções UNESP).
+Rode uma única vez para popular o banco:
+
+```powershell
 python -m src.pipeline index
+# ~16 min na CPU; exibe progresso em tempo real
+```
 
-# Atalho: extract + index (se os PDFs já estão em data/raw)
-python -m src.pipeline all
+Verifique:
 
-# Estado atual da base
+```powershell
 python -m src.pipeline status
-
-# Consulta de teste (recuperação vetorial)
-python -m src.pipeline search "Qual o prazo de entrega do TCC?"
+# Chunks no banco: 4229
 ```
 
-> Se preferir não usar o scraper, basta colocar os PDFs manualmente em
-> `data/raw/` e rodar `python -m src.pipeline all`.
+---
 
-## Estrutura
+## Uso via CLI
+
+```powershell
+# Busca vetorial
+python -m src.pipeline search "Quais são as normas para TCC?"
+
+# Busca FTS (BM25)
+python -m src.pipeline fts "aproveitamento de estudos"
+
+# Busca híbrida RRF
+python -m src.pipeline hybrid "reingresso na graduação"
+
+# RAG completo (recuperação + geração com LLM)
+python -m src.pipeline ask "Como funciona o calendário escolar de 2025?"
+```
+
+---
+
+## Interface web (biblioteca)
+
+### Backend
+
+```powershell
+# Na raiz do projeto, com .venv ativo:
+uvicorn app.main:app --reload --port 8000
+```
+
+Endpoints disponíveis:
+- `POST /api/ask` — RAG completo (embed → RRF → LLM)
+- `POST /api/search` — só recuperação (sem LLM)
+- `GET  /api/health` — healthcheck
+
+Documentação interativa: http://localhost:8000/docs
+
+### Frontend
+
+```powershell
+cd frontend
+npm install   # apenas na primeira vez
+npm run dev
+```
+
+Abra http://localhost:5173 no navegador.
+
+O seletor no rodapé permite alternar entre **Híbrido (RRF)**, **Vetorial** e **FTS (BM25)**.
+
+---
+
+## Avaliação experimental
+
+```powershell
+# Roda os 3 métodos nas 50 queries anotadas e exporta CSV
+python scripts/evaluate.py --csv data/resultados_avaliacao.csv
+```
+
+**Resultados obtidos (50 queries, k=5):**
+
+| Métrica   | Vetorial | FTS (BM25) | Híbrido RRF |
+|-----------|----------|-----------|-------------|
+| Hit@1     | 0.520    | 0.400     | **0.560**   |
+| Hit@3     | 0.740    | 0.520     | **0.840**   |
+| Hit@5     | 0.840    | 0.520     | **0.900**   |
+| MRR       | 0.642    | 0.457     | **0.697**   |
+| Lat. média| ~339 ms  | ~4 ms     | ~348 ms     |
+
+Por tipo de query:
+
+| Tipo     | Método   | Hit@1 | MRR   |
+|----------|----------|-------|-------|
+| Lexical  | FTS      | 0.731 | **0.840** |
+| Lexical  | Vetorial | 0.654 | 0.758 |
+| Semântico| Vetorial | **0.375** | **0.517** |
+| Semântico| FTS      | 0.042 | 0.042 |
+
+---
+
+## Estrutura do repositório
 
 ```
-src/
-  config.py      # configuração via .env
-  scraper.py     # coleta de PDFs no portal (crawler BFS)
-  extract.py     # PDF -> texto limpo
-  chunk.py       # segmentação sliding window
-  embeddings.py  # embeddings locais (sentence-transformers)
-  db.py          # PostgreSQL + pgvector (esquema, inserção, busca)
-  pipeline.py    # CLI orquestrador
+app/
+  main.py           # backend FastAPI
 data/
-  raw/           # PDFs baixados (+ manifest.json com a origem de cada um)
-  processed/     # texto extraído e limpo
+  legislacao/       # 936 resoluções UNESP (.txt)
+  eval_set.json     # 50 queries anotadas para avaliação
+  resultados_avaliacao.csv
+frontend/           # React + Vite (interface de chat)
+scripts/
+  scrape_legislacao.py   # coleta do portal legislação UNESP
+  evaluate.py            # avaliação experimental
+src/
+  config.py         # variáveis de ambiente
+  chunk.py          # segmentação sliding window
+  db.py             # PostgreSQL + pgvector (schema, busca vetorial/FTS/RRF)
+  embeddings.py     # embeddings locais (sentence-transformers)
+  llm.py            # geração de respostas via Groq
+  pipeline.py       # CLI orquestrador
 docker-compose.yml
 requirements.txt
 ```
 
-## Mapa com o cronograma do TCC
+---
 
-- **Atividade 3 — Coleta e pré-processamento:** `scraper.py` + `extract.py` + `chunk.py`
-- **Atividade 5 — Pipeline de indexação (chunking + embeddings):** `chunk.py` + `embeddings.py` + `db.py`
-- **Julho em diante:** pipeline de consulta RAG (LLM), baseline Full-Text Search e avaliação comparativa.
+## Referências principais
+
+- Lewis et al. (2020) — *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks* (NeurIPS)
+- Gao et al. (2023) — *RAG for LLMs: A Survey* (arXiv:2312.10997)
+- Robertson & Zaragoza (2009) — *The Probabilistic Relevance Framework: BM25 and Beyond*
+- Cormack et al. (2009) — *Reciprocal Rank Fusion outperforms Condorcet and individual rank learning methods*
