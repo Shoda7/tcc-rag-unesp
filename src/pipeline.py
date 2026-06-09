@@ -79,11 +79,13 @@ def cmd_status(args: argparse.Namespace) -> None:
     from . import db
     n_raw = len(list(config.DATA_RAW.glob("*.pdf")))
     n_txt = len(list(config.DATA_PROCESSED.glob("*.txt")))
-    print(f"PDFs em data/raw:        {n_raw}")
-    print(f"Textos em data/processed: {n_txt}")
+    n_leg = len(list(config.DATA_LEGISLACAO.glob("*.txt")))
+    print(f"PDFs em data/raw:            {n_raw}")
+    print(f"Textos em data/processed:    {n_txt}")
+    print(f"Resoluções em data/legislacao: {n_leg}")
     try:
         conn = db.connect()
-        print(f"Chunks no banco:          {db.count_chunks(conn)}")
+        print(f"Chunks no banco:             {db.count_chunks(conn)}")
         conn.close()
     except Exception as exc:  # noqa: BLE001
         print(f"Banco indisponivel: {exc}")

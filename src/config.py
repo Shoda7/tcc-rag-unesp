@@ -13,8 +13,10 @@ load_dotenv(ROOT / ".env")
 # Diretorios de dados
 DATA_RAW = ROOT / "data" / "raw"
 DATA_PROCESSED = ROOT / "data" / "processed"
+DATA_LEGISLACAO = ROOT / "data" / "legislacao"
 DATA_RAW.mkdir(parents=True, exist_ok=True)
 DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
+DATA_LEGISLACAO.mkdir(parents=True, exist_ok=True)
 
 # ----- Banco de dados -----
 DB = {

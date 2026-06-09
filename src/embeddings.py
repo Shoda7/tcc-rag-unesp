@@ -21,7 +21,7 @@ def get_model():
     if _model is None:
         from sentence_transformers import SentenceTransformer
         print(f"Carregando modelo de embeddings: {config.EMBEDDING_MODEL} ...")
-        _model = SentenceTransformer(config.EMBEDDING_MODEL)
+        _model = SentenceTransformer(config.EMBEDDING_MODEL, local_files_only=True)
         # get_embedding_dimension() e o nome atual; get_sentence_embedding_dimension()
         # foi renomeado em sentence-transformers >= 4.x
         get_dim = getattr(_model, "get_embedding_dimension", None) or \

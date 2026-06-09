@@ -59,11 +59,21 @@ def chunk_text(
     return chunks
 
 
-def chunk_all() -> list[Chunk]:
-    """Gera chunks para todos os .txt em data/processed."""
-    txts = sorted(config.DATA_PROCESSED.glob("*.txt"))
+def chunk_all(dirs: list[Path] | None = None) -> list[Chunk]:
+    """Gera chunks para todos os .txt nos diretórios fornecidos.
+
+    Por padrão lê de data/processed (PDFs extraídos) e data/legislacao
+    (resoluções coletadas em texto puro). Diretórios vazios são ignorados.
+    """
+    if dirs is None:
+        dirs = [config.DATA_PROCESSED, config.DATA_LEGISLACAO]
+
+    txts: list[Path] = []
+    for d in dirs:
+        txts.extend(sorted(d.glob("*.txt")))
+
     if not txts:
-        print(f"Nenhum .txt encontrado em {config.DATA_PROCESSED}. Rode a extracao primeiro.")
+        print("Nenhum .txt encontrado. Rode a extracao primeiro ou verifique data/legislacao/.")
         return []
 
     all_chunks: list[Chunk] = []
