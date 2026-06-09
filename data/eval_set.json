@@ -1,0 +1,142 @@
+[
+  {
+    "id": "q01",
+    "query": "aproveitamento de estudos de alunos de graduação",
+    "relevant_sources": ["resolucao_2018_0023.txt"],
+    "type": "lexical",
+    "notes": "Título da resolução usa quase exatamente essas palavras — FTS-friendly"
+  },
+  {
+    "id": "q02",
+    "query": "Como um aluno pode abreviar o tempo de conclusão do curso?",
+    "relevant_sources": ["resolucao_2018_0023.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase do tema de aproveitamento extraordinário — Vector-friendly"
+  },
+  {
+    "id": "q03",
+    "query": "normas gerais calendário escolar graduação 2025",
+    "relevant_sources": ["resolucao_2024_0068.txt"],
+    "type": "lexical",
+    "notes": "Calendário 2025 — termos diretos do título"
+  },
+  {
+    "id": "q04",
+    "query": "Quais são os prazos e períodos do ano letivo dos cursos de graduação?",
+    "relevant_sources": ["resolucao_2024_0068.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de calendário escolar — Vector-friendly"
+  },
+  {
+    "id": "q05",
+    "query": "bolsas de extensão universitária para estudantes de graduação",
+    "relevant_sources": ["resolucao_2017_0073.txt"],
+    "type": "lexical",
+    "notes": "Termos exatos do título da resolução"
+  },
+  {
+    "id": "q06",
+    "query": "Posso receber bolsa para participar de projetos de extensão da UNESP?",
+    "relevant_sources": ["resolucao_2017_0073.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de bolsa de extensão — Vector-friendly"
+  },
+  {
+    "id": "q07",
+    "query": "auxílio acadêmico PROEX PROGRAD PROPE",
+    "relevant_sources": ["resolucao_2017_0004.txt"],
+    "type": "lexical",
+    "notes": "Siglas e termos diretos do título"
+  },
+  {
+    "id": "q08",
+    "query": "Quais são os tipos de apoio financeiro disponíveis para alunos da UNESP?",
+    "relevant_sources": ["resolucao_2017_0004.txt"],
+    "type": "semantic",
+    "notes": "Pergunta ampla sobre suporte financeiro — Vector-friendly"
+  },
+  {
+    "id": "q09",
+    "query": "sistema institucional EVoto votação eletrônica UNESP",
+    "relevant_sources": ["resolucao_2016_0018.txt"],
+    "type": "lexical",
+    "notes": "Nome específico do sistema — FTS-friendly"
+  },
+  {
+    "id": "q10",
+    "query": "Como funciona a votação eletrônica nas eleições da universidade?",
+    "relevant_sources": ["resolucao_2016_0018.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase sem mencionar EVoto — Vector-friendly"
+  },
+  {
+    "id": "q11",
+    "query": "reingresso de alunos nos cursos de graduação da UNESP",
+    "relevant_sources": ["resolucao_2019_0057.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query"
+  },
+  {
+    "id": "q12",
+    "query": "É possível retomar um curso de graduação após abandono ou cancelamento?",
+    "relevant_sources": ["resolucao_2019_0057.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de reingresso — Vector-friendly"
+  },
+  {
+    "id": "q13",
+    "query": "política de acesso aberto produção intelectual UNESP",
+    "relevant_sources": ["resolucao_2021_0008.txt"],
+    "type": "lexical",
+    "notes": "Termos do título da resolução"
+  },
+  {
+    "id": "q14",
+    "query": "mobilidade acadêmica internacional pós-graduação stricto sensu",
+    "relevant_sources": ["resolucao_2024_0058.txt"],
+    "type": "lexical",
+    "notes": "Termos técnicos do título"
+  },
+  {
+    "id": "q15",
+    "query": "Posso fazer parte do meu doutorado em uma universidade estrangeira?",
+    "relevant_sources": ["resolucao_2024_0058.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de mobilidade internacional — Vector-friendly"
+  },
+  {
+    "id": "q16",
+    "query": "Programa de Mobilidade Acadêmica Nacional pós-graduação",
+    "relevant_sources": ["resolucao_2024_0064.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query"
+  },
+  {
+    "id": "q17",
+    "query": "recursos financeiros para bolsas em convênios e contratos com entidades",
+    "relevant_sources": ["resolucao_2019_0044.txt"],
+    "type": "lexical",
+    "notes": "Termos do título da resolução"
+  },
+  {
+    "id": "q18",
+    "query": "normas gerais calendário escolar graduação 2020",
+    "relevant_sources": ["resolucao_2019_0073.txt"],
+    "type": "lexical",
+    "notes": "Calendário 2020 — termos diretos"
+  },
+  {
+    "id": "q19",
+    "query": "regimento geral programas residência área profissional saúde UNESP",
+    "relevant_sources": ["resolucao_2023_0027.txt"],
+    "type": "lexical",
+    "notes": "Termos do título"
+  },
+  {
+    "id": "q20",
+    "query": "Quais são as regras para residentes entregarem o trabalho de conclusão?",
+    "relevant_sources": ["resolucao_2023_0027.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase sobre TCR na residência — Vector-friendly"
+  }
+]

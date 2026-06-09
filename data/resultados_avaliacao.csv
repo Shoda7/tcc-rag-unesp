@@ -1,0 +1,21 @@
+id,query,type,vec_hit1,vec_hit3,vec_hit5,vec_rr,fts_hit1,fts_hit3,fts_hit5,fts_rr,vec_top1,fts_top1,relevant
+q01,aproveitamento de estudos de alunos de graduação,lexical,0,1,1,0.5,1,1,1,1.0,resolucao_2017_0068.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt
+q02,Como um aluno pode abreviar o tempo de conclusão do curso?,semantic,0,0,0,0.0,1,1,1,1.0,resolucao_2020_0052.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt
+q03,normas gerais calendário escolar graduação 2025,lexical,0,1,1,0.5,0,1,1,0.5,resolucao_2025_0039.txt,resolucao_2025_0039.txt,resolucao_2024_0068.txt
+q04,Quais são os prazos e períodos do ano letivo dos cursos de g,semantic,0,0,1,0.2,0,0,0,0.0,resolucao_2020_0051.txt,resolucao_2016_0061.txt,resolucao_2024_0068.txt
+q05,bolsas de extensão universitária para estudantes de graduaçã,lexical,0,0,0,0.0,1,1,1,1.0,resolucao_2025_0037.txt,resolucao_2017_0073.txt,resolucao_2017_0073.txt
+q06,Posso receber bolsa para participar de projetos de extensão ,semantic,0,1,1,0.3333333333333333,0,0,0,0.0,resolucao_2016_0008.txt,,resolucao_2017_0073.txt
+q07,auxílio acadêmico PROEX PROGRAD PROPE,lexical,0,0,0,0.0,1,1,1,1.0,resolucao_2024_0003.txt,resolucao_2017_0004.txt,resolucao_2017_0004.txt
+q08,Quais são os tipos de apoio financeiro disponíveis para alun,semantic,0,0,0,0.0,0,0,0,0.0,resolucao_2024_0059.txt,,resolucao_2017_0004.txt
+q09,sistema institucional EVoto votação eletrônica UNESP,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2016_0018.txt,resolucao_2016_0018.txt,resolucao_2016_0018.txt
+q10,Como funciona a votação eletrônica nas eleições da universid,semantic,1,1,1,1.0,0,0,0,0.0,resolucao_2016_0018.txt,,resolucao_2016_0018.txt
+q11,reingresso de alunos nos cursos de graduação da UNESP,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2019_0057.txt,resolucao_2019_0057.txt,resolucao_2019_0057.txt
+q12,É possível retomar um curso de graduação após abandono ou ca,semantic,1,1,1,1.0,0,0,0,0.0,resolucao_2019_0057.txt,,resolucao_2019_0057.txt
+q13,política de acesso aberto produção intelectual UNESP,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2021_0008.txt,resolucao_2021_0008.txt,resolucao_2021_0008.txt
+q14,mobilidade acadêmica internacional pós-graduação stricto sen,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2024_0058.txt,resolucao_2024_0058.txt,resolucao_2024_0058.txt
+q15,Posso fazer parte do meu doutorado em uma universidade estra,semantic,0,0,0,0.0,0,0,0,0.0,resolucao_2017_0040.txt,,resolucao_2024_0058.txt
+q16,Programa de Mobilidade Acadêmica Nacional pós-graduação,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2024_0064.txt,resolucao_2024_0064.txt,resolucao_2024_0064.txt
+q17,recursos financeiros para bolsas em convênios e contratos co,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2019_0044.txt,resolucao_2019_0044.txt,resolucao_2019_0044.txt
+q18,normas gerais calendário escolar graduação 2020,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2019_0073.txt,resolucao_2019_0073.txt,resolucao_2019_0073.txt
+q19,regimento geral programas residência área profissional saúde,lexical,0,1,1,0.5,1,1,1,1.0,resolucao_2019_0071.txt,resolucao_2023_0027.txt,resolucao_2023_0027.txt
+q20,Quais são as regras para residentes entregarem o trabalho de,semantic,1,1,1,1.0,0,0,0,0.0,resolucao_2023_0027.txt,,resolucao_2023_0027.txt
