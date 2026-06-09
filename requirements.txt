@@ -16,6 +16,9 @@ torch>=2.2
 psycopg[binary]>=3.1
 pgvector>=0.3
 
+# --- LLM (geração de respostas via Groq, API compatível com OpenAI) ---
+openai>=1.30
+
 # --- Utilitários ---
 python-dotenv>=1.0
 tqdm>=4.66

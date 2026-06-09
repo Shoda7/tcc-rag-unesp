@@ -35,6 +35,10 @@ EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "1024"))
 CHUNK_SIZE_WORDS = int(os.getenv("CHUNK_SIZE_WORDS", "350"))
 CHUNK_OVERLAP_WORDS = int(os.getenv("CHUNK_OVERLAP_WORDS", "60"))
 
+# ----- LLM (Groq) -----
+GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
 # ----- Scraper -----
 SCRAPER_SEEDS = [
     u.strip() for u in os.getenv("SCRAPER_SEEDS", "").split(",") if u.strip()

@@ -92,6 +92,30 @@ def cmd_fts(args: argparse.Namespace) -> None:
         print(f"    {r['content'][:240]}...\n")
 
 
+def cmd_ask(args: argparse.Namespace) -> None:
+    from .embeddings import embed_query
+    from . import db, llm
+
+    qvec = embed_query(args.query)
+    conn = db.connect()
+    chunks = db.search_vector(conn, qvec, k=args.k)
+    conn.close()
+
+    if not chunks:
+        print("Nenhum chunk recuperado. Verifique se o banco está indexado.")
+        return
+
+    print(f"\nRecuperados {len(chunks)} trechos. Gerando resposta...\n")
+    answer = llm.ask(args.query, chunks, model=args.model)
+
+    print("=" * 60)
+    print(answer)
+    print("=" * 60)
+    print("\nFontes consultadas:")
+    for i, c in enumerate(chunks, 1):
+        print(f"  [{i}] {c['source']} — chunk {c['chunk_index']} (sim={c['similarity']:.3f})")
+
+
 def cmd_status(args: argparse.Namespace) -> None:
     from . import db
     n_raw = len(list(config.DATA_RAW.glob("*.pdf")))
@@ -127,6 +151,12 @@ def main() -> None:
     p_fts.add_argument("query", help="Pergunta em linguagem natural")
     p_fts.add_argument("-k", type=int, default=5, help="Numero de resultados")
     p_fts.set_defaults(func=cmd_fts)
+
+    p_ask = sub.add_parser("ask", help="Consulta RAG completa (recuperacao vetorial + GPT)")
+    p_ask.add_argument("query", help="Pergunta em linguagem natural")
+    p_ask.add_argument("-k", type=int, default=5, help="Numero de chunks a recuperar")
+    p_ask.add_argument("--model", default=None, help="Modelo OpenAI (padrao: OPENAI_MODEL do .env)")
+    p_ask.set_defaults(func=cmd_ask)
 
     args = parser.parse_args()
     args.func(args)
