@@ -1,21 +1,51 @@
-id,query,type,vec_hit1,vec_hit3,vec_hit5,vec_rr,fts_hit1,fts_hit3,fts_hit5,fts_rr,vec_top1,fts_top1,relevant
-q01,aproveitamento de estudos de alunos de graduação,lexical,0,1,1,0.5,1,1,1,1.0,resolucao_2017_0068.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt
-q02,Como um aluno pode abreviar o tempo de conclusão do curso?,semantic,0,0,0,0.0,1,1,1,1.0,resolucao_2020_0052.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt
-q03,normas gerais calendário escolar graduação 2025,lexical,0,1,1,0.5,0,1,1,0.5,resolucao_2025_0039.txt,resolucao_2025_0039.txt,resolucao_2024_0068.txt
-q04,Quais são os prazos e períodos do ano letivo dos cursos de g,semantic,0,0,1,0.2,0,0,0,0.0,resolucao_2020_0051.txt,resolucao_2016_0061.txt,resolucao_2024_0068.txt
-q05,bolsas de extensão universitária para estudantes de graduaçã,lexical,0,0,0,0.0,1,1,1,1.0,resolucao_2025_0037.txt,resolucao_2017_0073.txt,resolucao_2017_0073.txt
-q06,Posso receber bolsa para participar de projetos de extensão ,semantic,0,1,1,0.3333333333333333,0,0,0,0.0,resolucao_2016_0008.txt,,resolucao_2017_0073.txt
-q07,auxílio acadêmico PROEX PROGRAD PROPE,lexical,0,0,0,0.0,1,1,1,1.0,resolucao_2024_0003.txt,resolucao_2017_0004.txt,resolucao_2017_0004.txt
-q08,Quais são os tipos de apoio financeiro disponíveis para alun,semantic,0,0,0,0.0,0,0,0,0.0,resolucao_2024_0059.txt,,resolucao_2017_0004.txt
-q09,sistema institucional EVoto votação eletrônica UNESP,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2016_0018.txt,resolucao_2016_0018.txt,resolucao_2016_0018.txt
-q10,Como funciona a votação eletrônica nas eleições da universid,semantic,1,1,1,1.0,0,0,0,0.0,resolucao_2016_0018.txt,,resolucao_2016_0018.txt
-q11,reingresso de alunos nos cursos de graduação da UNESP,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2019_0057.txt,resolucao_2019_0057.txt,resolucao_2019_0057.txt
-q12,É possível retomar um curso de graduação após abandono ou ca,semantic,1,1,1,1.0,0,0,0,0.0,resolucao_2019_0057.txt,,resolucao_2019_0057.txt
-q13,política de acesso aberto produção intelectual UNESP,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2021_0008.txt,resolucao_2021_0008.txt,resolucao_2021_0008.txt
-q14,mobilidade acadêmica internacional pós-graduação stricto sen,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2024_0058.txt,resolucao_2024_0058.txt,resolucao_2024_0058.txt
-q15,Posso fazer parte do meu doutorado em uma universidade estra,semantic,0,0,0,0.0,0,0,0,0.0,resolucao_2017_0040.txt,,resolucao_2024_0058.txt
-q16,Programa de Mobilidade Acadêmica Nacional pós-graduação,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2024_0064.txt,resolucao_2024_0064.txt,resolucao_2024_0064.txt
-q17,recursos financeiros para bolsas em convênios e contratos co,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2019_0044.txt,resolucao_2019_0044.txt,resolucao_2019_0044.txt
-q18,normas gerais calendário escolar graduação 2020,lexical,1,1,1,1.0,1,1,1,1.0,resolucao_2019_0073.txt,resolucao_2019_0073.txt,resolucao_2019_0073.txt
-q19,regimento geral programas residência área profissional saúde,lexical,0,1,1,0.5,1,1,1,1.0,resolucao_2019_0071.txt,resolucao_2023_0027.txt,resolucao_2023_0027.txt
-q20,Quais são as regras para residentes entregarem o trabalho de,semantic,1,1,1,1.0,0,0,0,0.0,resolucao_2023_0027.txt,,resolucao_2023_0027.txt
+id,query,type,vec_hit1,vec_hit3,vec_hit5,vec_rr,vec_ms,fts_hit1,fts_hit3,fts_hit5,fts_rr,fts_ms,rrf_hit1,rrf_hit3,rrf_hit5,rrf_rr,rrf_ms,vec_top1,fts_top1,rrf_top1,relevant
+q01,aproveitamento de estudos de alunos de graduação,lexical,0,1,1,0.5,12415.1,1,1,1,1.0,16.0,1,1,1,1.0,12442.1,resolucao_2017_0068.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt
+q02,Como um aluno pode abreviar o tempo de conclusão do curso?,semantic,0,0,0,0.0,100.8,1,1,1,1.0,4.3,1,1,1,1.0,112.9,resolucao_2020_0052.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt,resolucao_2018_0023.txt
+q03,normas gerais calendário escolar graduação 2025,lexical,0,1,1,0.5,97.2,0,1,1,0.5,2.6,0,1,1,0.5,115.0,resolucao_2025_0039.txt,resolucao_2025_0039.txt,resolucao_2025_0039.txt,resolucao_2024_0068.txt
+q04,Quais são os prazos e períodos do ano letivo dos cursos de g,semantic,0,0,1,0.2,151.0,0,0,0,0.0,5.5,0,0,0,0.0,164.4,resolucao_2020_0051.txt,resolucao_2016_0061.txt,resolucao_2020_0051.txt,resolucao_2024_0068.txt
+q05,bolsas de extensão universitária para estudantes de graduaçã,lexical,0,0,0,0.0,95.6,1,1,1,1.0,4.6,0,1,1,0.5,105.8,resolucao_2025_0037.txt,resolucao_2017_0073.txt,resolucao_2025_0037.txt,resolucao_2017_0073.txt
+q06,Posso receber bolsa para participar de projetos de extensão ,semantic,0,1,1,0.3333333333333333,98.6,0,0,0,0.0,4.1,0,1,1,0.3333333333333333,100.0,resolucao_2016_0008.txt,,resolucao_2016_0008.txt,resolucao_2017_0073.txt
+q07,auxílio acadêmico PROEX PROGRAD PROPE,lexical,0,0,0,0.0,89.6,1,1,1,1.0,2.5,0,1,1,0.5,94.5,resolucao_2024_0003.txt,resolucao_2017_0004.txt,resolucao_2024_0003.txt,resolucao_2017_0004.txt
+q08,Quais são os tipos de apoio financeiro disponíveis para alun,semantic,0,0,0,0.0,83.5,0,0,0,0.0,3.5,0,0,0,0.0,94.4,resolucao_2024_0059.txt,,resolucao_2024_0059.txt,resolucao_2017_0004.txt
+q09,sistema institucional EVoto votação eletrônica UNESP,lexical,1,1,1,1.0,90.1,1,1,1,1.0,2.2,1,1,1,1.0,98.5,resolucao_2016_0018.txt,resolucao_2016_0018.txt,resolucao_2016_0018.txt,resolucao_2016_0018.txt
+q10,Como funciona a votação eletrônica nas eleições da universid,semantic,1,1,1,1.0,85.3,0,0,0,0.0,1.7,1,1,1,1.0,96.5,resolucao_2016_0018.txt,,resolucao_2016_0018.txt,resolucao_2016_0018.txt
+q11,reingresso de alunos nos cursos de graduação da UNESP,lexical,1,1,1,1.0,81.2,1,1,1,1.0,4.3,1,1,1,1.0,91.2,resolucao_2019_0057.txt,resolucao_2019_0057.txt,resolucao_2019_0057.txt,resolucao_2019_0057.txt
+q12,É possível retomar um curso de graduação após abandono ou ca,semantic,1,1,1,1.0,93.7,0,0,0,0.0,3.1,1,1,1,1.0,103.0,resolucao_2019_0057.txt,,resolucao_2019_0057.txt,resolucao_2019_0057.txt
+q13,política de acesso aberto produção intelectual UNESP,lexical,1,1,1,1.0,88.1,1,1,1,1.0,2.9,1,1,1,1.0,104.0,resolucao_2021_0008.txt,resolucao_2021_0008.txt,resolucao_2021_0008.txt,resolucao_2021_0008.txt
+q14,mobilidade acadêmica internacional pós-graduação stricto sen,lexical,1,1,1,1.0,89.2,1,1,1,1.0,3.0,1,1,1,1.0,94.7,resolucao_2024_0058.txt,resolucao_2024_0058.txt,resolucao_2024_0058.txt,resolucao_2024_0058.txt
+q15,Posso fazer parte do meu doutorado em uma universidade estra,semantic,0,0,0,0.0,90.2,0,0,0,0.0,3.2,0,0,0,0.0,98.5,resolucao_2017_0040.txt,,resolucao_2017_0040.txt,resolucao_2024_0058.txt
+q16,Programa de Mobilidade Acadêmica Nacional pós-graduação,lexical,1,1,1,1.0,80.2,1,1,1,1.0,2.8,1,1,1,1.0,90.9,resolucao_2024_0064.txt,resolucao_2024_0064.txt,resolucao_2024_0064.txt,resolucao_2024_0064.txt
+q17,recursos financeiros para bolsas em convênios e contratos co,lexical,1,1,1,1.0,90.0,1,1,1,1.0,2.5,1,1,1,1.0,105.4,resolucao_2019_0044.txt,resolucao_2019_0044.txt,resolucao_2019_0044.txt,resolucao_2019_0044.txt
+q18,normas gerais calendário escolar graduação 2020,lexical,1,1,1,1.0,80.0,1,1,1,1.0,1.8,1,1,1,1.0,90.4,resolucao_2019_0073.txt,resolucao_2019_0073.txt,resolucao_2019_0073.txt,resolucao_2019_0073.txt
+q19,regimento geral programas residência área profissional saúde,lexical,0,1,1,0.5,83.3,1,1,1,1.0,5.6,0,1,1,0.5,102.0,resolucao_2019_0071.txt,resolucao_2023_0027.txt,resolucao_2019_0071.txt,resolucao_2023_0027.txt
+q20,Quais são as regras para residentes entregarem o trabalho de,semantic,1,1,1,1.0,99.4,0,0,0,0.0,2.9,1,1,1,1.0,105.6,resolucao_2023_0027.txt,,resolucao_2023_0027.txt,resolucao_2023_0027.txt
+q21,utilização da Inteligência Artificial na UNESP,lexical,1,1,1,1.0,83.8,1,1,1,1.0,2.1,1,1,1,1.0,93.1,resolucao_2025_0013.txt,resolucao_2025_0013.txt,resolucao_2025_0013.txt,resolucao_2025_0013.txt
+q22,Posso usar ChatGPT e ferramentas de IA nos meus trabalhos ac,semantic,1,1,1,1.0,99.2,0,0,0,0.0,2.3,1,1,1,1.0,107.6,resolucao_2025_0013.txt,,resolucao_2025_0013.txt,resolucao_2025_0013.txt
+q23,Regulamento Pós-graduação lato sensu modalidade especializaç,lexical,0,1,1,0.5,88.4,1,1,1,1.0,3.6,0,1,1,0.5,105.5,resolucao_2019_0090.txt,resolucao_2024_0051.txt,resolucao_2019_0090.txt,resolucao_2024_0051.txt
+q24,Como funciona um curso de especialização na UNESP e quais sã,semantic,0,0,0,0.0,109.4,0,0,0,0.0,1.7,0,0,0,0.0,118.4,resolucao_2016_0039.txt,,resolucao_2016_0039.txt,resolucao_2024_0051.txt
+q25,normas para transferência de alunos nos cursos de graduação,lexical,1,1,1,1.0,106.4,0,1,1,0.5,7.7,0,1,1,0.5,140.5,resolucao_2019_0077.txt,resolucao_2017_0074.txt,resolucao_2017_0074.txt,resolucao_2019_0077.txt
+q26,Como posso me transferir de outra universidade para a UNESP?,semantic,0,1,1,0.3333333333333333,128.3,0,0,0,0.0,1.9,0,1,1,0.3333333333333333,138.8,resolucao_2017_0074.txt,,resolucao_2017_0074.txt,resolucao_2019_0077.txt
+q27,normas gerais calendário escolar graduação 2017,lexical,1,1,1,1.0,106.6,0,1,1,0.5,2.1,1,1,1,1.0,114.3,resolucao_2016_0081.txt,resolucao_2017_0076.txt,resolucao_2016_0081.txt,resolucao_2016_0081.txt
+q28,normas gerais calendário escolar graduação 2018,lexical,1,1,1,1.0,105.9,0,1,1,0.5,3.6,1,1,1,1.0,109.8,resolucao_2017_0076.txt,resolucao_2018_0060.txt,resolucao_2017_0076.txt,resolucao_2017_0076.txt
+q29,normas Concurso Vestibular UNESP 2017,lexical,1,1,1,1.0,87.5,1,1,1,1.0,3.8,1,1,1,1.0,98.2,resolucao_2016_0061.txt,resolucao_2016_0061.txt,resolucao_2016_0061.txt,resolucao_2016_0061.txt
+q30,Quais são as modalidades de ingresso e cotas sociais no vest,semantic,0,0,1,0.25,85.3,0,0,0,0.0,2.2,0,0,1,0.25,92.7,resolucao_2023_0082.txt,,resolucao_2023_0082.txt,resolucao_2016_0061.txt
+q31,Concurso Vestibular UNESP Meio de Ano 2017,lexical,1,1,1,1.0,81.2,1,1,1,1.0,2.4,1,1,1,1.0,89.6,resolucao_2017_0027.txt,resolucao_2017_0027.txt,resolucao_2017_0027.txt,resolucao_2017_0027.txt
+q32,inovação propriedade intelectual licenciamento tecnologia UN,lexical,1,1,1,1.0,72.6,1,1,1,1.0,4.8,1,1,1,1.0,80.2,resolucao_2020_0035.txt,resolucao_2020_0035.txt,resolucao_2020_0035.txt,resolucao_2020_0035.txt
+q33,Como a UNESP protege invenções e patentes desenvolvidas por ,semantic,1,1,1,1.0,90.8,0,0,0,0.0,4.2,1,1,1,1.0,93.8,resolucao_2020_0035.txt,,resolucao_2020_0035.txt,resolucao_2020_0035.txt
+q34,emissão e registro de diploma de graduação por meio digital,lexical,0,0,1,0.2,87.9,1,1,1,1.0,3.0,0,1,1,0.5,93.7,resolucao_2024_0050.txt,resolucao_2021_0022.txt,resolucao_2024_0050.txt,resolucao_2021_0022.txt
+q35,O diploma da UNESP pode ser emitido de forma digital e tem v,semantic,0,1,1,0.5,83.3,0,0,0,0.0,2.8,0,1,1,0.5,90.1,resolucao_2025_0040.txt,,resolucao_2025_0040.txt,resolucao_2021_0022.txt
+q36,emissão diploma pós-graduação stricto sensu por meio digital,lexical,1,1,1,1.0,85.0,1,1,1,1.0,3.6,1,1,1,1.0,92.1,resolucao_2024_0050.txt,resolucao_2024_0050.txt,resolucao_2024_0050.txt,resolucao_2024_0050.txt
+q37,curricularização da extensão universitária nos cursos de gra,lexical,1,1,1,1.0,87.2,0,1,1,0.3333333333333333,4.4,1,1,1,1.0,100.8,resolucao_2021_0041.txt,resolucao_2024_0059.txt,resolucao_2021_0041.txt,resolucao_2021_0041.txt
+q38,Atividades de extensão são obrigatórias na grade curricular ,semantic,1,1,1,1.0,83.1,0,0,0,0.0,2.0,1,1,1,1.0,94.9,resolucao_2021_0041.txt,,resolucao_2021_0041.txt,resolucao_2021_0041.txt
+q39,Regimento Geral da Extensão Universitária e Cultura na UNESP,lexical,0,0,0,0.0,90.1,1,1,1,1.0,24.7,0,1,1,0.3333333333333333,102.1,resolucao_2024_0009.txt,resolucao_2022_0069.txt,resolucao_2024_0009.txt,resolucao_2022_0069.txt
+q40,Quais são as regras gerais para projetos e programas de exte,semantic,0,0,0,0.0,86.1,0,0,0,0.0,2.7,0,0,0,0.0,92.9,resolucao_2016_0008.txt,,resolucao_2016_0008.txt,resolucao_2022_0069.txt
+q41,Programa de Pós-doutorado na UNESP,lexical,0,1,1,0.5,87.2,0,1,1,0.5,3.6,1,1,1,1.0,95.3,resolucao_2016_0012.txt,resolucao_2017_0091.txt,resolucao_2025_0012.txt,resolucao_2025_0012.txt
+q42,Quais são as condições e requisitos para realizar um pós-dou,semantic,0,1,1,0.3333333333333333,100.1,0,0,0,0.0,1.5,0,1,1,0.3333333333333333,100.7,resolucao_2016_0012.txt,,resolucao_2016_0012.txt,resolucao_2025_0012.txt
+q43,Um aluno com desempenho excepcional pode se formar antes do ,semantic,1,1,1,1.0,92.3,0,0,0,0.0,3.0,1,1,1,1.0,95.1,resolucao_2018_0023.txt,,resolucao_2018_0023.txt,resolucao_2018_0023.txt
+q44,Qual pró-reitoria coordena as bolsas de extensão universitár,semantic,1,1,1,1.0,86.5,0,0,0,0.0,2.0,1,1,1,1.0,91.5,resolucao_2017_0073.txt,,resolucao_2017_0073.txt,resolucao_2017_0073.txt
+q45,É possível cursar disciplinas no exterior mantendo vínculo c,semantic,0,1,1,0.5,87.9,0,0,0,0.0,2.5,0,1,1,0.5,98.3,resolucao_2018_0003.txt,,resolucao_2018_0003.txt,resolucao_2024_0058.txt
+q46,Posso cursar disciplinas em outra universidade brasileira du,semantic,0,0,1,0.2,92.9,0,0,0,0.0,2.7,0,0,1,0.2,94.1,resolucao_2019_0003.txt,,resolucao_2019_0003.txt,resolucao_2024_0064.txt
+q47,Existe prazo máximo para solicitar reingresso em curso de gr,semantic,1,1,1,1.0,83.5,0,0,0,0.0,3.0,1,1,1,1.0,88.1,resolucao_2019_0057.txt,,resolucao_2019_0057.txt,resolucao_2019_0057.txt
+q48,Como é realizada a eleição eletrônica de dirigentes e órgãos,semantic,0,1,1,0.5,83.1,0,0,0,0.0,3.1,0,1,1,0.3333333333333333,86.1,resolucao_2019_0059.txt,resolucao_2023_0035.txt,resolucao_2019_0059.txt,resolucao_2016_0018.txt
+q49,A UNESP exige que teses e dissertações sejam disponibilizada,semantic,0,0,1,0.25,87.0,0,0,0,0.0,1.8,0,0,1,0.25,93.0,resolucao_2016_0021.txt,,resolucao_2016_0021.txt,resolucao_2021_0008.txt
+q50,prazo entrega Trabalho de Conclusão de Residência TCR após d,lexical,1,1,1,1.0,98.5,0,0,0,0.0,2.8,1,1,1,1.0,105.0,resolucao_2023_0027.txt,,resolucao_2023_0027.txt,resolucao_2023_0027.txt

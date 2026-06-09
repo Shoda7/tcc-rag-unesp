@@ -138,5 +138,215 @@
     "relevant_sources": ["resolucao_2023_0027.txt"],
     "type": "semantic",
     "notes": "Paráfrase sobre TCR na residência — Vector-friendly"
+  },
+  {
+    "id": "q21",
+    "query": "utilização da Inteligência Artificial na UNESP",
+    "relevant_sources": ["resolucao_2025_0013.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query — FTS-friendly"
+  },
+  {
+    "id": "q22",
+    "query": "Posso usar ChatGPT e ferramentas de IA nos meus trabalhos acadêmicos na UNESP?",
+    "relevant_sources": ["resolucao_2025_0013.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase sem mencionar a resolução — Vector-friendly"
+  },
+  {
+    "id": "q23",
+    "query": "Regulamento Pós-graduação lato sensu modalidade especialização UNESP",
+    "relevant_sources": ["resolucao_2024_0051.txt"],
+    "type": "lexical",
+    "notes": "Termos diretos do título"
+  },
+  {
+    "id": "q24",
+    "query": "Como funciona um curso de especialização na UNESP e quais são os requisitos?",
+    "relevant_sources": ["resolucao_2024_0051.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de pós-graduação lato sensu — Vector-friendly"
+  },
+  {
+    "id": "q25",
+    "query": "normas para transferência de alunos nos cursos de graduação",
+    "relevant_sources": ["resolucao_2019_0077.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query"
+  },
+  {
+    "id": "q26",
+    "query": "Como posso me transferir de outra universidade para a UNESP?",
+    "relevant_sources": ["resolucao_2019_0077.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de transferência externa — Vector-friendly"
+  },
+  {
+    "id": "q27",
+    "query": "normas gerais calendário escolar graduação 2017",
+    "relevant_sources": ["resolucao_2016_0081.txt"],
+    "type": "lexical",
+    "notes": "Calendário 2017 — termos diretos do título"
+  },
+  {
+    "id": "q28",
+    "query": "normas gerais calendário escolar graduação 2018",
+    "relevant_sources": ["resolucao_2017_0076.txt"],
+    "type": "lexical",
+    "notes": "Calendário 2018 — termos diretos do título"
+  },
+  {
+    "id": "q29",
+    "query": "normas Concurso Vestibular UNESP 2017",
+    "relevant_sources": ["resolucao_2016_0061.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query"
+  },
+  {
+    "id": "q30",
+    "query": "Quais são as modalidades de ingresso e cotas sociais no vestibular da UNESP?",
+    "relevant_sources": ["resolucao_2016_0061.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de normas de vestibular — Vector-friendly"
+  },
+  {
+    "id": "q31",
+    "query": "Concurso Vestibular UNESP Meio de Ano 2017",
+    "relevant_sources": ["resolucao_2017_0027.txt"],
+    "type": "lexical",
+    "notes": "Título idêntico à query"
+  },
+  {
+    "id": "q32",
+    "query": "inovação propriedade intelectual licenciamento tecnologia UNESP",
+    "relevant_sources": ["resolucao_2020_0035.txt"],
+    "type": "lexical",
+    "notes": "Termos centrais do título da resolução"
+  },
+  {
+    "id": "q33",
+    "query": "Como a UNESP protege invenções e patentes desenvolvidas por pesquisadores?",
+    "relevant_sources": ["resolucao_2020_0035.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de propriedade intelectual — Vector-friendly"
+  },
+  {
+    "id": "q34",
+    "query": "emissão e registro de diploma de graduação por meio digital",
+    "relevant_sources": ["resolucao_2021_0022.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query"
+  },
+  {
+    "id": "q35",
+    "query": "O diploma da UNESP pode ser emitido de forma digital e tem validade jurídica?",
+    "relevant_sources": ["resolucao_2021_0022.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de diploma digital — Vector-friendly"
+  },
+  {
+    "id": "q36",
+    "query": "emissão diploma pós-graduação stricto sensu por meio digital UNESP",
+    "relevant_sources": ["resolucao_2024_0050.txt"],
+    "type": "lexical",
+    "notes": "Termos diretos do título da resolução"
+  },
+  {
+    "id": "q37",
+    "query": "curricularização da extensão universitária nos cursos de graduação UNESP",
+    "relevant_sources": ["resolucao_2021_0041.txt"],
+    "type": "lexical",
+    "notes": "Título quase idêntico à query"
+  },
+  {
+    "id": "q38",
+    "query": "Atividades de extensão são obrigatórias na grade curricular da graduação?",
+    "relevant_sources": ["resolucao_2021_0041.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de curricularização da extensão — Vector-friendly"
+  },
+  {
+    "id": "q39",
+    "query": "Regimento Geral da Extensão Universitária e Cultura na UNESP",
+    "relevant_sources": ["resolucao_2022_0069.txt"],
+    "type": "lexical",
+    "notes": "Título idêntico à query"
+  },
+  {
+    "id": "q40",
+    "query": "Quais são as regras gerais para projetos e programas de extensão na UNESP?",
+    "relevant_sources": ["resolucao_2022_0069.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de regimento de extensão — Vector-friendly"
+  },
+  {
+    "id": "q41",
+    "query": "Programa de Pós-doutorado na UNESP",
+    "relevant_sources": ["resolucao_2025_0012.txt"],
+    "type": "lexical",
+    "notes": "Título idêntico à query"
+  },
+  {
+    "id": "q42",
+    "query": "Quais são as condições e requisitos para realizar um pós-doutorado na UNESP?",
+    "relevant_sources": ["resolucao_2025_0012.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de pós-doutorado — Vector-friendly"
+  },
+  {
+    "id": "q43",
+    "query": "Um aluno com desempenho excepcional pode se formar antes do prazo mínimo do curso?",
+    "relevant_sources": ["resolucao_2018_0023.txt"],
+    "type": "semantic",
+    "notes": "Terceira paráfrase de aproveitamento extraordinário — ângulo diferente"
+  },
+  {
+    "id": "q44",
+    "query": "Qual pró-reitoria coordena as bolsas de extensão universitária para graduandos?",
+    "relevant_sources": ["resolucao_2017_0073.txt"],
+    "type": "semantic",
+    "notes": "Pergunta sobre PROEX e bolsas — Vector-friendly"
+  },
+  {
+    "id": "q45",
+    "query": "É possível cursar disciplinas no exterior mantendo vínculo com programa de pós-graduação da UNESP?",
+    "relevant_sources": ["resolucao_2024_0058.txt"],
+    "type": "semantic",
+    "notes": "Segundo ângulo semântico de mobilidade internacional"
+  },
+  {
+    "id": "q46",
+    "query": "Posso cursar disciplinas em outra universidade brasileira durante meu programa de pós-graduação?",
+    "relevant_sources": ["resolucao_2024_0064.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de mobilidade nacional pós-graduação — Vector-friendly"
+  },
+  {
+    "id": "q47",
+    "query": "Existe prazo máximo para solicitar reingresso em curso de graduação na UNESP?",
+    "relevant_sources": ["resolucao_2019_0057.txt"],
+    "type": "semantic",
+    "notes": "Segundo ângulo semântico de reingresso — Vector-friendly"
+  },
+  {
+    "id": "q48",
+    "query": "Como é realizada a eleição eletrônica de dirigentes e órgãos colegiados da UNESP?",
+    "relevant_sources": ["resolucao_2016_0018.txt"],
+    "type": "semantic",
+    "notes": "Segundo ângulo semântico do EVoto — Vector-friendly"
+  },
+  {
+    "id": "q49",
+    "query": "A UNESP exige que teses e dissertações sejam disponibilizadas em acesso aberto?",
+    "relevant_sources": ["resolucao_2021_0008.txt"],
+    "type": "semantic",
+    "notes": "Paráfrase de acesso aberto produção intelectual — Vector-friendly"
+  },
+  {
+    "id": "q50",
+    "query": "prazo entrega Trabalho de Conclusão de Residência TCR após defesa",
+    "relevant_sources": ["resolucao_2023_0027.txt"],
+    "type": "lexical",
+    "notes": "Termos específicos do conteúdo da resolução de residência"
   }
 ]
