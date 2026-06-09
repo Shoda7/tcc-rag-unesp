@@ -1,28 +1,22 @@
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, HeadingLevel, BorderStyle, WidthType, ShadingType,
-  PageNumber, Header, TableOfContents, PageBreak, LevelFormat,
-  VerticalAlign
+  PageNumber, Header, TableOfContents, PageBreak, VerticalAlign
 } from "docx";
 import { writeFileSync } from "fs";
 
-// Medidas ABNT (DXA: 1440 = 1 polegada = 2,54 cm)
-// A4: 11906 x 16838 DXA
-// Margens: sup 3cm, inf 2cm, esq 3cm, dir 2cm
-const A4_W = 11906;
-const A4_H = 16838;
-const M_TOP = 1701;    // 3cm
-const M_BOT = 1134;    // 2cm
-const M_LEFT = 1701;   // 3cm
-const M_RIGHT = 1134;  // 2cm
+// A4 + margens ABNT (DXA: 1 polegada = 1440 DXA = 2,54 cm)
+const A4_W = 11906, A4_H = 16838;
+const M_TOP = 1701, M_BOT = 1134, M_LEFT = 1701, M_RIGHT = 1134;
 const CONTENT_W = A4_W - M_LEFT - M_RIGHT; // ~9071 DXA
 
 const FONT = "Times New Roman";
-const SIZE = 24; // 12pt em half-points
-const SIZE_SM = 20; // 10pt
+const SIZE = 24;   // 12 pt (half-points)
+const SIZE_SM = 20; // 10 pt
 
-// Helpers
+// ── helpers ────────────────────────────────────────────────────────────────
 const br = () => new Paragraph({ children: [] });
+const pageBreak = () => new Paragraph({ children: [new PageBreak()] });
 
 const titulo = (text) => new Paragraph({
   heading: HeadingLevel.HEADING_1,
@@ -31,139 +25,210 @@ const titulo = (text) => new Paragraph({
   children: [new TextRun({ text: text.toUpperCase(), font: FONT, size: SIZE, bold: true })]
 });
 
-const subtitulo = (text) => new Paragraph({
+const h2 = (text) => new Paragraph({
   heading: HeadingLevel.HEADING_2,
   spacing: { before: 280, after: 140 },
   children: [new TextRun({ text, font: FONT, size: SIZE, bold: true })]
 });
 
-const subtitulo3 = (text) => new Paragraph({
+const h3 = (text) => new Paragraph({
   heading: HeadingLevel.HEADING_3,
-  spacing: { before: 280, after: 140 },
+  spacing: { before: 200, after: 100 },
   children: [new TextRun({ text, font: FONT, size: SIZE, bold: true })]
 });
 
 const p = (text, opts = {}) => new Paragraph({
   alignment: AlignmentType.JUSTIFIED,
-  indent: { firstLine: 709 }, // 1,25cm
+  indent: { firstLine: 709 }, // 1,25 cm
   spacing: { line: 360, lineRule: "auto" }, // 1,5
   children: [new TextRun({ text, font: FONT, size: SIZE, ...opts })]
 });
 
-const pSemRecuo = (text, opts = {}) => new Paragraph({
+const pSR = (text, opts = {}) => new Paragraph({ // sem recuo
   alignment: AlignmentType.JUSTIFIED,
   spacing: { line: 360, lineRule: "auto" },
   children: [new TextRun({ text, font: FONT, size: SIZE, ...opts })]
 });
 
-const pCentro = (text, opts = {}) => new Paragraph({
+const pC = (text, opts = {}) => new Paragraph({
   alignment: AlignmentType.CENTER,
   spacing: { line: 360, lineRule: "auto" },
   children: [new TextRun({ text, font: FONT, size: SIZE, ...opts })]
 });
 
-const pDireita = (text, opts = {}) => new Paragraph({
-  alignment: AlignmentType.RIGHT,
-  spacing: { line: 360, lineRule: "auto" },
-  children: [new TextRun({ text, font: FONT, size: SIZE, ...opts })]
-});
-
-const alínea = (letter, text) => new Paragraph({
+const alinea = (letter, text) => new Paragraph({
   alignment: AlignmentType.JUSTIFIED,
   indent: { left: 709, firstLine: 0 },
   spacing: { line: 360, lineRule: "auto" },
   children: [new TextRun({ text: `${letter}) ${text}`, font: FONT, size: SIZE })]
 });
 
-const pageBreak = () => new Paragraph({ children: [new PageBreak()] });
+const caption = (text) => new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 80, after: 80, line: 300, lineRule: "auto" },
+  children: [new TextRun({ text, font: FONT, size: SIZE_SM, bold: true })]
+});
 
-// Tabela de cronograma
-const meses = ["Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-const atividades = [
-  { nome: "Levantamento bibliográfico",  meses: [1,1,0,0,0,0,0,0,0] },
-  { nome: "Estudo das tecnologias",       meses: [1,1,1,0,0,0,0,0,0] },
-  { nome: "Coleta e pré-processamento",   meses: [0,1,1,0,0,0,0,0,0] },
-  { nome: "Escrita TCC I",               meses: [0,1,1,1,1,0,0,0,0] },
-  { nome: "Pipeline de indexação",        meses: [0,0,1,1,0,0,0,0,0] },
-  { nome: "Banco vetorial (pgvector)",    meses: [0,0,1,1,0,0,0,0,0] },
-  { nome: "Pipeline de consulta RAG",     meses: [0,0,0,1,1,0,0,0,0] },
-  { nome: "Baseline Full-Text Search",    meses: [0,0,0,1,1,0,0,0,0] },
-  { nome: "Experimentos e avaliação",     meses: [0,0,0,0,1,1,0,0,0] },
-  { nome: "Análise dos resultados",       meses: [0,0,0,0,0,1,1,0,0] },
-  { nome: "Escrita TCC II",              meses: [0,0,0,0,0,1,1,1,0] },
-  { nome: "Banca final",                 meses: [0,0,0,0,0,0,0,0,1] },
-];
-
-const cellW = Math.floor((CONTENT_W - 3000) / 9);
-const colWidths = [3000, ...Array(9).fill(cellW)];
-
+// ── tabela de resultados (métricas) ─────────────────────────────────────────
 const border = { style: BorderStyle.SINGLE, size: 4, color: "999999" };
 const borders = { top: border, bottom: border, left: border, right: border };
 
-const mkCell = (text, isHeader = false, fill = "FFFFFF") => new TableCell({
-  borders,
-  width: { size: isHeader ? 3000 : cellW, type: WidthType.DXA },
-  shading: { fill, type: ShadingType.CLEAR },
-  margins: { top: 40, bottom: 40, left: 80, right: 80 },
-  verticalAlign: VerticalAlign.CENTER,
-  children: [new Paragraph({
-    alignment: isHeader ? AlignmentType.LEFT : AlignmentType.CENTER,
-    children: [new TextRun({ text, font: FONT, size: SIZE_SM, bold: isHeader })]
-  })]
+const RESULT_COL_W = [2400, 1600, 1800, 1900];
+const resultRows = [
+  ["Métrica",         "Vetorial", "FTS (BM25)", "Híbrido RRF"],
+  ["Hit@1",           "0,520",    "0,400",      "0,560 *"],
+  ["Hit@3",           "0,740",    "0,520",      "0,840 *"],
+  ["Hit@5",           "0,840",    "0,520",      "0,900 *"],
+  ["MRR",             "0,642",    "0,457",      "0,697 *"],
+  ["Latência (ms)",   "~339",     "~4",         "~348"],
+];
+const resultTable = new Table({
+  width: { size: RESULT_COL_W.reduce((a, b) => a + b, 0), type: WidthType.DXA },
+  columnWidths: RESULT_COL_W,
+  rows: resultRows.map((row, ri) =>
+    new TableRow({
+      tableHeader: ri === 0,
+      children: row.map((cell, ci) => {
+        const isHeader = ri === 0;
+        const isFirst = ci === 0;
+        const fill = isHeader ? "D9E2F3" : ri % 2 === 0 ? "F5F5F5" : "FFFFFF";
+        return new TableCell({
+          borders,
+          shading: { fill, type: ShadingType.CLEAR },
+          margins: { top: 60, bottom: 60, left: 100, right: 100 },
+          verticalAlign: VerticalAlign.CENTER,
+          children: [new Paragraph({
+            alignment: isFirst ? AlignmentType.LEFT : AlignmentType.CENTER,
+            children: [new TextRun({ text: cell, font: FONT, size: SIZE_SM, bold: isHeader || cell.includes("*") })]
+          })]
+        });
+      })
+    })
+  )
 });
 
-const headerRow = new TableRow({
-  tableHeader: true,
-  children: [
-    mkCell("Atividade", true, "D9E2F3"),
-    ...meses.map(m => mkCell(m, true, "D9E2F3"))
-  ]
+// ── tabela por tipo de consulta ─────────────────────────────────────────────
+const TYPE_COL_W = [2400, 1600, 1700, 1100];
+const typeRows = [
+  ["Tipo de consulta", "Método",  "Hit@1",   "MRR"],
+  ["Lexical (26)",     "FTS",     "0,731",   "0,840 *"],
+  ["Lexical (26)",     "Vetorial","0,654",   "0,758"],
+  ["Semântica (24)",   "Vetorial","0,375 *", "0,517 *"],
+  ["Semântica (24)",   "FTS",     "0,042",   "0,042"],
+];
+const typeTable = new Table({
+  width: { size: TYPE_COL_W.reduce((a, b) => a + b, 0), type: WidthType.DXA },
+  columnWidths: TYPE_COL_W,
+  rows: typeRows.map((row, ri) =>
+    new TableRow({
+      tableHeader: ri === 0,
+      children: row.map((cell, ci) => {
+        const isHeader = ri === 0;
+        const fill = isHeader ? "D9E2F3" : ri <= 2 ? "F0F4FB" : "FFFFFF";
+        return new TableCell({
+          borders,
+          shading: { fill, type: ShadingType.CLEAR },
+          margins: { top: 60, bottom: 60, left: 100, right: 100 },
+          verticalAlign: VerticalAlign.CENTER,
+          children: [new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: cell, font: FONT, size: SIZE_SM, bold: isHeader || cell.includes("*") })]
+          })]
+        });
+      })
+    })
+  )
 });
 
-const dataRows = atividades.map(a => new TableRow({
-  children: [
-    mkCell(a.nome, false, "F5F5F5"),
-    ...a.meses.map(v => mkCell(v ? "X" : "", false, v ? "BDD7EE" : "FFFFFF"))
-  ]
-}));
-
-const cronogramaTable = new Table({
+// ── cronograma ──────────────────────────────────────────────────────────────
+const MESES = ["Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const ATIV = [
+  { nome: "Levantamento bibliográfico",   meses: [1,1,0,0,0,0,0,0,0] },
+  { nome: "Estudo das tecnologias",        meses: [1,1,1,0,0,0,0,0,0] },
+  { nome: "Coleta e pré-processamento",    meses: [0,1,1,0,0,0,0,0,0] },
+  { nome: "Escrita TCC I",                meses: [0,1,1,1,1,0,0,0,0] },
+  { nome: "Pipeline de indexação",         meses: [0,0,1,1,0,0,0,0,0] },
+  { nome: "Banco vetorial (pgvector)",     meses: [0,0,1,1,0,0,0,0,0] },
+  { nome: "Pipeline de consulta RAG",      meses: [0,0,0,1,1,0,0,0,0] },
+  { nome: "Baseline Full-Text Search",     meses: [0,0,0,1,1,0,0,0,0] },
+  { nome: "Interface web (FastAPI+React)", meses: [0,0,0,0,1,1,0,0,0] },
+  { nome: "Experimentos e avaliação",      meses: [0,0,0,0,1,1,0,0,0] },
+  { nome: "Análise dos resultados",        meses: [0,0,0,0,0,1,1,0,0] },
+  { nome: "Escrita TCC II",               meses: [0,0,0,0,0,1,1,1,0] },
+  { nome: "Banca final",                  meses: [0,0,0,0,0,0,0,0,1] },
+];
+const cellW = Math.floor((CONTENT_W - 3000) / 9);
+const cronTable = new Table({
   width: { size: CONTENT_W, type: WidthType.DXA },
-  columnWidths: colWidths,
-  rows: [headerRow, ...dataRows]
+  columnWidths: [3000, ...Array(9).fill(cellW)],
+  rows: [
+    new TableRow({
+      tableHeader: true,
+      children: [
+        new TableCell({
+          borders, shading: { fill: "D9E2F3", type: ShadingType.CLEAR },
+          margins: { top: 40, bottom: 40, left: 80, right: 80 }, verticalAlign: VerticalAlign.CENTER,
+          width: { size: 3000, type: WidthType.DXA },
+          children: [new Paragraph({ alignment: AlignmentType.LEFT,
+            children: [new TextRun({ text: "Atividade", font: FONT, size: SIZE_SM, bold: true })] })]
+        }),
+        ...MESES.map(m => new TableCell({
+          borders, shading: { fill: "D9E2F3", type: ShadingType.CLEAR },
+          margins: { top: 40, bottom: 40, left: 60, right: 60 }, verticalAlign: VerticalAlign.CENTER,
+          width: { size: cellW, type: WidthType.DXA },
+          children: [new Paragraph({ alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: m, font: FONT, size: SIZE_SM, bold: true })] })]
+        }))
+      ]
+    }),
+    ...ATIV.map(a => new TableRow({
+      children: [
+        new TableCell({
+          borders, shading: { fill: "F5F5F5", type: ShadingType.CLEAR },
+          margins: { top: 40, bottom: 40, left: 80, right: 80 }, verticalAlign: VerticalAlign.CENTER,
+          children: [new Paragraph({ children: [new TextRun({ text: a.nome, font: FONT, size: SIZE_SM })] })]
+        }),
+        ...a.meses.map(v => new TableCell({
+          borders, shading: { fill: v ? "BDD7EE" : "FFFFFF", type: ShadingType.CLEAR },
+          margins: { top: 40, bottom: 40, left: 60, right: 60 }, verticalAlign: VerticalAlign.CENTER,
+          children: [new Paragraph({ alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: v ? "X" : "", font: FONT, size: SIZE_SM })] })]
+        }))
+      ]
+    }))
+  ]
 });
 
-// Seção pré-textual (sem numeração visível)
+// ══════════════════════════════════════════════════════════════════════════════
+// SEÇÃO PRÉ-TEXTUAL
+// ══════════════════════════════════════════════════════════════════════════════
 const preTextual = {
   properties: {
-    page: {
-      size: { width: A4_W, height: A4_H },
-      margin: { top: M_TOP, bottom: M_BOT, left: M_LEFT, right: M_RIGHT }
-    }
+    page: { size: { width: A4_W, height: A4_H }, margin: { top: M_TOP, bottom: M_BOT, left: M_LEFT, right: M_RIGHT } }
   },
   children: [
-    // CAPA
+    // ── CAPA ──────────────────────────────────────────────────────────────
     br(), br(),
-    pCentro("UNIVERSIDADE ESTADUAL PAULISTA \"JÚLIO DE MESQUITA FILHO\"", { bold: true }),
-    pCentro("FACULDADE DE CIÊNCIAS — CÂMPUS DE BAURU", { bold: true }),
-    pCentro("BACHARELADO EM SISTEMAS DE INFORMAÇÃO", { bold: true }),
+    pC("UNIVERSIDADE ESTADUAL PAULISTA \"JÚLIO DE MESQUITA FILHO\"", { bold: true }),
+    pC("FACULDADE DE CIÊNCIAS — CÂMPUS DE BAURU", { bold: true }),
+    pC("BACHARELADO EM SISTEMAS DE INFORMAÇÃO", { bold: true }),
     br(), br(), br(),
-    pCentro("MATHEUS SHODA LIMA"),
-    pCentro("RAFAEL PANHOZZI RUBIO"),
+    pC("MATHEUS SHODA LIMA"),
+    pC("RAFAEL PANHOZZI RUBIO"),
     br(), br(), br(),
-    pCentro("IMPLEMENTAÇÃO E AVALIAÇÃO DE UM SISTEMA DE RECUPERAÇÃO AUMENTADA POR GERAÇÃO (RAG) PARA CONSULTA DE DOCUMENTOS REGULATÓRIOS DA UNESP BAURU", { bold: true }),
-    br(), br(), br(),
-    pCentro("Bauru"),
-    pCentro("2026"),
+    pC("IMPLEMENTAÇÃO E AVALIAÇÃO DE UM SISTEMA DE RECUPERAÇÃO AUMENTADA POR GERAÇÃO (RAG) PARA CONSULTA DE DOCUMENTOS REGULATÓRIOS DA UNESP BAURU", { bold: true }),
+    br(), br(), br(), br(),
+    pC("Bauru"),
+    pC("2026"),
 
     pageBreak(),
 
-    // FOLHA DE ROSTO
+    // ── FOLHA DE ROSTO ─────────────────────────────────────────────────────
     br(), br(),
-    pCentro("MATHEUS SHODA LIMA"),
-    pCentro("RAFAEL PANHOZZI RUBIO"),
+    pC("MATHEUS SHODA LIMA"),
+    pC("RAFAEL PANHOZZI RUBIO"),
     br(), br(),
-    pCentro("IMPLEMENTAÇÃO E AVALIAÇÃO DE UM SISTEMA DE RECUPERAÇÃO AUMENTADA POR GERAÇÃO (RAG) PARA CONSULTA DE DOCUMENTOS REGULATÓRIOS DA UNESP BAURU", { bold: true }),
+    pC("IMPLEMENTAÇÃO E AVALIAÇÃO DE UM SISTEMA DE RECUPERAÇÃO AUMENTADA POR GERAÇÃO (RAG) PARA CONSULTA DE DOCUMENTOS REGULATÓRIOS DA UNESP BAURU", { bold: true }),
     br(), br(),
     new Paragraph({
       alignment: AlignmentType.RIGHT,
@@ -181,29 +246,29 @@ const preTextual = {
       spacing: { line: 300, lineRule: "auto" },
       children: [new TextRun({ text: "Orientador: Prof. Dr. Clayton Reginaldo Pereira", font: FONT, size: SIZE_SM })]
     }),
-    br(), br(),
-    pCentro("Bauru"),
-    pCentro("2026"),
+    br(), br(), br(),
+    pC("Bauru"),
+    pC("2026"),
 
     pageBreak(),
 
-    // RESUMO
+    // ── RESUMO ─────────────────────────────────────────────────────────────
     titulo("Resumo"),
-    p("Este trabalho apresenta a implementação e avaliação de um sistema de Recuperação Aumentada por Geração (RAG, do inglês Retrieval-Augmented Generation) voltado à consulta em linguagem natural de documentos regulatórios da Universidade Estadual Paulista (UNESP) Bauru. O problema central abordado é a dificuldade enfrentada por estudantes e servidores para localizar informações específicas em um extenso corpus de resoluções, portarias e regulamentos institucionais. A solução proposta combina modelos de linguagem de grande porte (LLMs) com recuperação de documentos, reduzindo o fenômeno de alucinação por meio do aterramento das respostas nas fontes originais. O sistema implementa dois mecanismos de busca — vetorial (embeddings densos) e textual (BM25/Full-Text Search) — cujo desempenho é avaliado comparativamente com métricas de recuperação de informação (Precision@K, Recall@K e Mean Reciprocal Rank). O corpus utilizado compreende resoluções e portarias da UNESP referentes ao período de 2016 a 2026, além de documentos curriculares e regulamentares dos cursos de Bacharelado em Sistemas de Informação e Ciência da Computação da Faculdade de Ciências de Bauru. Os resultados preliminares indicam a viabilidade técnica da abordagem, com o protótipo respondendo corretamente a perguntas sobre estrutura curricular, requisitos de estágio e atividades complementares."),
+    p("Este trabalho apresenta a implementação e avaliação experimental de um sistema de Recuperação Aumentada por Geração (RAG) voltado à consulta em linguagem natural de documentos regulatórios da Universidade Estadual Paulista (UNESP) Bauru. O corpus é composto por 936 resoluções e portarias institucionais coletadas do portal sistemas.unesp.br/legislacao-web (período 2016–2026), segmentadas em 4.229 chunks por janela deslizante (350 palavras, sobreposição de 60) e indexadas em PostgreSQL 16 com a extensão pgvector. Três métodos de recuperação são implementados e avaliados em um conjunto de 50 consultas anotadas (26 lexicais e 24 semânticas): busca vetorial densa por similaridade cosseno (embeddings intfloat/multilingual-e5-small, 384 dimensões), busca por texto completo com ranqueamento BM25 nativo do PostgreSQL e busca híbrida por Reciprocal Rank Fusion (RRF). Os resultados mostram que a busca híbrida supera os demais métodos nas métricas globais (Hit@1 = 0,560; MRR = 0,697; Hit@5 = 0,900), enquanto a busca vetorial é superior em consultas semânticas (Hit@1 = 0,375 vs. 0,042 do FTS) e o FTS lidera em consultas lexicais (MRR = 0,840 vs. 0,758 do vetorial). Uma interface web (FastAPI + React) voltada ao uso em bibliotecas universitárias foi desenvolvida como produto adicional."),
     br(),
-    pSemRecuo("Palavras-chave: Recuperação Aumentada por Geração. RAG. Modelos de Linguagem. Busca Vetorial. Documentos Regulatórios. UNESP."),
+    pSR("Palavras-chave: Recuperação Aumentada por Geração. RAG. Modelos de Linguagem. Busca Vetorial. pgvector. Full-Text Search. BM25. Reciprocal Rank Fusion. UNESP."),
 
     pageBreak(),
 
-    // ABSTRACT
+    // ── ABSTRACT ───────────────────────────────────────────────────────────
     titulo("Abstract"),
-    p("This paper presents the implementation and evaluation of a Retrieval-Augmented Generation (RAG) system for natural language querying of regulatory documents from the Universidade Estadual Paulista (UNESP) Bauru. The central problem addressed is the difficulty faced by students and staff in locating specific information within an extensive corpus of institutional resolutions, ordinances, and regulations. The proposed solution combines large language models (LLMs) with document retrieval, mitigating hallucination by grounding responses in original sources. The system implements two retrieval mechanisms — dense vector search (embeddings) and sparse text search (BM25/Full-Text Search) — whose performance is comparatively evaluated using information retrieval metrics (Precision@K, Recall@K, and Mean Reciprocal Rank). The corpus comprises UNESP resolutions and ordinances from 2016 to 2026, along with curricular and regulatory documents from the Bachelor's programs in Information Systems and Computer Science at the Faculdade de Ciências de Bauru. Preliminary results indicate the technical feasibility of the approach, with the prototype correctly answering questions about curriculum structure, internship requirements, and extracurricular activities."),
+    p("This paper presents the implementation and experimental evaluation of a Retrieval-Augmented Generation (RAG) system for natural-language querying of regulatory documents from UNESP Bauru. The corpus consists of 936 institutional resolutions and ordinances collected from the sistemas.unesp.br/legislacao-web portal (2016–2026), segmented into 4,229 chunks via sliding-window chunking (350 words, 60-word overlap) and indexed in PostgreSQL 16 with the pgvector extension. Three retrieval methods are implemented and evaluated on a set of 50 annotated queries (26 lexical and 24 semantic): dense vector search by cosine similarity (intfloat/multilingual-e5-small embeddings, 384 dimensions), full-text search with PostgreSQL-native BM25 ranking, and hybrid search via Reciprocal Rank Fusion (RRF). Results show that hybrid search outperforms the other methods overall (Hit@1 = 0.560, MRR = 0.697, Hit@5 = 0.900), while vector search is superior for semantic queries (Hit@1 = 0.375 vs. 0.042 for FTS) and FTS leads on lexical queries (MRR = 0.840 vs. 0.758 for vector). A web interface (FastAPI + React) designed for university library kiosk use was also developed."),
     br(),
-    pSemRecuo("Keywords: Retrieval-Augmented Generation. RAG. Language Models. Vector Search. Regulatory Documents. UNESP."),
+    pSR("Keywords: Retrieval-Augmented Generation. RAG. Language Models. Vector Search. pgvector. Full-Text Search. BM25. Reciprocal Rank Fusion. UNESP."),
 
     pageBreak(),
 
-    // SUMÁRIO
+    // ── SUMÁRIO ─────────────────────────────────────────────────────────────
     titulo("Sumário"),
     new TableOfContents("Sumário", {
       hyperlink: true,
@@ -217,13 +282,12 @@ const preTextual = {
   ]
 };
 
-// Seção textual (com numeração de páginas)
+// ══════════════════════════════════════════════════════════════════════════════
+// SEÇÃO TEXTUAL
+// ══════════════════════════════════════════════════════════════════════════════
 const textual = {
   properties: {
-    page: {
-      size: { width: A4_W, height: A4_H },
-      margin: { top: M_TOP, bottom: M_BOT, left: M_LEFT, right: M_RIGHT }
-    }
+    page: { size: { width: A4_W, height: A4_H }, margin: { top: M_TOP, bottom: M_BOT, left: M_LEFT, right: M_RIGHT } }
   },
   headers: {
     default: new Header({
@@ -234,117 +298,175 @@ const textual = {
     })
   },
   children: [
-    // CAP 1 - INTRODUÇÃO
+
+    // ════════════════════════════════════════════════════════════════════════
+    // CAP 1 — INTRODUÇÃO
+    // ════════════════════════════════════════════════════════════════════════
     titulo("1 Introdução"),
-    p("As instituições de ensino superior brasileiras produzem e mantêm um expressivo volume de documentos regulatórios — resoluções, portarias, regulamentos de curso, normas de atividades complementares e regimentos gerais — que regem os direitos e deveres de estudantes, docentes e servidores. Na Universidade Estadual Paulista \"Júlio de Mesquita Filho\" (UNESP), esses documentos estão dispersos em diferentes portais e sistemas institucionais, tornando a busca por informações específicas uma tarefa onerosa para o usuário final."),
+    p("As instituições de ensino superior brasileiras produzem e mantêm um expressivo volume de documentos regulatórios — resoluções, portarias, regulamentos de curso e regimentos gerais — que regem os direitos e deveres de estudantes, docentes e servidores. Na Universidade Estadual Paulista \"Júlio de Mesquita Filho\" (UNESP), esses documentos estão dispersos em diferentes portais e sistemas institucionais, tornando a localização de informações específicas uma tarefa onerosa, especialmente para estudantes ingressantes e usuários ocasionais."),
     p("O advento dos Modelos de Linguagem de Grande Porte (LLMs, do inglês Large Language Models) introduziu novas possibilidades para sistemas de resposta a perguntas em linguagem natural. Contudo, modelos como GPT-4 e LLaMA 3 apresentam uma limitação crítica: a tendência a gerar respostas factualmente incorretas, fenômeno conhecido como alucinação (JI et al., 2023). Quando aplicados a domínios institucionais específicos, nos quais precisão e rastreabilidade das fontes são requisitos fundamentais, essa limitação torna-se especialmente problemática."),
-    p("A Recuperação Aumentada por Geração (RAG, do inglês Retrieval-Augmented Generation), proposta por Lewis et al. (2020), surge como solução ao combinar a capacidade generativa dos LLMs com a recuperação de trechos relevantes de uma base de conhecimento. Em vez de depender exclusivamente do conhecimento paramétrico do modelo, o sistema RAG recupera documentos pertinentes à consulta do usuário e os fornece como contexto ao LLM, restringindo a geração às informações presentes nas fontes."),
+    p("A Recuperação Aumentada por Geração (RAG, do inglês Retrieval-Augmented Generation), proposta por Lewis et al. (2020), surge como solução ao combinar a capacidade generativa dos LLMs com a recuperação de trechos relevantes de uma base de conhecimento externa. Em vez de depender exclusivamente do conhecimento paramétrico do modelo, o sistema RAG recupera documentos pertinentes à consulta do usuário e os fornece como contexto ao LLM, restringindo a geração às informações presentes nas fontes originais."),
 
-    subtitulo("1.1 Problema de Pesquisa"),
-    p("Dada a dificuldade de acesso eficiente à legislação institucional da UNESP Bauru, o presente trabalho formula a seguinte questão de pesquisa: em que medida um sistema RAG, baseado em busca vetorial por similaridade semântica, supera uma abordagem de busca textual tradicional (BM25/Full-Text Search) na recuperação de informações regulatórias institucionais em língua portuguesa?"),
+    h2("1.1 Problema de Pesquisa"),
+    p("Dada a dificuldade de acesso eficiente à legislação institucional da UNESP Bauru, o presente trabalho formula a seguinte questão de pesquisa: em que medida um sistema RAG baseado em busca vetorial por similaridade semântica, busca textual BM25 e sua fusão por Reciprocal Rank Fusion (RRF) se diferenciam na recuperação de documentos regulatórios institucionais em língua portuguesa, e qual combinação oferece o melhor desempenho?"),
 
-    subtitulo("1.2 Objetivos"),
-    subtitulo3("1.2.1 Objetivo Geral"),
-    p("Implementar e avaliar um sistema de Recuperação Aumentada por Geração (RAG) para consulta em linguagem natural de documentos regulatórios da UNESP Bauru, comparando seu desempenho com um baseline de busca textual tradicional."),
+    h2("1.2 Objetivos"),
+    h3("1.2.1 Objetivo Geral"),
+    p("Implementar e avaliar comparativamente três mecanismos de recuperação de informação — busca vetorial densa, busca textual esparsa (BM25) e busca híbrida por RRF — integrados a um sistema RAG para consulta em linguagem natural de documentos regulatórios da UNESP Bauru."),
 
-    subtitulo3("1.2.2 Objetivos Específicos"),
-    alínea("a", "Coletar, pré-processar e organizar o corpus de documentos regulatórios da UNESP Bauru;"),
-    alínea("b", "Implementar o pipeline de indexação composto por segmentação em chunks, geração de embeddings e armazenamento em banco de dados vetorial (pgvector);"),
-    alínea("c", "Implementar o pipeline de consulta RAG integrando recuperação vetorial e modelo de linguagem para geração de respostas fundamentadas nas fontes;"),
-    alínea("d", "Implementar o baseline de busca textual utilizando BM25/Full-Text Search sobre o mesmo corpus;"),
-    alínea("e", "Avaliar e comparar os dois sistemas utilizando métricas de recuperação de informação: Precision@K, Recall@K e Mean Reciprocal Rank (MRR)."),
+    h3("1.2.2 Objetivos Específicos"),
+    alinea("a", "Coletar, pré-processar e organizar o corpus de 936 documentos regulatórios da UNESP do portal sistemas.unesp.br/legislacao-web;"),
+    alinea("b", "Implementar o pipeline de indexação composto por segmentação em chunks (sliding window 350 palavras, sobreposição de 60), geração de embeddings multilinguais (intfloat/multilingual-e5-small, 384 dimensões) e persistência em PostgreSQL 16 com pgvector;"),
+    alinea("c", "Implementar os três mecanismos de recuperação: vetorial (HNSW + similaridade cosseno), textual (tsvector + GIN + BM25) e híbrido (RRF combinando os dois rankings anteriores);"),
+    alinea("d", "Avaliar os três métodos com um conjunto de 50 consultas anotadas manualmente, utilizando as métricas Hit@K (K = 1, 3, 5) e MRR;"),
+    alinea("e", "Desenvolver uma interface web (FastAPI + React) para uso em contexto de biblioteca universitária, integrando recuperação e geração de respostas via LLM (Groq/LLaMA 3.3 70B)."),
 
-    subtitulo("1.3 Justificativa"),
-    p("A adoção de sistemas de resposta a perguntas baseados em RAG para documentos institucionais representa uma contribuição tanto prática quanto científica. Do ponto de vista prático, reduz a carga administrativa ao automatizar respostas a dúvidas recorrentes de estudantes — sobre requisitos de estágio, atividades complementares, grades curriculares e prazos regulamentares —, liberando servidores para demandas mais complexas. Do ponto de vista científico, a avaliação comparativa entre busca vetorial e busca textual em um corpus institucional em língua portuguesa contribui para a literatura sobre sistemas RAG em domínios especializados, ainda escassa para o português."),
+    h2("1.3 Justificativa"),
+    p("A adoção de sistemas RAG para documentos institucionais representa contribuição tanto prática quanto científica. Do ponto de vista prático, o sistema automatiza respostas a dúvidas recorrentes de estudantes — sobre requisitos de estágio, atividades complementares, grades curriculares e prazos — liberando servidores para demandas mais complexas. O contexto de uso em biblioteca universitária (kiosque de consulta) é especialmente adequado, pois integra o serviço ao ambiente físico de orientação acadêmica já existente."),
+    p("Do ponto de vista científico, a avaliação comparativa entre busca vetorial, BM25 e RRF em um corpus institucional em língua portuguesa contribui para a literatura sobre sistemas RAG em domínios especializados. A maioria dos estudos de avaliação RAG concentra-se no inglês e em domínios como medicina ou legislação federal; corpora institucionais universitários em português ainda são pouco explorados. A disponibilização pública do conjunto de avaliação anotado (50 consultas com ground truth) constitui contribuição adicional para trabalhos futuros."),
 
     pageBreak(),
 
-    // CAP 2 - REFERENCIAL TEÓRICO
+    // ════════════════════════════════════════════════════════════════════════
+    // CAP 2 — REFERENCIAL TEÓRICO
+    // ════════════════════════════════════════════════════════════════════════
     titulo("2 Referencial Teórico"),
-    subtitulo("2.1 Modelos de Linguagem de Grande Porte e o Problema das Alucinações"),
-    p("Os Modelos de Linguagem de Grande Porte (LLMs) são redes neurais treinadas em vastos corpora textuais com o objetivo de modelar a distribuição probabilística de sequências de tokens. Modelos como a família GPT (OpenAI), LLaMA (Meta) e Claude (Anthropic) demonstraram capacidade notável de geração de texto coerente, tradução, sumarização e resposta a perguntas em linguagem natural."),
-    p("Entretanto, Ji et al. (2023) identificam e sistematizam o problema das alucinações em modelos de linguagem natural: a geração de conteúdo factualmente incorreto, porém fluente e aparentemente plausível. Os autores categorizam as alucinações em intrínsecas (contradição com o contexto fornecido) e extrínsecas (informações não verificáveis ou falsas). Em aplicações de alta precisão, como consulta a documentos regulatórios, essa característica representa um risco crítico, pois respostas incorretas sobre prazos, requisitos ou normas podem prejudicar diretamente os usuários."),
 
-    subtitulo("2.2 Recuperação Aumentada por Geração (RAG)"),
-    p("Lewis et al. (2020) introduziram o paradigma de Recuperação Aumentada por Geração (RAG) como solução para o problema do conhecimento estático nos LLMs. A arquitetura RAG combina um componente de recuperação (retriever), responsável por selecionar documentos relevantes de uma base de conhecimento externa, com um componente gerador (LLM), que produz respostas condicionadas tanto à pergunta do usuário quanto aos documentos recuperados."),
-    p("Gao et al. (2023) apresentam uma revisão abrangente das variantes de RAG, categorizando-as em: RAG Naive (recuperação simples seguida de geração), RAG Avançado (com pré e pós-processamento da recuperação) e RAG Modular (com componentes especializados e intercambiáveis). Os autores destacam que a qualidade do componente de recuperação é determinante para o desempenho do sistema, sendo a escolha entre busca vetorial e busca esparsa um dos principais fatores de diferenciação."),
+    h2("2.1 Modelos de Linguagem de Grande Porte e Alucinações"),
+    p("Os Modelos de Linguagem de Grande Porte (LLMs) são redes neurais autoregressivas treinadas em grandes corpora textuais com o objetivo de modelar a distribuição probabilística de sequências de tokens. Modelos como GPT-4 (OpenAI), LLaMA 3 (Meta) e Claude (Anthropic) demonstraram capacidade notável em tarefas de geração de texto, sumarização, tradução e resposta a perguntas em linguagem natural."),
+    p("Contudo, Ji et al. (2023) sistematizam o problema das alucinações em modelos de geração de linguagem natural: a produção de conteúdo factualmente incorreto, porém fluente e aparentemente plausível. Os autores distinguem alucinações intrínsecas (contradição com informação fornecida no prompt) de extrínsecas (informação não verificável ou falsa introduzida pelo modelo). Em aplicações institucionais — consulta de normas, prazos e requisitos regulamentares — respostas alucinadas podem causar prejuízo direto ao usuário que as toma como verdadeiras."),
 
-    subtitulo("2.3 Busca Vetorial e Modelos de Embedding"),
-    p("A busca vetorial por similaridade semântica baseia-se na representação de textos como vetores densos em espaços de alta dimensão, nos quais textos semanticamente similares ocupam regiões próximas. Modelos de embedding como o multilingual-e5-large (Wang et al., 2022) e o paraphrase-multilingual-MiniLM-L12-v2 (Reimers; Gurevych, 2019) são treinados para produzir representações que capturam similaridade semântica entre sentenças em múltiplos idiomas, incluindo o português."),
-    p("O armazenamento e a recuperação eficiente de vetores em larga escala são viabilizados por bancos de dados vetoriais. O pgvector (2021) é uma extensão open-source para PostgreSQL que adiciona suporte a tipos de dados vetoriais e operações de busca por vizinhos mais próximos aproximados (ANN), utilizando índices HNSW (Hierarchical Navigable Small World) ou IVFFlat. Sua integração ao PostgreSQL permite combinar busca vetorial e busca textual no mesmo sistema gerenciador de banco de dados, simplificando a arquitetura de sistemas RAG."),
+    h2("2.2 Recuperação Aumentada por Geração (RAG)"),
+    p("Lewis et al. (2020) introduziram o paradigma RAG como solução ao conhecimento estático dos LLMs. A arquitetura combina um retriever, que seleciona documentos relevantes de uma base de conhecimento externa, com um gerador (LLM), que produz respostas condicionadas tanto à pergunta do usuário quanto aos documentos recuperados. As respostas ficam assim ancoradas em fontes verificáveis, reduzindo alucinações e permitindo a citação das origens."),
+    p("Gao et al. (2023) revisam as variantes de RAG, distinguindo RAG Naive (recuperação simples seguida de geração), RAG Avançado (com reranking, query rewriting e pós-processamento) e RAG Modular (com componentes especializados e intercambiáveis). Os autores identificam que a qualidade do componente retriever é o principal fator de variação no desempenho do sistema, sendo a escolha entre busca densa e esparsa determinante para consultas com diferentes características linguísticas."),
 
-    subtitulo("2.4 Busca Textual Esparsa: BM25 e Full-Text Search"),
-    p("O BM25 (Best Match 25), formalizado por Robertson e Zaragoza (2009) como parte do Probabilistic Relevance Framework, é uma função de ranqueamento baseada em frequência de termos (TF) e frequência inversa de documentos (IDF), com normalização pelo comprimento do documento. Amplamente adotado como baseline em sistemas de recuperação de informação, o BM25 demonstra desempenho competitivo mesmo frente a métodos neurais em domínios com vocabulário técnico e especializado."),
-    p("O PostgreSQL implementa busca de texto completo (Full-Text Search) nativa por meio do tipo tsvector e do índice GIN (Generalized Inverted Index), com suporte a ranqueamento ts_rank compatível com BM25. Essa funcionalidade permite utilizar o mesmo banco de dados tanto para busca vetorial (via pgvector) quanto para busca textual, viabilizando a comparação experimental proposta neste trabalho."),
+    h2("2.3 Busca Vetorial e Modelos de Embedding"),
+    p("A busca vetorial por similaridade semântica representa textos como vetores densos em espaços de alta dimensão, de modo que textos semanticamente similares ocupam regiões próximas. Modelos de embedding como o intfloat/multilingual-e5-small (Wang et al., 2022) — com 384 dimensões — são treinados por contrastive learning em pares de textos similares e distintos, produzindo representações que capturam relações semânticas além da coincidência lexical. O prefixo \"query: \" é inserido antes das consultas e \"passage: \" antes dos documentos, seguindo a especificação do modelo E5."),
+    p("O armazenamento e a recuperação eficiente de vetores em larga escala são viabilizados por extensões de banco de dados vetorial. O pgvector (2021) adiciona ao PostgreSQL suporte a vetores de dimensão arbitrária e busca por vizinhos mais próximos aproximados (ANN) via índices HNSW (Hierarchical Navigable Small World) ou IVFFlat. A integração ao PostgreSQL permite executar busca vetorial e textual no mesmo sistema, simplificando a arquitetura e eliminando a necessidade de serviços externos como Pinecone ou Weaviate."),
+
+    h2("2.4 Busca Textual Esparsa: BM25 e Full-Text Search"),
+    p("O BM25 (Best Match 25), formalizado por Robertson e Zaragoza (2009), é uma função de ranqueamento baseada em frequência de termos (TF) e frequência inversa de documentos (IDF), com normalização pelo comprimento do documento. Amplamente adotado como baseline em recuperação de informação, o BM25 demonstra desempenho competitivo frente a métodos neurais em domínios com vocabulário técnico especializado e em consultas lexicais diretas."),
+    p("O PostgreSQL implementa busca de texto completo nativa por meio do tipo tsvector e do índice GIN (Generalized Inverted Index), com ranqueamento ts_rank_cd compatível com BM25. A extensão unaccent remove diacríticos durante a tokenização, essencial para o português, onde variações acentuadas (\"gestao\" vs. \"gestão\") devem ser tratadas como equivalentes. Para uso em colunas geradas (GENERATED ALWAYS AS), é necessário envolver unaccent() em uma função IMMUTABLE, contornando a restrição de volatilidade do PostgreSQL para expressões geradas."),
+
+    h2("2.5 Fusão Híbrida: Reciprocal Rank Fusion (RRF)"),
+    p("Cormack et al. (2009) propuseram o Reciprocal Rank Fusion como método para combinar múltiplos rankings de recuperação sem necessidade de calibração ou treinamento adicional. A pontuação de um documento d combinando m listas de ranking é:"),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 140, after: 140 },
+      children: [new TextRun({ text: "RRF(d) = Σᵢ 1 / (k + rankᵢ(d))", font: FONT, size: SIZE, italic: true })]
+    }),
+    p("onde rankᵢ(d) é a posição de d no ranking i e k é um parâmetro de suavização (tipicamente 60). O método demonstrou superar estratégias de fusão por aprendizado e métodos de ranqueamento individuais em benchmarks de recuperação ad hoc. No contexto RAG, o RRF é especialmente atraente por combinar a precisão lexical do BM25 com a compreensão semântica da busca vetorial, compensando as fraquezas de cada método em diferentes tipos de consulta."),
 
     pageBreak(),
 
-    // CAP 3 - METODOLOGIA
+    // ════════════════════════════════════════════════════════════════════════
+    // CAP 3 — METODOLOGIA
+    // ════════════════════════════════════════════════════════════════════════
     titulo("3 Metodologia"),
-    p("O trabalho está organizado em quatro fases sequenciais, descritas a seguir."),
+    p("O trabalho é organizado em cinco fases sequenciais: coleta do corpus, indexação, implementação dos três métodos de recuperação, desenvolvimento da interface web e avaliação experimental."),
 
-    subtitulo("3.1 Fase 1: Coleta e Pré-processamento do Corpus"),
-    p("O corpus documental é composto por duas fontes complementares:"),
-    alínea("a", "Resoluções e portarias oficiais da UNESP, coletadas do sistema de legislação institucional (sistemas.unesp.br/legislacao-web), compreendendo o período de 2016 a 2026 e totalizando aproximadamente 937 documentos em formato HTML;"),
-    alínea("b", "Documentos curriculares e regulamentares dos cursos de Bacharelado em Sistemas de Informação (BSI) e Bacharelado em Ciência da Computação (BCC) da Faculdade de Ciências de Bauru, obtidos nos portais dos respectivos cursos e compostos por 17 arquivos em formato PDF, cobrindo grades curriculares, regulamentos de estágio, normas de atividades complementares (AACC) e projetos político-pedagógicos."),
-    p("A coleta foi realizada por meio de scripts de web scraping desenvolvidos em Python, utilizando as bibliotecas requests e BeautifulSoup para extração de conteúdo HTML, e pdfplumber para extração de texto de PDFs. Os textos extraídos passaram por etapas de limpeza (remoção de cabeçalhos e rodapés repetidos, normalização de codificação UTF-8 e eliminação de caracteres de controle) e foram armazenados em arquivos de texto plano com metadados de origem (documento, seção, data)."),
+    h2("3.1 Fase 1 — Coleta e Pré-processamento do Corpus"),
+    p("O corpus é composto por 936 resoluções e portarias da UNESP, coletadas do sistema sistemas.unesp.br/legislacao-web por meio de um scraper Python desenvolvido com as bibliotecas requests e BeautifulSoup. O scraper percorre a lista de documentos disponível na página inicial do portal, extrai os metadados (número, ano, data) de cada resolução e realiza requisições GET individuais ao endpoint de texto integral, extraindo o conteúdo do elemento HTML div.painelTexto. Um intervalo de 1,2 segundos entre requisições foi adotado. O processo é controlado por um arquivo manifest.json que registra os documentos já coletados, permitindo retomada incremental."),
+    p("Os textos resultantes passaram por limpeza: remoção de cabeçalhos e rodapés repetidos, normalização de codificação UTF-8 e eliminação de caracteres de controle. Os arquivos limpos foram armazenados em data/legislacao/ com nomenclatura padronizada no formato resolucao_AAAA_NNNN.txt."),
 
-    subtitulo("3.2 Fase 2: Indexação — Chunking, Embeddings e pgvector"),
-    p("Os textos pré-processados são segmentados em chunks pelo método de janela deslizante (sliding window), com tamanho de 350 palavras e sobreposição de 60 palavras. Esse parâmetro foi definido com base nas recomendações de Gao et al. (2023) para balancear granularidade e contexto preservado."),
-    p("Os embeddings são gerados pelo modelo multilingual-e5-large (dimensão 1024), executado localmente via biblioteca sentence-transformers, sem custo de API. Os vetores resultantes são armazenados na tabela chunks do PostgreSQL com a extensão pgvector, com índice HNSW para busca eficiente por similaridade cosseno. A mesma tabela mantém uma coluna tsvector indexada por GIN para suporte ao baseline de busca textual."),
+    h2("3.2 Fase 2 — Indexação: Chunking, Embeddings e pgvector"),
+    p("Os textos pré-processados são segmentados em chunks pelo método de janela deslizante (sliding window), com tamanho de 350 palavras e sobreposição de 60 palavras. O corpus resultou em 4.229 chunks com média de aproximadamente 285 palavras por chunk."),
+    p("Os embeddings são gerados pelo modelo intfloat/multilingual-e5-small (384 dimensões), executado localmente via sentence-transformers sem custo de API. As consultas recebem o prefixo \"query: \" e os documentos o prefixo \"passage: \", conforme especificação do modelo. Os vetores são persistidos na coluna embedding (tipo vector(384)) da tabela chunks no PostgreSQL 16 com pgvector. Um índice HNSW com métrica de distância cosseno (ops: vector_cosine_ops) é criado sobre a coluna para busca ANN eficiente."),
+    p("Simultaneamente, cada chunk recebe uma coluna content_tsv (tipo tsvector), gerada automaticamente pela expressão to_tsvector('portuguese', unaccent_immutable(content)), onde unaccent_immutable é uma função SQL IMMUTABLE e PARALLEL SAFE que envolve a extensão unaccent. Um índice GIN é criado sobre content_tsv para busca textual eficiente."),
 
-    subtitulo("3.3 Fase 3: Pipeline de Consulta RAG e Baseline FTS"),
-    p("O pipeline de consulta RAG recebe a pergunta do usuário, gera seu embedding, realiza busca por similaridade no pgvector e fornece os K chunks mais similares como contexto a um LLM, que gera a resposta fundamentada nas fontes recuperadas. O baseline de Full-Text Search utiliza o mesmo mecanismo de recuperação, substituindo a busca vetorial pela busca textual nativa do PostgreSQL com ranqueamento BM25."),
+    h2("3.3 Fase 3 — Implementação dos Três Métodos de Recuperação"),
+    h3("3.3.1 Busca Vetorial"),
+    p("A busca vetorial calcula o embedding da consulta (com prefixo \"query: \"), realiza a operação de distância cosseno (<=> no pgvector) entre o vetor da consulta e os vetores indexados via HNSW e retorna os K chunks com menor distância. A pontuação final é 1 − distância_cosseno, resultando em valores em [0, 1]."),
 
-    subtitulo("3.4 Fase 4: Avaliação Experimental"),
-    p("A avaliação compara os dois sistemas com um conjunto de perguntas-teste elaboradas manualmente, com respostas de referência identificadas no corpus. As métricas utilizadas são:"),
-    alínea("a", "Precision@K: proporção de documentos relevantes entre os K recuperados;"),
-    alínea("b", "Recall@K: proporção de documentos relevantes recuperados entre todos os relevantes existentes;"),
-    alínea("c", "Mean Reciprocal Rank (MRR): média do recíproco da posição do primeiro documento relevante no ranking."),
+    h3("3.3.2 Busca Textual (FTS / BM25)"),
+    p("A busca textual converte a consulta em uma query tsvector via websearch_to_tsquery (com unaccent para remoção de diacríticos) e recupera os chunks com maior ts_rank_cd em relação ao índice GIN. websearch_to_tsquery suporta consultas em linguagem natural sem necessidade de operadores booleanos explícitos, adequado ao perfil de usuário do sistema."),
 
-    pageBreak(),
+    h3("3.3.3 Busca Híbrida (RRF)"),
+    p("A busca híbrida combina os rankings dos dois métodos anteriores via Reciprocal Rank Fusion com k = 60. Os top-50 resultados de cada método são recuperados; a pontuação RRF de cada chunk é calculada como 1/(60 + rank_vetorial) + 1/(60 + rank_fts), onde um rank inexistente implica ausência do termo no somatório. Os chunks são reordenados pela pontuação RRF combinada e os K melhores são retornados."),
 
-    // CAP 4 - DESENVOLVIMENTO
-    titulo("4 Desenvolvimento"),
-    subtitulo("4.1 Arquitetura do Sistema"),
-    p("O sistema foi desenvolvido em Python 3.11 e organizado em módulos independentes: coleta (scraper), extração e limpeza de texto (extract), segmentação (chunk), geração de embeddings (embeddings), persistência no banco de dados (db) e orquestração (pipeline). O banco de dados PostgreSQL 16 com a extensão pgvector é executado via Docker, garantindo reprodutibilidade do ambiente."),
+    h2("3.4 Fase 4 — Interface Web"),
+    p("Uma interface de consulta foi desenvolvida para o contexto de uso em biblioteca universitária. O backend é implementado em FastAPI (Python), expondo os endpoints POST /api/ask (recuperação + geração com LLM), POST /api/search (apenas recuperação) e GET /api/health. O LLM utilizado é o LLaMA 3.3 70B Versatile, acessado via API Groq (tier gratuito, compatível com OpenAI), com temperatura 0,1 e máximo de 800 tokens por resposta. O prompt do sistema instrui o modelo a responder exclusivamente com base nos trechos fornecidos, citando a resolução de origem."),
+    p("O frontend é implementado em React + Vite com uma interface de chat: o usuário digita a pergunta em uma caixa de texto, o sistema recupera os chunks mais relevantes pelo método selecionado, o LLM gera uma resposta fundamentada nas fontes e a interface exibe a resposta com cards expansíveis mostrando os trechos de origem e a pontuação de relevância. O método de busca pode ser alternado entre Híbrido (RRF), Vetorial e FTS por um seletor no rodapé da tela. O tempo de resposta é exibido ao final de cada mensagem."),
 
-    subtitulo("4.2 Coleta do Corpus"),
-    p("O corpus de legislação institucional foi coletado do sistema sistemas.unesp.br/legislacao-web, que disponibiliza o texto integral das resoluções e portarias da UNESP. O scraper desenvolvido lê a árvore de documentos disponível no HTML da página inicial, extrai os metadados de cada resolução (número, ano, data) e realiza requisições GET individuais para cada documento, extraindo o texto do elemento div.painelTexto. Um intervalo de 1,2 segundos entre requisições foi adotado para respeitar os recursos do servidor. O processo foi registrado em um arquivo manifest.json para permitir retomada incremental."),
-    p("Os documentos curriculares dos cursos de BSI e BCC foram obtidos nos portais dos respectivos departamentos e processados com a biblioteca pymupdf4llm, que converte PDFs para formato Markdown preservando a estrutura de tabelas — especialmente relevante para grades curriculares."),
-
-    subtitulo("4.3 Protótipo Funcional"),
-    p("Um protótipo completo do sistema foi implementado em Jupyter Notebooks, permitindo validação end-to-end do fluxo antes da migração para a arquitetura de produção. O protótipo utiliza ChromaDB como banco vetorial, o modelo paraphrase-multilingual-MiniLM-L12-v2 para embeddings e o LLaMA 3 (executado localmente via Ollama) como modelo gerador. A busca híbrida combina BM25 e busca vetorial utilizando Reciprocal Rank Fusion (RRF) para fusão dos rankings, com filtragem automática por curso (BSI ou BCC) quando identificado na pergunta do usuário."),
-    p("Testes qualitativos com o protótipo demonstraram respostas corretas a perguntas como \"Quais são as disciplinas optativas do BSI?\", \"Qual é a carga horária mínima de estágio?\" e \"Como funciona o aproveitamento de atividades complementares?\", com as fontes devidamente citadas na resposta."),
+    h2("3.5 Fase 5 — Avaliação Experimental"),
+    p("A avaliação utiliza um conjunto de 50 consultas anotadas manualmente, cada uma associada a um documento de referência identificado no corpus (ground truth de source único por consulta). As consultas são distribuídas em dois tipos:"),
+    alinea("a", "Lexical (26 consultas): termos do documento-alvo aparecem literalmente na pergunta, favorecendo a busca por palavras-chave;"),
+    alinea("b", "Semântica (24 consultas): a intenção é expressa por paráfrases ou sinônimos sem coincidência literal com o documento, favorecendo a busca por similaridade semântica."),
+    p("As métricas calculadas para cada método são: Hit@K (K = 1, 3, 5) — proporção de consultas em que o documento de referência aparece nos K primeiros resultados — e Mean Reciprocal Rank (MRR) — média do recíproco da posição do documento de referência no ranking (max K = 5), penalizando rankings onde o documento correto aparece em posições inferiores."),
+    p("A latência de cada componente (geração do embedding, busca vetorial, busca FTS, cálculo RRF) é medida em milissegundos via time.perf_counter(), reportando a média sobre as 50 consultas."),
 
     pageBreak(),
 
-    // CRONOGRAMA
-    titulo("Cronograma"),
-    pSemRecuo("Tabela 1 — Cronograma de atividades", { bold: true }),
+    // ════════════════════════════════════════════════════════════════════════
+    // CAP 4 — EXPERIMENTOS E RESULTADOS
+    // ════════════════════════════════════════════════════════════════════════
+    titulo("4 Experimentos e Resultados"),
+
+    h2("4.1 Configuração Experimental"),
+    p("Todos os experimentos foram executados em máquina local com processador Intel Core, 16 GB de RAM e sem GPU dedicada. O banco de dados PostgreSQL 16 com pgvector é executado em container Docker. O modelo de embedding intfloat/multilingual-e5-small é executado em CPU via sentence-transformers. O conjunto de avaliação compreende 50 consultas (26 lexicais, 24 semânticas) com ground truth de documento único. O parâmetro K = 5 é utilizado em todos os experimentos; o RRF usa k = 60 e busca os top-50 de cada método antes da fusão."),
+
+    h2("4.2 Resultados Globais"),
+    caption("Tabela 1 — Métricas de recuperação globais (50 consultas, K = 5). * = melhor valor por métrica."),
     br(),
-    cronogramaTable,
+    resultTable,
+    br(),
+    p("Os resultados globais, apresentados na Tabela 1, mostram que a busca híbrida por RRF obtém os melhores valores em todas as métricas de qualidade: Hit@1 = 0,560; Hit@3 = 0,840; Hit@5 = 0,900; MRR = 0,697. A busca vetorial ocupa a segunda posição global (MRR = 0,642) e o FTS apresenta o menor desempenho global (MRR = 0,457). Quanto à latência, o FTS é substancialmente mais rápido (~4 ms) do que os métodos que envolvem geração de embedding (~339–348 ms)."),
+
+    h2("4.3 Análise por Tipo de Consulta"),
+    caption("Tabela 2 — Hit@1 e MRR por tipo de consulta (K = 5). * = melhor valor por combinação tipo/métrica."),
+    br(),
+    typeTable,
+    br(),
+    p("A análise por tipo de consulta, exibida na Tabela 2, revela comportamentos complementares. Para consultas lexicais — em que termos do documento-alvo aparecem literalmente na pergunta —, o FTS supera os demais com MRR = 0,840, confirmando a eficácia do BM25 em correspondência exata de termos técnicos presentes nas resoluções. Para consultas semânticas — formuladas por paráfrases ou sinônimos —, a busca vetorial é amplamente superior (Hit@1 = 0,375; MRR = 0,517) frente ao colapso do FTS (Hit@1 = 0,042; MRR = 0,042). A busca híbrida RRF não apresenta valor extremo em nenhuma categoria, mas garante robustez em ambos os tipos."),
+
+    h2("4.4 Análise de Latência"),
+    p("A latência média de geração do embedding é de aproximadamente 325 ms por consulta, dominando o tempo total de resposta dos métodos vetorial (~339 ms) e híbrido (~348 ms). O FTS, por não requerer embedding, responde em ~4 ms, sendo adequado para interfaces com requisitos de resposta imediata. Em cenários de produção com GPU ou serviço de embedding por API, esse gargalo seria reduzido para dezenas de milissegundos, tornando a latência do RRF comparável ao FTS."),
+
+    h2("4.5 Discussão"),
+    p("Os resultados confirmam a hipótese principal: a busca híbrida por RRF é o método mais robusto para um corpus regulatório institucional que contém tanto consultas técnicas lexicais (números de resolução, termos específicos como \"AACC\", \"estágio obrigatório\") quanto consultas conceituais semânticas. O ganho do RRF sobre o melhor método individual (MRR 0,697 vs. 0,642) é modesto mas consistente, alinhado com a literatura de fusão de rankings (CORMACK et al., 2009)."),
+    p("A disparidade do FTS em consultas semânticas (MRR = 0,042) evidencia a limitação crítica da busca por palavras-chave quando o usuário parafraseia a consulta sem usar a terminologia exata do documento — cenário frequente em usuários não familiarizados com a nomenclatura regulatória. Esse padrão reforça o valor da dimensão semântica fornecida pelos embeddings. Inversamente, a superioridade do FTS em consultas lexicais indica que embeddings compactos (384 dims) perdem precisão quando a correspondência exata de termos técnicos é suficiente."),
+    p("Como trabalhos futuros, destacam-se: (i) melhoria na qualidade do pré-processamento para documentos com tabelas complexas; (ii) inclusão de metadados estruturados (número, ano, categoria da resolução) como filtros de busca; (iii) avaliação com modelos de embedding de maior dimensão (768 ou 1024 dims) para verificar impacto no desempenho semântico; (iv) reranking neural dos resultados RRF com cross-encoder; e (v) expansão do corpus com atas de reuniões do Conselho Universitário."),
 
     pageBreak(),
 
+    // ════════════════════════════════════════════════════════════════════════
+    // PLANO DE TRABALHO
+    // ════════════════════════════════════════════════════════════════════════
+    titulo("Plano de Trabalho"),
+    caption("Tabela 3 — Cronograma de atividades (X = período de execução previsto/realizado)."),
+    br(),
+    cronTable,
+    br(),
+    p("O cronograma distingue as atividades concluídas até a submissão do TCC I — levantamento bibliográfico, coleta do corpus, implementação do pipeline completo (indexação, três métodos de busca, interface web) e avaliação experimental — das previstas para o TCC II: análise aprofundada dos resultados, incorporação de trabalhos futuros e escrita da monografia final com banca de apresentação prevista para dezembro de 2026."),
+
+    pageBreak(),
+
+    // ════════════════════════════════════════════════════════════════════════
     // REFERÊNCIAS
+    // ════════════════════════════════════════════════════════════════════════
     titulo("Referências"),
-    pSemRecuo("GAO, Yunfan et al. Retrieval-augmented generation for large language models: a survey. arXiv:2312.10997, 2023. Disponível em: https://arxiv.org/abs/2312.10997. Acesso em: 2 jun. 2026."),
+
+    pSR("CORMACK, Gordon V.; CLARKE, Charles L. A.; BUETTCHER, Stefan. Reciprocal rank fusion outperforms condorcet and individual rank learning methods. In: ANNUAL INTERNATIONAL ACM SIGIR CONFERENCE ON RESEARCH AND DEVELOPMENT IN INFORMATION RETRIEVAL, 32., 2009, Boston. Proceedings [...]. New York: ACM, 2009. p. 758–759."),
     br(),
-    pSemRecuo("JI, Ziwei et al. Survey of hallucination in natural language generation. ACM Computing Surveys, v. 55, n. 12, p. 1–38, mar. 2023."),
+    pSR("GAO, Yunfan et al. Retrieval-augmented generation for large language models: a survey. arXiv:2312.10997, 2023. Disponível em: https://arxiv.org/abs/2312.10997. Acesso em: 5 jun. 2026."),
     br(),
-    pSemRecuo("LEWIS, Patrick et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. In: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS, 33., 2020. Anais [...]. [S. l.]: NeurIPS, 2020. p. 9459–9474."),
+    pSR("JI, Ziwei et al. Survey of hallucination in natural language generation. ACM Computing Surveys, v. 55, n. 12, p. 1–38, mar. 2023."),
     br(),
-    pSemRecuo("PGVECTOR. Open-source vector similarity search for PostgreSQL. Disponível em: https://github.com/pgvector/pgvector. Acesso em: 2 jun. 2026."),
+    pSR("LEWIS, Patrick et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. In: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS, 33., 2020, [S. l.]. Proceedings [...]. [S. l.]: NeurIPS, 2020. p. 9459–9474."),
     br(),
-    pSemRecuo("REIMERS, Nils; GUREVYCH, Iryna. Sentence-BERT: sentence embeddings using siamese BERT-networks. In: CONFERENCE ON EMPIRICAL METHODS IN NATURAL LANGUAGE PROCESSING, 2019. Anais [...]. [S. l.]: ACL, 2019. p. 3982–3992."),
+    pSR("PGVECTOR. Open-source vector similarity search for PostgreSQL. Disponível em: https://github.com/pgvector/pgvector. Acesso em: 5 jun. 2026."),
     br(),
-    pSemRecuo("ROBERTSON, Stephen; ZARAGOZA, Hugo. The probabilistic relevance framework: BM25 and beyond. Foundations and Trends in Information Retrieval, v. 3, n. 4, p. 333–389, 2009."),
+    pSR("REIMERS, Nils; GUREVYCH, Iryna. Sentence-BERT: sentence embeddings using siamese BERT-networks. In: CONFERENCE ON EMPIRICAL METHODS IN NATURAL LANGUAGE PROCESSING, 2019. Proceedings [...]. [S. l.]: ACL, 2019. p. 3982–3992."),
     br(),
-    pSemRecuo("WANG, Liang et al. Text embeddings by weakly-supervised contrastive pre-training. arXiv:2212.03533, 2022. Disponível em: https://arxiv.org/abs/2212.03533. Acesso em: 2 jun. 2026."),
+    pSR("ROBERTSON, Stephen; ZARAGOZA, Hugo. The probabilistic relevance framework: BM25 and beyond. Foundations and Trends in Information Retrieval, v. 3, n. 4, p. 333–389, 2009."),
+    br(),
+    pSR("WANG, Liang et al. Text embeddings by weakly-supervised contrastive pre-training. arXiv:2212.03533, 2022. Disponível em: https://arxiv.org/abs/2212.03533. Acesso em: 5 jun. 2026."),
   ]
 };
 
+// ══════════════════════════════════════════════════════════════════════════════
+// DOCUMENT
+// ══════════════════════════════════════════════════════════════════════════════
 const doc = new Document({
   styles: {
     default: {
@@ -353,25 +475,25 @@ const doc = new Document({
     paragraphStyles: [
       {
         id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { size: SIZE, bold: true, font: FONT },
+        run: { size: SIZE, bold: true, font: FONT, color: "000000" },
         paragraph: { spacing: { before: 280, after: 280 }, outlineLevel: 0 }
       },
       {
         id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { size: SIZE, bold: true, font: FONT },
+        run: { size: SIZE, bold: true, font: FONT, color: "000000" },
         paragraph: { spacing: { before: 280, after: 140 }, outlineLevel: 1 }
       },
       {
         id: "Heading3", name: "Heading 3", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { size: SIZE, bold: true, font: FONT },
-        paragraph: { spacing: { before: 140, after: 140 }, outlineLevel: 2 }
+        run: { size: SIZE, bold: true, font: FONT, color: "000000" },
+        paragraph: { spacing: { before: 200, after: 100 }, outlineLevel: 2 }
       },
     ]
   },
   sections: [preTextual, textual]
 });
 
-const outPath = "C:/Users/matheuslima/Downloads/TCC1_Matheus_Rafael_preliminar.docx";
+const outPath = "DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru.docx";
 Packer.toBuffer(doc).then(buf => {
   writeFileSync(outPath, buf);
   console.log("OK:", outPath);
