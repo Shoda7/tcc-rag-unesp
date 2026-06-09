@@ -92,6 +92,24 @@ def cmd_fts(args: argparse.Namespace) -> None:
         print(f"    {r['content'][:240]}...\n")
 
 
+def cmd_hybrid(args: argparse.Namespace) -> None:
+    from .embeddings import embed_query
+    from . import db
+
+    qvec = embed_query(args.query)
+    conn = db.connect()
+    results = db.search_hybrid(conn, qvec, args.query, k=args.k)
+    conn.close()
+
+    print(f"\nHibrido RRF: {args.query!r}\n")
+    if not results:
+        print("Nenhum resultado.")
+        return
+    for i, r in enumerate(results, 1):
+        print(f"[{i}] {r['source']} (chunk {r['chunk_index']}) rrf={r['rrf_score']:.5f}")
+        print(f"    {r['content'][:240]}...\n")
+
+
 def cmd_ask(args: argparse.Namespace) -> None:
     from .embeddings import embed_query
     from . import db, llm
@@ -151,6 +169,11 @@ def main() -> None:
     p_fts.add_argument("query", help="Pergunta em linguagem natural")
     p_fts.add_argument("-k", type=int, default=5, help="Numero de resultados")
     p_fts.set_defaults(func=cmd_fts)
+
+    p_hybrid = sub.add_parser("hybrid", help="Busca hibrida RRF (vetorial + FTS)")
+    p_hybrid.add_argument("query", help="Pergunta em linguagem natural")
+    p_hybrid.add_argument("-k", type=int, default=5, help="Numero de resultados")
+    p_hybrid.set_defaults(func=cmd_hybrid)
 
     p_ask = sub.add_parser("ask", help="Consulta RAG completa (recuperacao vetorial + GPT)")
     p_ask.add_argument("query", help="Pergunta em linguagem natural")

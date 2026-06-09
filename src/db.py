@@ -136,6 +136,45 @@ def search_fts(conn, query: str, k: int = 5) -> list[dict]:
     ]
 
 
+def search_hybrid(
+    conn,
+    query_embedding: list[float],
+    query_text: str,
+    k: int = 5,
+    rrf_k: int = 60,
+    fetch: int = 50,
+) -> list[dict]:
+    """Busca híbrida via Reciprocal Rank Fusion (RRF).
+
+    Combina os rankings da busca vetorial e da FTS usando a fórmula:
+        RRF(d) = 1/(rrf_k + rank_vec) + 1/(rrf_k + rank_fts)
+    rrf_k=60 é o valor padrão da literatura (Cormack et al., 2009).
+    fetch controla quantos candidatos cada método retorna antes da fusão.
+    """
+    vec_results = search_vector(conn, query_embedding, k=fetch)
+    fts_results = search_fts(conn, query_text, k=fetch)
+
+    scores: dict[tuple, float] = {}
+    content_map: dict[tuple, dict] = {}
+
+    for rank, r in enumerate(vec_results, 1):
+        key = (r["source"], r["chunk_index"])
+        scores[key] = scores.get(key, 0.0) + 1.0 / (rrf_k + rank)
+        content_map[key] = r
+
+    for rank, r in enumerate(fts_results, 1):
+        key = (r["source"], r["chunk_index"])
+        scores[key] = scores.get(key, 0.0) + 1.0 / (rrf_k + rank)
+        if key not in content_map:
+            content_map[key] = r
+
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:k]
+    return [
+        {**content_map[key], "rrf_score": score}
+        for key, score in ranked
+    ]
+
+
 def search_vector(conn, query_embedding: list[float], k: int = 5) -> list[dict]:
     """Recuperacao vetorial: retorna os k chunks mais similares (cosseno)."""
     with conn.cursor() as cur:
