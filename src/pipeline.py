@@ -75,6 +75,23 @@ def cmd_search(args: argparse.Namespace) -> None:
         print(f"    {r['content'][:240]}...\n")
 
 
+def cmd_fts(args: argparse.Namespace) -> None:
+    from . import db
+
+    conn = db.connect()
+    results = db.search_fts(conn, args.query, k=args.k)
+    conn.close()
+
+    print(f"\nFTS: {args.query!r}\n")
+    if not results:
+        print("Nenhum resultado.")
+        return
+    for i, r in enumerate(results, 1):
+        print(f"[{i}] {r['source']} (chunk {r['chunk_index']}) "
+              f"rank={r['rank']:.4f}")
+        print(f"    {r['content'][:240]}...\n")
+
+
 def cmd_status(args: argparse.Namespace) -> None:
     from . import db
     n_raw = len(list(config.DATA_RAW.glob("*.pdf")))
@@ -105,6 +122,11 @@ def main() -> None:
     p_search.add_argument("query", help="Pergunta em linguagem natural")
     p_search.add_argument("-k", type=int, default=5, help="Numero de resultados")
     p_search.set_defaults(func=cmd_search)
+
+    p_fts = sub.add_parser("fts", help="Consulta Full-Text Search (baseline BM25)")
+    p_fts.add_argument("query", help="Pergunta em linguagem natural")
+    p_fts.add_argument("-k", type=int, default=5, help="Numero de resultados")
+    p_fts.set_defaults(func=cmd_fts)
 
     args = parser.parse_args()
     args.func(args)
