@@ -138,7 +138,8 @@ export default function App() {
           >
             <option value="hybrid">Hibrido (RRF)</option>
             <option value="vector">Vetorial</option>
-            <option value="fts">FTS (BM25)</option>
+            <option value="bm25">BM25</option>
+            <option value="fts">FTS (PostgreSQL)</option>
           </select>
           <textarea
             className="input-box"

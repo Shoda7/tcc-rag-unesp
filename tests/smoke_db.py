@@ -1,18 +1,34 @@
 """Smoke test do banco: valida esquema, insercao e busca vetorial usando
 vetores sinteticos (nao baixa o modelo de embeddings).
 
+Roda em um banco separado (tcc_rag_smoke), para nunca tocar no indice real.
+
 Uso: python -m tests.smoke_db
 """
 from __future__ import annotations
 
-from src import db
+import psycopg
+
+from src import config, db
 from src.chunk import Chunk
 
 DIM = 4  # dimensao pequena so para o teste
+SMOKE_DB = "tcc_rag_smoke"
+
+
+def _ensure_smoke_db() -> None:
+    admin = psycopg.connect(**{**config.DB, "dbname": "postgres"}, autocommit=True)
+    exists = admin.execute(
+        "SELECT 1 FROM pg_database WHERE datname = %s", (SMOKE_DB,)
+    ).fetchone()
+    if not exists:
+        admin.execute(f"CREATE DATABASE {SMOKE_DB}")
+    admin.close()
 
 
 def main() -> None:
-    conn = db.connect()
+    _ensure_smoke_db()
+    conn = db.connect(dbname=SMOKE_DB)
     # Recria a tabela com dimensao pequena para o teste
     with conn.cursor() as cur:
         cur.execute("DROP TABLE IF EXISTS chunks")
@@ -43,7 +59,7 @@ def main() -> None:
     print("top-1:", results[0]["source"], results[0]["chunk_index"],
           f"sim={results[0]['similarity']:.3f}")
 
-    # Limpa a tabela de teste para nao poluir a base real
+    # Limpa a tabela de teste
     with conn.cursor() as cur:
         cur.execute("DROP TABLE IF EXISTS chunks")
     conn.commit()

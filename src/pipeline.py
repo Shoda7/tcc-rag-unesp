@@ -6,6 +6,10 @@ Etapas:
     index    -> chunking + embeddings + armazenamento no pgvector
     all      -> extract + index (assume PDFs ja em data/raw)
     search   -> consulta de teste (recuperacao vetorial)
+    fts      -> consulta de teste (FTS do PostgreSQL, ts_rank_cd)
+    bm25     -> consulta de teste (BM25 Okapi)
+    hybrid   -> consulta de teste (hibrido RRF: vetorial + BM25)
+    ask      -> RAG completo (hibrido RRF + geracao via Groq)
     status   -> mostra contagem de documentos/chunks
 
 Uso:
@@ -40,7 +44,8 @@ def cmd_index(args: argparse.Namespace) -> None:
         return
 
     model = get_model()
-    dim = model.get_sentence_embedding_dimension()
+    get_dim = getattr(model, "get_embedding_dimension", None) or               getattr(model, "get_sentence_embedding_dimension")
+    dim = get_dim()
 
     print(f"\nGerando embeddings de {len(chunks)} chunks...")
     vectors = embed_passages([c.text for c in chunks])
@@ -92,6 +97,23 @@ def cmd_fts(args: argparse.Namespace) -> None:
         print(f"    {r['content'][:240]}...\n")
 
 
+def cmd_bm25(args: argparse.Namespace) -> None:
+    from . import db
+
+    conn = db.connect()
+    results = db.search_bm25(conn, args.query, k=args.k)
+    conn.close()
+
+    print(f"\nBM25: {args.query!r}\n")
+    if not results:
+        print("Nenhum resultado.")
+        return
+    for i, r in enumerate(results, 1):
+        print(f"[{i}] {r['source']} (chunk {r['chunk_index']}) "
+              f"bm25={r['score']:.3f}")
+        print(f"    {r['content'][:240]}...\n")
+
+
 def cmd_hybrid(args: argparse.Namespace) -> None:
     from .embeddings import embed_query
     from . import db
@@ -116,7 +138,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
 
     qvec = embed_query(args.query)
     conn = db.connect()
-    chunks = db.search_vector(conn, qvec, k=args.k)
+    chunks = db.search_hybrid(conn, qvec, args.query, k=args.k)
     conn.close()
 
     if not chunks:
@@ -131,7 +153,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
     print("=" * 60)
     print("\nFontes consultadas:")
     for i, c in enumerate(chunks, 1):
-        print(f"  [{i}] {c['source']} — chunk {c['chunk_index']} (sim={c['similarity']:.3f})")
+        print(f"  [{i}] {c['source']} — chunk {c['chunk_index']} (rrf={c['rrf_score']:.5f})")
 
 
 def cmd_status(args: argparse.Namespace) -> None:
@@ -165,20 +187,25 @@ def main() -> None:
     p_search.add_argument("-k", type=int, default=5, help="Numero de resultados")
     p_search.set_defaults(func=cmd_search)
 
-    p_fts = sub.add_parser("fts", help="Consulta Full-Text Search (baseline BM25)")
+    p_fts = sub.add_parser("fts", help="Consulta Full-Text Search do PostgreSQL (ts_rank_cd)")
     p_fts.add_argument("query", help="Pergunta em linguagem natural")
     p_fts.add_argument("-k", type=int, default=5, help="Numero de resultados")
     p_fts.set_defaults(func=cmd_fts)
 
-    p_hybrid = sub.add_parser("hybrid", help="Busca hibrida RRF (vetorial + FTS)")
+    p_bm25 = sub.add_parser("bm25", help="Consulta lexical com BM25 Okapi")
+    p_bm25.add_argument("query", help="Pergunta em linguagem natural")
+    p_bm25.add_argument("-k", type=int, default=5, help="Numero de resultados")
+    p_bm25.set_defaults(func=cmd_bm25)
+
+    p_hybrid = sub.add_parser("hybrid", help="Busca hibrida RRF (vetorial + BM25)")
     p_hybrid.add_argument("query", help="Pergunta em linguagem natural")
     p_hybrid.add_argument("-k", type=int, default=5, help="Numero de resultados")
     p_hybrid.set_defaults(func=cmd_hybrid)
 
-    p_ask = sub.add_parser("ask", help="Consulta RAG completa (recuperacao vetorial + GPT)")
+    p_ask = sub.add_parser("ask", help="Consulta RAG completa (hibrido RRF + LLM via Groq)")
     p_ask.add_argument("query", help="Pergunta em linguagem natural")
     p_ask.add_argument("-k", type=int, default=5, help="Numero de chunks a recuperar")
-    p_ask.add_argument("--model", default=None, help="Modelo OpenAI (padrao: OPENAI_MODEL do .env)")
+    p_ask.add_argument("--model", default=None, help="Modelo do Groq (padrao: GROQ_MODEL do .env)")
     p_ask.set_defaults(func=cmd_ask)
 
     args = parser.parse_args()

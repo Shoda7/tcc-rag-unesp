@@ -1,6 +1,6 @@
 """Geracao de embeddings com modelo local open-source (sentence-transformers).
 
-Por padrao usa o intfloat/multilingual-e5-large. Os modelos da familia E5
+Por padrao usa o intfloat/multilingual-e5-small (384 dims). Os modelos da familia E5
 exigem prefixos: "passage: " para documentos indexados e "query: " para
 consultas. Esta classe cuida disso automaticamente.
 """

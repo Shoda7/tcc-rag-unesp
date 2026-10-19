@@ -55,7 +55,7 @@ def get_conn():
 class AskRequest(BaseModel):
     query: str = Field(..., min_length=3, max_length=500)
     k: int = Field(5, ge=1, le=20)
-    method: Literal["hybrid", "vector", "fts"] = "hybrid"
+    method: Literal["hybrid", "vector", "bm25", "fts"] = "hybrid"
 
 
 class SourceChunk(BaseModel):
@@ -74,7 +74,7 @@ class AskResponse(BaseModel):
 class SearchRequest(BaseModel):
     query: str = Field(..., min_length=3, max_length=500)
     k: int = Field(5, ge=1, le=20)
-    method: Literal["hybrid", "vector", "fts"] = "hybrid"
+    method: Literal["hybrid", "vector", "bm25", "fts"] = "hybrid"
 
 
 class SearchResponse(BaseModel):
@@ -133,16 +133,19 @@ def health():
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 def _retrieve(conn, query: str, k: int, method: str) -> list[dict]:
+    if method == "bm25":
+        return db.search_bm25(conn, query, k=k)
+    if method == "fts":
+        return db.search_fts(conn, query, k=k)
     qvec = embed_query(query)
     if method == "hybrid":
         return db.search_hybrid(conn, qvec, query, k=k)
-    if method == "vector":
-        return db.search_vector(conn, qvec, k=k)
-    return db.search_fts(conn, query, k=k)
+    return db.search_vector(conn, qvec, k=k)
 
 
 def _to_source(chunk: dict) -> SourceChunk:
-    score = chunk.get("rrf_score") or chunk.get("similarity") or chunk.get("rank") or 0.0
+    score = (chunk.get("rrf_score") or chunk.get("similarity")
+             or chunk.get("score") or chunk.get("rank") or 0.0)
     return SourceChunk(
         source=chunk["source"],
         chunk_index=chunk["chunk_index"],
