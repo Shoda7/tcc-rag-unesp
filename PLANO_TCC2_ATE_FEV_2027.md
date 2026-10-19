@@ -20,7 +20,7 @@
 |---|---|---|---|---|
 | 0 | Correções da avaliação e do texto | Claude | — | ✅ 14/10 |
 | 1 | Commit e organização do repositório | Claude | 0 | ✅ 19/10 |
-| 2 | Revisão do documento e contato com o orientador | Ambos | 1 | out (esta semana) |
+| 2 | Revisão do documento e contato com o orientador | Ambos | 1 | 🔄 lado do Claude feito em 19/10; faltam vocês |
 | 3 | Congelar o corpus (reprodutibilidade) | Ambos | 1 | out |
 | 4 | Planilhas de julgamento de relevância (*pooling*) | Ambos | 1 | fim de out–nov |
 | 5 | Coleta de perguntas reais de alunos | Ambos | 2 (resposta sobre CEP) | nov |
@@ -95,22 +95,33 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
   - versões antigas do TCC I movidas para `DOCUMENTO-ENVIO/arquivo-tcc1/` (o `.tex` continua ao lado do `.bib`);
   - **sem `push`:** não há remoto configurado. Se criarem um repositório no GitHub, eu adiciono o remoto e envio os commits e a tag.
 
-## Etapa 2 — Revisão do documento e contato com o orientador
+## Etapa 2 — Revisão do documento e contato com o orientador 🔄 (parte do Claude concluída em 19/10/2026)
 
 - [ ] **Quem:** Ambos · **Depende de:** 1
-- **Eu faço:**
-  - gerar o PDF da versão atual;
-  - escrever um rascunho de mensagem ao Prof. Clayton com:
-    - um resumo do que mudou desde o TCC I e por quê (BM25, conclusões novas);
-    - as perguntas abaixo.
+- **Eu fiz (19/10):**
+  - **Releitura do documento contra os dados.** Correções:
+    - "intervalos dos três primeiros métodos" → vetorial, BM25 e híbrido (o IC do FTS-PG não se sobrepõe ao do BM25);
+    - a frase "p95 abaixo de 200 ms" passou a ser calculada a partir do JSON;
+    - "código e resultados estão disponíveis no repositório" → "serão disponibilizados" (o repositório não é público);
+    - Objetivo Geral alinhado ao número de métodos;
+    - data de acesso da referência nova.
+  - **Referências novas conferidas na web:** Clarke et al. (2000), Holm (1979), Smucker et al. (2007), Malkov e Yashunin (2020) e Wang et al. (2024) estão com título, veículo e páginas corretos.
+  - **Sumário:** "Resumo", "Abstract" e "Sumário" saíram da lista (ABNT), e o `scripts/finalizar_docx.ps1` faz o Word preencher o sumário e exportar o PDF. O `.docx` agora já vem com o sumário atualizado (34 entradas).
+  - **PDF para o orientador:** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (25 páginas).
+  - **Rascunho da mensagem:** `DOCUMENTO-ENVIO/mensagem_orientador_2026-10-19.md`.
 - **Vocês fazem:**
-  - ler os caps. 4 e 5 (texto novo) e atualizar o sumário no Word;
-  - enviar a mensagem e trazer as respostas para:
-    1. data exata da entrega e da banca em fev/2027;
-    2. membros da banca;
-    3. se a versão final deve usar o **modelo Word oficial** do BSI ou se o documento gerado por script é aceito;
-    4. se coletar perguntas anônimas de alunos exige CEP (afeta a Etapa 5).
-- **Pronto quando:** as respostas estiverem registradas aqui no plano.
+  - ler o PDF, principalmente os caps. 4 e 5 (texto novo), e dizer o que quiserem mudar;
+  - ajustar e enviar a mensagem ao Prof. Clayton (com o PDF anexo);
+  - trazer as respostas e registrá-las na tabela abaixo.
+- **Pronto quando:** as respostas estiverem registradas aqui.
+
+| Pergunta ao orientador | Resposta |
+|---|---|
+| 1. Data de entrega/depósito e da banca em fev/2027; membros da banca | _(a preencher)_ |
+| 2. Modelo Word oficial do BSI ou documento atual | _(a preencher)_ |
+| 3. Perguntas anônimas de alunos exigem CEP? (afeta a Etapa 5) | _(a preencher)_ |
+| 4. Título: manter "UNESP Bauru" ou ajustar para "UNESP" | _(a preencher)_ |
+| 5. Retorno sobre o TCC I | _(a preencher)_ |
 
 ## Etapa 3 — Congelar o corpus
 
@@ -267,8 +278,12 @@ Em 14/10, o Docker Desktop 4.50 travou ao iniciar porque havia três *sockets* �
 
 Eles foram removidos e o Docker voltou a funcionar, com o volume `tcc_pgdata` intacto.
 
-Se a janela "An unexpected error occurred" aparecer de novo:
-- clique em **Quit**, nunca em "Reset to factory defaults" (isso apaga todos os containers e volumes);
-- remova o *socket* citado na mensagem. Pelo Windows ele não sai; pelo WSL funciona, por exemplo `wsl -d Ubuntu -- rm -f "/mnt/c/Users/matheuslima/AppData/Local/docker-secrets-engine/engine.sock"`.
+O erro **voltou a aparecer em 19/10** (o Docker deixa os sockets para trás quando fecha sem desligar direito), então é recorrente. Para resolver, com um comando:
+
+```powershell
+powershell -File scripts\docker_reparar.ps1
+```
+
+O script encerra o Docker, remove os sockets órfãos pelo WSL e abre o Docker de novo, sem tocar nos volumes. Depois espere cerca de 1 minuto até o `docker ps` responder. Na janela de erro, clique em **Quit**, nunca em "Reset to factory defaults" (isso apaga todos os containers e volumes).
 
 Há um backup do disco do Docker (3,8 GB) em `C:\Users\matheuslima\docker-backup-20261014\`. Pode ser apagado quando vocês quiserem.

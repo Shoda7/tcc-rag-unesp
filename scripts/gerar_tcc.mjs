@@ -43,6 +43,14 @@ const titulo = (text) => new Paragraph({
   children: [new TextRun({ text: text.toUpperCase(), font: FONT, size: SIZE, bold: true })]
 });
 
+// Títulos pré-textuais (Resumo, Abstract, Sumário): mesmo visual, mas fora da hierarquia
+// de títulos, para não aparecerem no próprio sumário (ABNT NBR 6027).
+const tituloPre = (text) => new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 0, after: 280 },
+  children: [new TextRun({ text: text.toUpperCase(), font: FONT, size: SIZE, bold: true })]
+});
+
 const h2 = (text) => new Paragraph({
   heading: HeadingLevel.HEADING_2,
   spacing: { before: 280, after: 140 },
@@ -320,7 +328,7 @@ const preTextual = {
     pageBreak(),
 
     // ── RESUMO ─────────────────────────────────────────────────────────────
-    titulo("Resumo"),
+    tituloPre("Resumo"),
     p(`Este trabalho apresenta a implementação e a avaliação experimental de um sistema de Recuperação Aumentada por Geração (RAG) para consulta em linguagem natural de documentos regulatórios da Universidade Estadual Paulista (UNESP), voltado ao uso na biblioteca do câmpus de Bauru. O corpus reúne 936 resoluções coletadas do portal sistemas.unesp.br/legislacao-web (2016–2026), segmentadas em 4.229 chunks por janela deslizante (350 palavras, sobreposição de 60) e indexadas em PostgreSQL 16 com a extensão pgvector. Quatro métodos de recuperação são comparados em um conjunto de ${R.meta.n_consultas} consultas anotadas (${T.lexical.n} lexicais e ${T.semantic.n} semânticas): busca vetorial densa (embeddings intfloat/multilingual-e5-small, 384 dimensões), BM25, busca textual nativa do PostgreSQL (ts_rank_cd) e busca híbrida por Reciprocal Rank Fusion (RRF) entre os rankings vetorial e BM25. A busca híbrida obteve os maiores valores globais (MRR = ${fmt(G.rrf.mrr)}; Hit@1 = ${fmt(G.rrf.hit1)}), seguida do BM25 (MRR = ${fmt(G.bm25.mrr)}) e da busca vetorial (MRR = ${fmt(G.vec.mrr)}); com ${R.meta.n_consultas} consultas, porém, as diferenças entre esses três métodos não foram estatisticamente significativas após a correção para comparações múltiplas. Nas consultas semânticas, a busca híbrida superou significativamente os dois métodos individuais (MRR = ${fmt(T.semantic.rrf.mrr)}, contra ${fmt(T.semantic.vec.mrr)} da vetorial e ${fmt(T.semantic.bm25.mrr)} do BM25). O BM25 superou amplamente a busca textual nativa do PostgreSQL (MRR = ${fmt(G.bm25.mrr)} contra ${fmt(G.fts.mrr)}), embora ambos usem o mesmo processamento de texto, o que evidencia o peso da função de ranqueamento. Foi desenvolvida ainda uma interface web (FastAPI + React) com geração de respostas por LLM, voltada ao uso em bibliotecas universitárias; a avaliação da qualidade das respostas geradas constitui a próxima etapa do trabalho.`),
     br(),
     pSR("Palavras-chave: Recuperação Aumentada por Geração. RAG. Modelos de Linguagem. Busca Vetorial. pgvector. Full-Text Search. BM25. Reciprocal Rank Fusion. UNESP."),
@@ -328,7 +336,7 @@ const preTextual = {
     pageBreak(),
 
     // ── ABSTRACT ───────────────────────────────────────────────────────────
-    titulo("Abstract"),
+    tituloPre("Abstract"),
     p(`This work presents the implementation and experimental evaluation of a Retrieval-Augmented Generation (RAG) system for natural-language querying of regulatory documents from São Paulo State University (UNESP), designed for use at the Bauru campus library. The corpus comprises 936 resolutions collected from the sistemas.unesp.br/legislacao-web portal (2016–2026), segmented into 4,229 chunks with a sliding window (350 words, 60-word overlap) and indexed in PostgreSQL 16 with the pgvector extension. Four retrieval methods are compared on a set of ${R.meta.n_consultas} annotated queries (${T.lexical.n} lexical and ${T.semantic.n} semantic): dense vector search (intfloat/multilingual-e5-small embeddings, 384 dimensions), BM25, PostgreSQL native full-text search (ts_rank_cd), and hybrid search via Reciprocal Rank Fusion (RRF) of the vector and BM25 rankings. Hybrid search achieved the highest overall scores (MRR = ${G.rrf.mrr.toFixed(3)}; Hit@1 = ${G.rrf.hit1.toFixed(3)}), followed by BM25 (MRR = ${G.bm25.mrr.toFixed(3)}) and vector search (MRR = ${G.vec.mrr.toFixed(3)}); with ${R.meta.n_consultas} queries, however, the differences among these three methods were not statistically significant after correction for multiple comparisons. On semantic queries, hybrid search significantly outperformed both individual methods (MRR = ${T.semantic.rrf.mrr.toFixed(3)}, versus ${T.semantic.vec.mrr.toFixed(3)} for vector search and ${T.semantic.bm25.mrr.toFixed(3)} for BM25). BM25 clearly outperformed PostgreSQL native full-text search (MRR = ${G.bm25.mrr.toFixed(3)} versus ${G.fts.mrr.toFixed(3)}), although both share the same text processing, which highlights the weight of the ranking function. A web interface (FastAPI + React) with LLM-generated answers was also developed for university library use; evaluating the quality of the generated answers is the next stage of the work.`),
     br(),
     pSR("Keywords: Retrieval-Augmented Generation. RAG. Language Models. Vector Search. pgvector. Full-Text Search. BM25. Reciprocal Rank Fusion. UNESP."),
@@ -336,7 +344,7 @@ const preTextual = {
     pageBreak(),
 
     // ── SUMÁRIO ─────────────────────────────────────────────────────────────
-    titulo("Sumário"),
+    tituloPre("Sumário"),
     new TableOfContents("Sumário", {
       hyperlink: true,
       headingStyleRange: "1-3",
@@ -374,7 +382,7 @@ const textual = {
 
     h2("1.2 Objetivos"),
     h3("1.2.1 Objetivo Geral"),
-    p("Implementar e avaliar comparativamente três mecanismos de recuperação de informação — busca vetorial densa, busca textual esparsa (BM25) e busca híbrida por RRF — integrados a um sistema RAG para consulta em linguagem natural de documentos regulatórios da UNESP aplicáveis ao câmpus de Bauru."),
+    p("Implementar e avaliar comparativamente mecanismos de recuperação de informação — busca vetorial densa, busca lexical (BM25) e busca híbrida por RRF, tendo a busca textual nativa do PostgreSQL como linha de base adicional — integrados a um sistema RAG para consulta em linguagem natural de documentos regulatórios da UNESP aplicáveis ao câmpus de Bauru."),
 
     h3("1.2.2 Objetivos Específicos"),
     alinea("a", "Coletar, pré-processar e organizar o corpus de 936 resoluções da UNESP publicadas no portal sistemas.unesp.br/legislacao-web;"),
@@ -479,13 +487,13 @@ const textual = {
     titulo("4 Experimentos e Resultados"),
 
     h2("4.1 Configuração Experimental"),
-    p(`Os experimentos foram executados em um notebook com processador Intel Core i7-1355U (13ª geração) e 32 GB de RAM; o modelo de embeddings foi executado em CPU via sentence-transformers. O PostgreSQL 16 com pgvector 0.8.2 é executado em container Docker. O conjunto de avaliação compreende ${R.meta.n_consultas} consultas (${T.lexical.n} lexicais e ${T.semantic.n} semânticas), cada uma com um único documento de referência. As métricas são calculadas sobre os ${R.meta.k} primeiros documentos distintos, obtidos dos ${R.meta.fetch_por_metodo} primeiros chunks de cada método; o RRF usa k = ${R.meta.rrf_k}, o BM25 usa k₁ = ${fmt(R.meta.bm25_k1, 1)} e b = ${fmt(R.meta.bm25_b, 2)}, e o índice HNSW usa ef_search = ${R.meta.hnsw_ef_search}. O código, o conjunto de avaliação e os resultados por consulta estão disponíveis no repositório do projeto.`),
+    p(`Os experimentos foram executados em um notebook com processador Intel Core i7-1355U (13ª geração) e 32 GB de RAM; o modelo de embeddings foi executado em CPU via sentence-transformers. O PostgreSQL 16 com pgvector 0.8.2 é executado em container Docker. O conjunto de avaliação compreende ${R.meta.n_consultas} consultas (${T.lexical.n} lexicais e ${T.semantic.n} semânticas), cada uma com um único documento de referência. As métricas são calculadas sobre os ${R.meta.k} primeiros documentos distintos, obtidos dos ${R.meta.fetch_por_metodo} primeiros chunks de cada método; o RRF usa k = ${R.meta.rrf_k}, o BM25 usa k₁ = ${fmt(R.meta.bm25_k1, 1)} e b = ${fmt(R.meta.bm25_b, 2)}, e o índice HNSW usa ef_search = ${R.meta.hnsw_ef_search}. O código, o conjunto de avaliação e os resultados por consulta serão disponibilizados publicamente junto com a versão final deste trabalho.`),
 
     h2("4.2 Resultados Globais"),
     caption("Tabela 1 — Métricas de recuperação globais (50 consultas, K = 5). Em negrito, o melhor valor de cada métrica."),
     resultTable,
     fonte(),
-    p(`Conforme a Tabela 1, a busca híbrida obteve os maiores valores de Hit@1 (${fmt(G.rrf.hit1)}), Hit@3 (${fmt(G.rrf.hit3)}) e MRR (${fmt(G.rrf.mrr)}) e empatou com a busca vetorial em Hit@5 (${fmt(G.rrf.hit5)}). O BM25 ficou em segundo lugar em MRR (${fmt(G.bm25.mrr)}) e Hit@1 (${fmt(G.bm25.hit1)}), à frente da busca vetorial (MRR = ${fmt(G.vec.mrr)}), e a busca textual nativa do PostgreSQL apresentou o menor desempenho (MRR = ${fmt(G.fts.mrr)}). Com a combinação dos termos por OU, todos os métodos retornaram resultados para todas as consultas. Os intervalos de confiança de 95% do MRR dos três primeiros métodos, contudo, sobrepõem-se amplamente, o que antecipa o resultado dos testes de significância.`),
+    p(`Conforme a Tabela 1, a busca híbrida obteve os maiores valores de Hit@1 (${fmt(G.rrf.hit1)}), Hit@3 (${fmt(G.rrf.hit3)}) e MRR (${fmt(G.rrf.mrr)}) e empatou com a busca vetorial em Hit@5 (${fmt(G.rrf.hit5)}). O BM25 ficou em segundo lugar em MRR (${fmt(G.bm25.mrr)}) e Hit@1 (${fmt(G.bm25.hit1)}), à frente da busca vetorial (MRR = ${fmt(G.vec.mrr)}), e a busca textual nativa do PostgreSQL apresentou o menor desempenho (MRR = ${fmt(G.fts.mrr)}). Com a combinação dos termos por OU, todos os métodos retornaram resultados para todas as consultas. Os intervalos de confiança de 95% do MRR dos métodos vetorial, BM25 e híbrido, contudo, sobrepõem-se amplamente, o que antecipa o resultado dos testes de significância.`),
 
     h2("4.3 Significância Estatística"),
     caption("Tabela 2 — Comparações pareadas do MRR (teste de aleatorização com 10.000 permutações; valores-p ajustados pelo método de Holm). Em negrito, diferenças significativas a 5%."),
@@ -503,7 +511,7 @@ const textual = {
     caption("Tabela 4 — Latência de recuperação por consulta, após aquecimento (inclui a geração do embedding nos métodos vetorial e híbrido)."),
     latTable,
     fonte(),
-    p(`Após o aquecimento, a geração do embedding da consulta levou, em mediana, ${ms(R.embedding_ms.median)} ms. A busca vetorial completa teve mediana de ${ms(G.vec.lat_median_ms)} ms e a híbrida, de ${ms(G.rrf.lat_median_ms)} ms; o BM25 respondeu em ${ms(G.bm25.lat_median_ms)} ms e a busca nativa do PostgreSQL em ${ms(G.fts.lat_median_ms)} ms, pois a combinação por OU torna candidatos muitos chunks, que precisam ser ranqueados. Na versão preliminar deste trabalho, a latência média reportada para a busca vetorial (cerca de 339 ms) incluía o carregamento do modelo na primeira consulta (12,4 s), o que distorcia a média. Em todos os métodos, a latência de recuperação ficou abaixo de 200 ms no percentil 95, valor adequado ao uso interativo; o tempo de geração da resposta pelo LLM será medido na avaliação da geração.`),
+    p(`Após o aquecimento, a geração do embedding da consulta levou, em mediana, ${ms(R.embedding_ms.median)} ms. A busca vetorial completa teve mediana de ${ms(G.vec.lat_median_ms)} ms e a híbrida, de ${ms(G.rrf.lat_median_ms)} ms; o BM25 respondeu em ${ms(G.bm25.lat_median_ms)} ms e a busca nativa do PostgreSQL em ${ms(G.fts.lat_median_ms)} ms, pois a combinação por OU torna candidatos muitos chunks, que precisam ser ranqueados. Na versão preliminar deste trabalho, a latência média reportada para a busca vetorial (cerca de 339 ms) incluía o carregamento do modelo na primeira consulta (12,4 s), o que distorcia a média. Em todos os métodos, o percentil 95 da latência de recuperação não passou de ${ms(Math.max(...METODOS.map(m => G[m].lat_p95_ms)))} ms, valor adequado ao uso interativo; o tempo de geração da resposta pelo LLM será medido na avaliação da geração.`),
 
     h2("4.6 Discussão"),
     p(`Os resultados revisados alteram a interpretação apresentada na versão preliminar. Naquela versão, a busca textual parecia falhar nas consultas semânticas (MRR de 0,042), o que sugeria uma vantagem clara da busca vetorial nesse tipo de consulta. A revisão mostrou que o efeito vinha da combinação dos termos por E: com a combinação por OU e o ranqueamento BM25, a busca lexical teve desempenho equivalente ao da vetorial também nas consultas semânticas. Uma explicação plausível é que, mesmo parafraseadas, as consultas compartilham com as resoluções termos institucionais específicos, como "reingresso", "extensão" e "diploma", que o IDF do BM25 valoriza.`),
@@ -564,7 +572,7 @@ const textual = {
     br(),
     pSR("WANG, Liang et al. Text embeddings by weakly-supervised contrastive pre-training. arXiv:2212.03533, 2022. Disponível em: https://arxiv.org/abs/2212.03533. Acesso em: 5 jun. 2026."),
     br(),
-    pSR("WANG, Liang et al. Multilingual E5 text embeddings: a technical report. arXiv:2402.05672, 2024. Disponível em: https://arxiv.org/abs/2402.05672. Acesso em: 14 out. 2026."),
+    pSR("WANG, Liang et al. Multilingual E5 text embeddings: a technical report. arXiv:2402.05672, 2024. Disponível em: https://arxiv.org/abs/2402.05672. Acesso em: 19 out. 2026."),
   ]
 };
 

@@ -154,7 +154,13 @@ python scripts/evaluate.py --csv data/resultados_avaliacao.csv --json data/resul
 
 # Regenera o documento do TCC (as tabelas são lidas do JSON acima)
 node scripts/gerar_tcc.mjs
+
+# Preenche o sumário no Word e exporta o PDF (feche o Word antes)
+powershell -File scripts/finalizar_docx.ps1 -Pdf DOCUMENTO-ENVIO\TCC_RAG_UNESP_Bauru_rascunho.pdf
 ```
+
+Se o Docker Desktop não abrir (erro "listening on unix://... The file cannot be accessed"):
+`powershell -File scripts/docker_reparar.ps1`.
 
 Métricas calculadas sobre os **5 primeiros documentos distintos** (a partir dos 50 primeiros chunks
 de cada método). Latência medida após aquecimento do modelo.
