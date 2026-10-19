@@ -14,12 +14,19 @@ from . import config
 from .chunk import Chunk
 
 
-def connect():
+# O indice HNSW devolve no maximo hnsw.ef_search candidatos (padrao do pgvector:
+# 40). A busca hibrida e a avaliacao pedem 50 por metodo, entao o valor e elevado.
+HNSW_EF_SEARCH = 200
+
+
+def connect(dbname: str | None = None):
     """Abre conexao com o banco e registra o tipo `vector`."""
-    conn = psycopg.connect(**config.DB)
+    params = {**config.DB, **({"dbname": dbname} if dbname else {})}
+    conn = psycopg.connect(**params)
     with conn.cursor() as cur:
         cur.execute("CREATE EXTENSION IF NOT EXISTS vector")
         cur.execute("CREATE EXTENSION IF NOT EXISTS unaccent")
+        cur.execute(f"SET hnsw.ef_search = {HNSW_EF_SEARCH}")
     conn.commit()
     register_vector(conn)
     return conn
@@ -114,26 +121,43 @@ def count_chunks(conn) -> int:
         return cur.fetchone()[0]
 
 
-def search_fts(conn, query: str, k: int = 5) -> list[dict]:
-    """Baseline Full-Text Search com BM25 (ts_rank_cd) e unaccent na query."""
+def search_fts(conn, query: str, k: int = 5, operator: str = "or") -> list[dict]:
+    """Full-Text Search nativo do PostgreSQL, ranqueado por ts_rank_cd.
+
+    ts_rank_cd e o ranqueamento por cover density (Clarke; Cormack; Tudhope,
+    2000) -- nao e BM25 (ver src/bm25.py). plainto_tsquery liga os termos com E
+    (&), exigindo todos no mesmo chunk; com operator="or" eles sao ligados com
+    OU (|), como fazem os modelos de ranqueamento classicos.
+    """
+    if operator not in ("or", "and"):
+        raise ValueError("operator deve ser 'or' ou 'and'.")
+    tsquery = "plainto_tsquery('portuguese', unaccent(%s))"
+    if operator == "or":
+        tsquery = f"replace({tsquery}::text, '&', '|')::tsquery"
     with conn.cursor() as cur:
         cur.execute(
-            """
+            f"""
+            WITH q AS (SELECT {tsquery} AS tsq)
             SELECT source, chunk_index, content,
-                   ts_rank_cd(content_tsv,
-                       plainto_tsquery('portuguese', unaccent(%s))) AS rank
-            FROM chunks
-            WHERE content_tsv @@ plainto_tsquery('portuguese', unaccent(%s))
+                   ts_rank_cd(content_tsv, q.tsq) AS rank
+            FROM chunks, q
+            WHERE content_tsv @@ q.tsq
             ORDER BY rank DESC
             LIMIT %s
             """,
-            (query, query, k),
+            (query, k),
         )
         rows = cur.fetchall()
     return [
         {"source": r[0], "chunk_index": r[1], "content": r[2], "rank": float(r[3])}
         for r in rows
     ]
+
+
+def search_bm25(conn, query: str, k: int = 5) -> list[dict]:
+    """Busca lexical com BM25 Okapi (ver src/bm25.py)."""
+    from . import bm25
+    return bm25.search(conn, query, k=k)
 
 
 def search_hybrid(
@@ -143,16 +167,23 @@ def search_hybrid(
     k: int = 5,
     rrf_k: int = 60,
     fetch: int = 50,
+    lexical: str = "bm25",
 ) -> list[dict]:
     """Busca híbrida via Reciprocal Rank Fusion (RRF).
 
-    Combina os rankings da busca vetorial e da FTS usando a fórmula:
-        RRF(d) = 1/(rrf_k + rank_vec) + 1/(rrf_k + rank_fts)
+    Combina os rankings da busca vetorial e da busca lexical (BM25 por padrão,
+    ou o FTS do PostgreSQL com lexical="fts") usando a fórmula:
+        RRF(d) = 1/(rrf_k + rank_vec) + 1/(rrf_k + rank_lex)
     rrf_k=60 é o valor padrão da literatura (Cormack et al., 2009).
     fetch controla quantos candidatos cada método retorna antes da fusão.
     """
     vec_results = search_vector(conn, query_embedding, k=fetch)
-    fts_results = search_fts(conn, query_text, k=fetch)
+    if lexical == "bm25":
+        lex_results = search_bm25(conn, query_text, k=fetch)
+    elif lexical == "fts":
+        lex_results = search_fts(conn, query_text, k=fetch)
+    else:
+        raise ValueError("lexical deve ser 'bm25' ou 'fts'.")
 
     scores: dict[tuple, float] = {}
     content_map: dict[tuple, dict] = {}
@@ -162,7 +193,7 @@ def search_hybrid(
         scores[key] = scores.get(key, 0.0) + 1.0 / (rrf_k + rank)
         content_map[key] = r
 
-    for rank, r in enumerate(fts_results, 1):
+    for rank, r in enumerate(lex_results, 1):
         key = (r["source"], r["chunk_index"])
         scores[key] = scores.get(key, 0.0) + 1.0 / (rrf_k + rank)
         if key not in content_map:
