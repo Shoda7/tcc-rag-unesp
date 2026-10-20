@@ -33,12 +33,20 @@ $word.Visible = $false
 $word.DisplayAlerts = 0
 try {
     $doc = $word.Documents.Open($docxPath)
+    # as listas de figuras, quadros e tabelas filtram por estilo (TOC com o filtro de estilos); o Word le o separador
+    # de lista da configuracao regional (";" no pt-BR), entao ajusto o codigo do campo ao da maquina
+    $sep = (Get-Culture).TextInfo.ListSeparator
+    foreach ($f in $doc.Fields) {
+        if ($f.Type -eq 13 -and $f.Code.Text.Contains('Leg') -and $f.Code.Text.Contains(',1"')) {
+            $f.Code.Text = $f.Code.Text.Replace(',1"', $sep + '1"')
+        }
+    }
     # duas passadas: a segunda corrige os numeros de pagina depois que o sumario ocupa seu espaco
     foreach ($i in 1..2) {
         foreach ($toc in $doc.TablesOfContents) { $toc.Update() }
         $null = $doc.Fields.Update()
     }
-    "Sumario: {0} entradas" -f ($doc.TablesOfContents | ForEach-Object { $_.Range.Paragraphs.Count } | Select-Object -First 1)
+    "Campos de indice (sumario e listas): " + (($doc.TablesOfContents | ForEach-Object { $_.Range.Paragraphs.Count }) -join ", ") + " entradas"
     "Paginas: {0}" -f $doc.ComputeStatistics(2)
     $doc.Save()
     $doc.ExportAsFixedFormat($pdfPath, 17)   # 17 = wdExportFormatPDF

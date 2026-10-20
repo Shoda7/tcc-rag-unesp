@@ -235,7 +235,7 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 
 ## Etapa 12 — Formatação final no modelo BSI
 
-> **Já adiantado em 19/10:** lista de abreviaturas e siglas (só as usadas, conferido pelo validador), siglas por extenso na primeira menção, apêndices e legendas com "Fonte:". **Falta:** decisão do orientador sobre o modelo Word oficial, ficha catalográfica, nomes da banca, ano 2027 na capa e (opcional) listas de ilustrações e de tabelas.
+> **Já adiantado em 19/10:** lista de abreviaturas e siglas (só as usadas, conferido pelo validador), listas de figuras, de quadros e de tabelas (campos do Word preenchidos por `finalizar_docx.ps1`, que ajusta o separador de lista da máquina), ano da capa e da folha de rosto = 2027 (constante `ANO_ENTREGA` em `gerar_tcc.mjs`), siglas por extenso na primeira menção, apêndices e legendas com "Fonte:". **Falta:** decisão do orientador sobre o modelo Word oficial, ficha catalográfica e nomes da banca.
 
 - [ ] **Quem:** Ambos · **Depende de:** 2 (decisão do formato), 6, 9, 10, 11
 - **Eu faço:**

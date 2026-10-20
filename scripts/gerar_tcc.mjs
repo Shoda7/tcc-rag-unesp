@@ -1,7 +1,7 @@
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, HeadingLevel, BorderStyle, WidthType, ShadingType,
-  PageNumber, Header, TableOfContents, PageBreak, VerticalAlign, ImageRun
+  PageNumber, Header, TableOfContents, StyleLevel, PageBreak, VerticalAlign, ImageRun
 } from "docx";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
@@ -36,6 +36,9 @@ const ms = (x) => fmt(x, 0);
 const A4_W = 11906, A4_H = 16838;
 const M_TOP = 1701, M_BOT = 1134, M_LEFT = 1701, M_RIGHT = 1134;
 const CONTENT_W = A4_W - M_LEFT - M_RIGHT; // ~9071 DXA
+
+// ano da capa e da folha de rosto (ano do depósito)
+const ANO_ENTREGA = 2027;
 
 const FONT = "Times New Roman";
 const SIZE = 24;   // 12 pt (half-points)
@@ -98,7 +101,10 @@ const alinea = (letter, text) => new Paragraph({
   children: [new TextRun({ text: `${letter}) ${text}`, font: FONT, size: SIZE })]
 });
 
+// o estilo da legenda (LegFigura, LegTabela, LegQuadro) permite ao Word montar as listas de ilustrações
+const estiloLegenda = (text) => (text.startsWith("Figura") ? "LegFigura" : text.startsWith("Tabela") ? "LegTabela" : "LegQuadro");
 const caption = (text) => new Paragraph({
+  style: estiloLegenda(text),
   alignment: AlignmentType.CENTER,
   keepNext: true,   // a legenda fica na mesma página da tabela ou figura
   spacing: { before: 80, after: 80, line: 300, lineRule: "auto" },
@@ -320,7 +326,7 @@ const preTextual = {
     pC("IMPLEMENTAÇÃO E AVALIAÇÃO DE UM SISTEMA DE RECUPERAÇÃO AUMENTADA POR GERAÇÃO (RAG) PARA CONSULTA DE DOCUMENTOS REGULATÓRIOS DA UNESP BAURU", { bold: true }),
     br(), br(), br(), br(),
     pC("Bauru"),
-    pC("2026"),
+    pC(String(ANO_ENTREGA)),
 
     pageBreak(),
 
@@ -349,7 +355,7 @@ const preTextual = {
     }),
     br(), br(), br(),
     pC("Bauru"),
-    pC("2026"),
+    pC(String(ANO_ENTREGA)),
 
     pageBreak(),
 
@@ -402,6 +408,17 @@ const preTextual = {
     br(),
     pSR("Keywords: Retrieval-Augmented Generation. RAG. Language Models. Vector Search. pgvector. Full-Text Search. BM25. Reciprocal Rank Fusion. UNESP."),
 
+    pageBreak(),
+
+    // ── LISTAS DE FIGURAS, QUADROS E TABELAS (campos do Word; preenchidos por finalizar_docx.ps1) ──
+    tituloPre("Lista de figuras"),
+    new TableOfContents("Lista de figuras", { hyperlink: true, stylesWithLevels: [new StyleLevel("LegFigura", 1)] }),
+    pageBreak(),
+    tituloPre("Lista de quadros"),
+    new TableOfContents("Lista de quadros", { hyperlink: true, stylesWithLevels: [new StyleLevel("LegQuadro", 1)] }),
+    pageBreak(),
+    tituloPre("Lista de tabelas"),
+    new TableOfContents("Lista de tabelas", { hyperlink: true, stylesWithLevels: [new StyleLevel("LegTabela", 1)] }),
     pageBreak(),
 
     // ── LISTA DE ABREVIATURAS E SIGLAS ──────────────────────────────────────
@@ -769,6 +786,10 @@ const doc = new Document({
       document: { run: { font: FONT, size: SIZE } }
     },
     paragraphStyles: [
+      ...["LegFigura", "LegTabela", "LegQuadro"].map(id => ({
+        id, name: id, basedOn: "Normal", next: "Normal",
+        run: { size: SIZE_SM, bold: true, font: FONT },
+      })),
       {
         id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
         run: { size: SIZE, bold: true, font: FONT, color: "000000" },
