@@ -33,13 +33,17 @@ _SYSTEM = (
     "Responda à pergunta do usuário com base exclusivamente nos trechos fornecidos. "
     "Se a informação não estiver nos trechos, diga claramente que não encontrou nos "
     "documentos disponíveis. Cite as fontes pelo nome do arquivo entre colchetes, "
-    "por exemplo [resolucao_2023_0001.txt]. Responda em português."
+    "por exemplo [resolucao_2023_0001.txt]; não use números nem qualquer outro formato "
+    "de citação. Seja objetivo: responda em até 150 palavras. Responda em português."
 )
 
+# Versão 2 dos prompts (após o piloto de 19/10/2026, em que 10 de 22 respostas com recuperação
+# usaram o formato de citação [n†L1-L9] e as respostas tinham mediana de ~430 palavras): a v2
+# fixa o formato da citação e limita o tamanho. A condição sem recuperação recebe o mesmo limite.
 _SYSTEM_SEM_CONTEXTO = (
     "Você é um assistente que responde perguntas sobre a Universidade Estadual Paulista (UNESP). "
-    "Responda em português. Se não souber ou não tiver certeza, diga claramente que não sabe, "
-    "sem inventar informações."
+    "Responda em português, de forma objetiva, em até 150 palavras. Se não souber ou não tiver "
+    "certeza, diga claramente que não sabe, sem inventar informações."
 )
 
 _MAX_TENTATIVAS = 8

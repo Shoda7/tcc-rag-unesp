@@ -1,0 +1,30 @@
+{
+  "descricao": "Piloto com o prompt v1 (sem limite de tamanho e sem proibir citacao numerica). Interrompido apos 33 respostas.",
+  "perguntas": [
+    "g01",
+    "g02",
+    "g03",
+    "g04",
+    "g05",
+    "g06",
+    "g07",
+    "g08",
+    "g09",
+    "g10",
+    "g11"
+  ],
+  "com_recuperacao": {
+    "n": 22,
+    "cita_arquivo": 14,
+    "cita_formato_numerico": 10,
+    "palavras_mediana": 433.5,
+    "tokens_resposta_medio": 938
+  },
+  "sem_recuperacao": {
+    "n": 11,
+    "cita_arquivo": 0,
+    "cita_formato_numerico": 0,
+    "palavras_mediana": 781,
+    "tokens_resposta_medio": 1415
+  }
+}

@@ -63,7 +63,16 @@ body {
   background: #fff;
   border: 1px solid #dde3ec;
   border-bottom-left-radius: 4px;
+  white-space: normal;   /* o conteúdo é markdown renderizado; as quebras vêm dos parágrafos */
 }
+.bubble-bot > :first-child { margin-top: 0; }
+.bubble-bot > :last-child { margin-bottom: 0; }
+.bubble-bot p { margin: 0 0 .6em; }
+.bubble-bot ul, .bubble-bot ol { margin: .3em 0 .6em; padding-left: 1.3em; }
+.bubble-bot li { margin: .15em 0; }
+.bubble-bot table { border-collapse: collapse; margin: .4em 0 .8em; font-size: .88rem; }
+.bubble-bot th, .bubble-bot td { border: 1px solid #dde3ec; padding: 4px 8px; text-align: left; vertical-align: top; }
+.bubble-bot th { background: #f0f4fa; }
 .bubble.loading { color: #888; font-style: italic; }
 
 .bubble-wrapper { display: flex; flex-direction: column; gap: 8px; max-width: 75%; }

@@ -12,6 +12,8 @@ const R = JSON.parse(readFileSync("data/resultados_resumo.json", "utf-8"));
 const CORPUS = JSON.parse(readFileSync("data/corpus_release.json", "utf-8"));
 // Prompts e parâmetros do sistema, exportados do código por `python scripts/exportar_config_doc.py`.
 const CFG = JSON.parse(readFileSync("data/config_sistema.json", "utf-8"));
+// Resumo do piloto da geração (prompt v1), arquivado em data/geracao/respostas_piloto_v1.jsonl.
+const PILOTO = JSON.parse(readFileSync("data/geracao/piloto_resumo.json", "utf-8"));
 const G = R.global;
 const T = R.por_tipo;
 const METODOS = ["vec", "fts", "bm25", "rrf"];
@@ -541,7 +543,12 @@ const textual = {
       ["Sem recuperação", CFG.prompt_sem_contexto],
     ], true),
     fonte("Fonte: elaborado pelos autores (2026), a partir de src/llm.py."),
+    p(`Os prompts do Quadro 2 são a segunda versão. Em um piloto com ${PILOTO.com_recuperacao.n + PILOTO.sem_recuperacao.n} respostas, geradas com a primeira versão (sem limite de tamanho e sem restrição ao formato da citação), ${PILOTO.com_recuperacao.cita_formato_numerico} das ${PILOTO.com_recuperacao.n} respostas com recuperação usaram um formato de citação não solicitado, que indica o número do trecho em vez do nome do arquivo (por exemplo, [1†L1-L9]), e o tamanho mediano das respostas foi de ${fmt(PILOTO.com_recuperacao.palavras_mediana, 0)} palavras com recuperação e ${fmt(PILOTO.sem_recuperacao.palavras_mediana, 0)} palavras sem recuperação, extensão inadequada ao uso em um quiosque e que dificulta a verificação por anotadores humanos. A segunda versão fixa o formato da citação e limita a resposta a 150 palavras. As respostas do piloto não fazem parte da avaliação.`),
     p("O frontend é implementado em React + Vite com uma interface de chat: o usuário digita a pergunta em uma caixa de texto, o sistema recupera os chunks mais relevantes pelo método selecionado, o LLM gera uma resposta fundamentada nas fontes e a interface exibe a resposta com cards expansíveis mostrando os trechos de origem e a pontuação de relevância. O método de busca pode ser alternado entre Híbrido (RRF), Vetorial, BM25 e FTS-PG por um seletor no rodapé da tela. O tempo de resposta é exibido ao final de cada mensagem."),
+    p("A Figura 3 mostra uma consulta na interface: a resposta cita a resolução de origem, e a lista \"Fontes consultadas\" exibe, ao se expandir um item, o trecho recuperado e a pontuação de relevância, o que permite ao usuário conferir a resposta no texto da norma."),
+    ...(existsSync("DOCUMENTO-ENVIO/figuras/fig_interface.png")
+      ? figura("DOCUMENTO-ENVIO/figuras/fig_interface.png", 11.5, "Figura 3 — Interface web do sistema com uma consulta e uma fonte expandida.", "Fonte: captura de tela do sistema desenvolvido (2026).")
+      : []),
 
     h2("3.5 Fase 5 — Avaliação Experimental"),
     p("A avaliação utiliza um conjunto de 50 consultas anotadas manualmente pelos autores, cada uma associada a um único documento de referência no corpus. As consultas abrangem 25 resoluções distintas e são distribuídas em dois tipos:"),

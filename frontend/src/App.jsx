@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import './App.css'
 
 const API = 'http://localhost:8000'
@@ -6,7 +8,7 @@ const API = 'http://localhost:8000'
 function SourceCard({ source }) {
   const [open, setOpen] = useState(false)
   const name = source.source
-    .replace('resolucao_', 'Resolucao ')
+    .replace('resolucao_', 'Resolução ')
     .replace('.txt', '')
     .replace(/_/g, '/')
   return (
@@ -41,7 +43,9 @@ function Message({ msg }) {
     <div className="msg msg-bot">
       <div className="avatar">U</div>
       <div className="bubble-wrapper">
-        <div className="bubble bubble-bot">{msg.content}</div>
+        <div className="bubble bubble-bot">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+        </div>
         {msg.sources?.length > 0 && (
           <div className="sources">
             <p className="sources-title">Fontes consultadas ({msg.sources.length})</p>
@@ -60,7 +64,7 @@ export default function App() {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      content: 'Ola! Sou o assistente de documentos regulatorios da UNESP Bauru. Faca uma pergunta sobre resolucoes, regimentos ou normas institucionais.',
+      content: 'Olá! Sou o assistente de documentos regulatórios da UNESP Bauru. Faça uma pergunta sobre resoluções, regimentos ou normas institucionais.',
       sources: [],
     }
   ])
@@ -119,7 +123,7 @@ export default function App() {
       <header className="header">
         <div className="header-inner">
           <h1>UNESP Bauru — Consulta de Regulamentos</h1>
-          <p>Perguntas sobre resolucoes, regimentos e normas institucionais</p>
+          <p>Perguntas sobre resoluções, regimentos e normas institucionais</p>
         </div>
       </header>
 
@@ -134,9 +138,9 @@ export default function App() {
             className="method-select"
             value={method}
             onChange={e => setMethod(e.target.value)}
-            title="Metodo de busca"
+            title="Método de busca"
           >
-            <option value="hybrid">Hibrido (RRF)</option>
+            <option value="hybrid">Híbrido (RRF)</option>
             <option value="vector">Vetorial</option>
             <option value="bm25">BM25</option>
             <option value="fts">FTS (PostgreSQL)</option>
@@ -144,7 +148,7 @@ export default function App() {
           <textarea
             className="input-box"
             rows={2}
-            placeholder="Digite sua duvida sobre regulamentos da UNESP..."
+            placeholder="Digite sua dúvida sobre regulamentos da UNESP..."
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
