@@ -22,7 +22,7 @@
 | 1 | Commit e organização do repositório | Claude | 0 | ✅ 19/10 |
 | 2 | Revisão do documento e contato com o orientador | Ambos | 1 | 🔄 lado do Claude feito em 19/10; faltam vocês |
 | 3 | Congelar o corpus (reprodutibilidade) | Ambos | 1 | 🔄 técnico feito em 19/10; falta publicar |
-| 4 | Planilhas de julgamento de relevância (*pooling*) | Ambos | 1 | fim de out–nov |
+| 4 | Planilhas de julgamento de relevância (*pooling*) | Ambos | 1 | 🔄 planilhas prontas em 19/10; falta anotar |
 | 5 | Coleta de perguntas reais de alunos | Ambos | 2 (resposta sobre CEP) | nov |
 | 6 | Reavaliação com julgamentos múltiplos | Claude | 4 (e 5, se houver) | nov |
 | 7 | Preparar o experimento de geração | Ambos | 1 | nov |
@@ -137,14 +137,16 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
   - depois, me passar o link para eu registrá-lo no README e no texto.
 - **Pronto quando:** o pacote estiver publicado e o link constar no README e no texto.
 
-## Etapa 4 — Planilhas de julgamento de relevância (*pooling*)
+## Etapa 4 — Planilhas de julgamento de relevância (*pooling*) 🔄 (planilhas prontas em 19/10/2026)
 
 - [ ] **Quem:** Ambos · **Depende de:** 1
-- **Eu faço:**
-  - criar o `scripts/pooling.py`: para cada consulta, junta os 5 primeiros documentos de cada um dos 4 métodos (cerca de 10 documentos distintos por consulta);
-  - exportar **uma planilha por anotador** com: consulta, título e trecho da resolução, coluna de relevância (0 = irrelevante, 1 = parcialmente relevante, 2 = relevante). A ordem é embaralhada, para não revelar o método;
-  - escrever um guia de anotação de 1 página.
-- **Vocês fazem:** Matheus e Rafael anotam **separadamente, sem conversar**. São cerca de 500 julgamentos por pessoa, umas 3 a 4 horas cada.
+- **Eu fiz (19/10):**
+  - `scripts/pooling.py`: para cada uma das 50 consultas, junta os 5 primeiros documentos dos 4 métodos e a referência atual: **626 linhas por anotador** (7 a 20 documentos por consulta, média de 12,5);
+  - `data/julgamentos/julgamento_matheus.xlsx` e `julgamento_rafael.xlsx`: o método não aparece, a ordem é embaralhada de forma diferente em cada uma, a coluna de nota só aceita 0/1/2 e há link oficial para cada resolução;
+  - `data/julgamentos/GUIA_ANOTACAO.md`: critérios (0/1/2), exemplos e regras;
+  - `data/julgamentos/pool.json` guarda qual método trouxe cada documento (**não abrir antes de anotar**);
+  - o script **se recusa a sobrescrever** planilhas que já têm notas.
+- **Vocês fazem:** ler o guia e anotar **separadamente, sem conversar**. Estimativa: 3 a 4 horas cada, em duas ou três sessões. Se for pesado demais, posso gerar uma versão mais curta (`--prof 3`).
 - **Pronto quando:** as duas planilhas estiverem preenchidas em `data/julgamentos/`.
 
 ## Etapa 5 — Coleta de perguntas reais de alunos

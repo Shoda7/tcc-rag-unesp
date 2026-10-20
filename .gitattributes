@@ -1,0 +1,4 @@
+[attr]lf text eol=lf
+
+# Somas de verificacao do corpus: fim de linha fixo, senao o hash do pacote muda no Windows
+data/corpus_checksums.sha256 lf

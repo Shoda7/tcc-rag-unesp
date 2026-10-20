@@ -22,3 +22,4 @@ openai>=1.30
 # --- Utilitários ---
 python-dotenv>=1.0
 tqdm>=4.66
+openpyxl>=3.1         # planilhas de anotacao (scripts/pooling.py)
