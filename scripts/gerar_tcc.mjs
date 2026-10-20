@@ -1,15 +1,17 @@
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, HeadingLevel, BorderStyle, WidthType, ShadingType,
-  PageNumber, Header, TableOfContents, PageBreak, VerticalAlign
+  PageNumber, Header, TableOfContents, PageBreak, VerticalAlign, ImageRun
 } from "docx";
-import { readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 
 // Resultados gerados por `python scripts/evaluate.py --json data/resultados_resumo.json`.
 // As tabelas e os números do texto vêm daqui, para não haver cópia manual.
 const R = JSON.parse(readFileSync("data/resultados_resumo.json", "utf-8"));
 // Corpus congelado por `python scripts/snapshot_corpus.py` (hash do pacote e metadados).
 const CORPUS = JSON.parse(readFileSync("data/corpus_release.json", "utf-8"));
+// Prompts e parâmetros do sistema, exportados do código por `python scripts/exportar_config_doc.py`.
+const CFG = JSON.parse(readFileSync("data/config_sistema.json", "utf-8"));
 const G = R.global;
 const T = R.por_tipo;
 const METODOS = ["vec", "fts", "bm25", "rrf"];
@@ -93,22 +95,46 @@ const alinea = (letter, text) => new Paragraph({
 
 const caption = (text) => new Paragraph({
   alignment: AlignmentType.CENTER,
+  keepNext: true,   // a legenda fica na mesma página da tabela ou figura
   spacing: { before: 80, after: 80, line: 300, lineRule: "auto" },
   children: [new TextRun({ text, font: FONT, size: SIZE_SM, bold: true })]
 });
 
-const fonte = () => new Paragraph({
+const fonte = (texto = "Fonte: elaborado pelos autores (2026).") => new Paragraph({
   alignment: AlignmentType.LEFT,
   spacing: { before: 60, after: 200 },
-  children: [new TextRun({ text: "Fonte: elaborado pelos autores (2026).", font: FONT, size: SIZE_SM })]
+  children: [new TextRun({ text: texto, font: FONT, size: SIZE_SM })]
 });
+
+// Figura PNG centralizada: legenda em cima, imagem, "Fonte:" embaixo (ABNT NBR 14724).
+// A altura é calculada pela proporção lida do cabeçalho do PNG (IHDR: largura e altura em big-endian).
+const figura = (arquivo, larguraCm, titulo, fonteTxt) => {
+  const data = readFileSync(arquivo);
+  const proporcao = data.readUInt32BE(20) / data.readUInt32BE(16);
+  const largPx = Math.round(larguraCm / 2.54 * 96);
+  return [
+    caption(titulo),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      keepNext: true,
+      spacing: { before: 60, after: 60 },
+      children: [new ImageRun({
+        type: "png", data,
+        transformation: { width: largPx, height: Math.round(largPx * proporcao) },
+        altText: { title: titulo, description: titulo, name: arquivo },
+      })],
+    }),
+    fonte(fonteTxt),
+  ];
+};
 
 // ── tabelas genéricas ───────────────────────────────────────────────────────
 const border = { style: BorderStyle.SINGLE, size: 4, color: "999999" };
 const borders = { top: border, bottom: border, left: border, right: border };
 
-// rows: matriz de strings; células terminadas em " *" saem em negrito (sem o asterisco)
-const tabela = (colW, rows) => new Table({
+// rows: matriz de strings; células terminadas em " *" saem em negrito (sem o asterisco).
+// esquerda = true alinha todo o texto à esquerda (quadros com texto corrido).
+const tabela = (colW, rows, esquerda = false) => new Table({
   width: { size: colW.reduce((a, b) => a + b, 0), type: WidthType.DXA },
   columnWidths: colW,
   rows: rows.map((row, ri) =>
@@ -125,7 +151,7 @@ const tabela = (colW, rows) => new Table({
           margins: { top: 60, bottom: 60, left: 100, right: 100 },
           verticalAlign: VerticalAlign.CENTER,
           children: [new Paragraph({
-            alignment: ci === 0 ? AlignmentType.LEFT : AlignmentType.CENTER,
+            alignment: esquerda || ci === 0 ? AlignmentType.LEFT : AlignmentType.CENTER,
             children: [new TextRun({
               text: destaque ? cell.slice(0, -2) : cell,
               font: FONT, size: SIZE_SM, bold: isHeader || destaque
@@ -391,7 +417,7 @@ const textual = {
     alinea("b", "Implementar o pipeline de indexação composto por segmentação em chunks (sliding window 350 palavras, sobreposição de 60), geração de embeddings multilinguais (intfloat/multilingual-e5-small, 384 dimensões) e persistência em PostgreSQL 16 com pgvector;"),
     alinea("c", "Implementar os mecanismos de recuperação: vetorial (HNSW + similaridade cosseno), lexical com BM25, busca textual nativa do PostgreSQL (tsvector + GIN + ts_rank_cd), como linha de base adicional, e híbrido (RRF combinando os rankings vetorial e BM25);"),
     alinea("d", "Avaliar os métodos com um conjunto de 50 consultas anotadas manualmente, utilizando as métricas Hit@K (K = 1, 3, 5), MRR e latência, com testes de significância estatística pareados;"),
-    alinea("e", "Desenvolver uma interface web (FastAPI + React) para uso em contexto de biblioteca universitária, integrando recuperação e geração de respostas via LLM (Groq/LLaMA 3.3 70B);"),
+    alinea("e", "Desenvolver uma interface web (FastAPI + React) para uso em contexto de biblioteca universitária, integrando recuperação e geração de respostas via LLM (Groq/gpt-oss-120b);"),
     alinea("f", "Avaliar a qualidade das respostas geradas quanto à correção, à fidelidade às fontes recuperadas e à citação dos documentos de origem (etapa prevista para o TCC II)."),
 
     h2("1.3 Justificativa"),
@@ -403,7 +429,7 @@ const textual = {
     // ════════════════════════════════════════════════════════════════════════
     // CAP 2 — REFERENCIAL TEÓRICO
     // ════════════════════════════════════════════════════════════════════════
-    titulo("2 Referencial Teórico"),
+    titulo("2 Referencial Teórico e Trabalhos Relacionados"),
 
     h2("2.1 Modelos de Linguagem de Grande Porte e Alucinações"),
     p("Os Modelos de Linguagem de Grande Porte (LLMs) são redes neurais autoregressivas treinadas em grandes corpora textuais com o objetivo de modelar a distribuição probabilística de sequências de tokens. Modelos como GPT-4 (OpenAI), LLaMA 3 (Meta) e Claude (Anthropic) demonstraram capacidade notável em tarefas de geração de texto, sumarização, tradução e resposta a perguntas em linguagem natural."),
@@ -439,6 +465,24 @@ const textual = {
     h2("2.6 Avaliação de Sistemas de Recuperação"),
     p("A avaliação de sistemas de recuperação de informação compara os rankings produzidos com julgamentos de relevância previamente anotados. Quando cada consulta possui um documento relevante conhecido, são adequadas métricas orientadas à posição desse documento: Hit@K, que indica se ele aparece entre os K primeiros resultados, e o Mean Reciprocal Rank (MRR), média do inverso da posição em que ele aparece. Como essas métricas são médias sobre um conjunto finito de consultas, diferenças entre sistemas podem decorrer do acaso. Smucker, Allan e Carterette (2007) compararam testes de significância usados em RI e recomendam o teste de aleatorização pareado (randomization test), que não pressupõe distribuição normal das diferenças. Quando várias comparações são feitas sobre os mesmos dados, os valores-p devem ser ajustados, por exemplo pelo método sequencial de Holm (1979), para controlar a probabilidade de falsos positivos."),
 
+    h2("2.7 Trabalhos Relacionados"),
+    p("Esta seção situa o trabalho em relação a estudos sobre recuperação densa e lexical, sobre recuperação de informação em português e no domínio jurídico brasileiro, sobre sistemas RAG para atendimento acadêmico e sobre a avaliação de respostas geradas e de alucinações."),
+
+    h3("2.7.1 Recuperação densa, lexical e híbrida"),
+    p("Karpukhin et al. (2020) mostraram que a recuperação densa por duplo codificador superava o BM25 na recuperação de passagens para perguntas de domínio aberto, o que impulsionou o uso de embeddings em sistemas RAG. O benchmark BEIR (THAKUR et al., 2021), que reúne conjuntos de dados heterogêneos avaliados sem ajuste ao domínio (zero-shot), relativizou esse resultado: o BM25 permaneceu uma linha de base robusta e, em vários conjuntos, superou modelos densos. Lin (2019) generaliza o alerta ao criticar trabalhos que anunciam ganhos de modelos neurais em relação a linhas de base fracas ou mal ajustadas. Esse alerta é pertinente a este trabalho: na versão preliminar, a linha de base lexical era a busca textual nativa do PostgreSQL, e não o BM25, e uma comparação nesses termos teria superestimado a vantagem da busca vetorial. No domínio jurídico, Rosa et al. (2021) obtiveram o segundo lugar na tarefa de recuperação de casos da competição COLIEE 2021 com um BM25 simples, reforçando a competitividade do método em textos normativos. A combinação de rankings lexical e denso por Reciprocal Rank Fusion (CORMACK et al., 2009) é, assim, uma alternativa natural, e este trabalho a avalia sobre um corpus regulatório em português."),
+
+    h3("2.7.2 Recuperação em português e no domínio jurídico brasileiro"),
+    p("Para o português, o mMARCO (BONIFACIO et al., 2021) oferece uma versão multilíngue do MS MARCO, com tradução do conjunto de passagens, e o Quati (BUENO et al., 2024) propõe um conjunto de recuperação em português brasileiro com consultas escritas por falantes nativos e julgamentos de relevância feitos com apoio de um modelo de linguagem. Ambos tratam de textos gerais, e não de documentos regulatórios institucionais. No domínio jurídico brasileiro, Bessa, Lobato e Junior (2026) descrevem um sistema híbrido que combina o algoritmo BM25L e um modelo de linguagem para lidar com o vocabulário jurídico e com a extensão dos documentos, o que converge com a escolha, neste trabalho, de combinar sinais lexicais e semânticos."),
+
+    h3("2.7.3 RAG para atendimento acadêmico"),
+    p("Há trabalhos recentes sobre assistentes baseados em RAG para o contexto universitário brasileiro. Sousa e Soares (2026) avaliam modelos de embedding compactos de código aberto, de até 0,6 bilhão de parâmetros, frente a modelos proprietários, em um assistente de atendimento acadêmico em português, com as métricas Recall, MRR e nDCG, e concluem que os modelos compactos são competitivos e de menor custo. Santos et al. (2026) apresentam o LIA, um assistente para consulta de diretrizes sobre inteligência artificial em universidades federais, que combina busca vetorial (ChromaDB), BM25 e um modelo de reranqueamento. Esses trabalhos indicam que a recuperação híbrida e o uso de modelos abertos de baixo custo já são práticas adotadas nesse contexto, o que motiva a comparação sistemática, com testes estatísticos, feita aqui."),
+
+    h3("2.7.4 Avaliação de RAG e alucinações"),
+    p("Es et al. (2024) propõem o RAGAs, que avalia sistemas RAG sem respostas de referência, por meio de medidas como a fidelidade da resposta ao contexto recuperado. No domínio jurídico, Dahl et al. (2024) documentam taxas elevadas de alucinação de modelos de linguagem em consultas jurídicas e propõem uma tipologia desses erros, e Magesh et al. (2025) mostram que mesmo ferramentas comerciais de pesquisa jurídica com recuperação ainda alucinam em parte das respostas, em uma avaliação pré-registrada com mais de 200 consultas. Esses estudos motivam a avaliação, no TCC II, da fidelidade das respostas geradas ao corpus, com anotação humana às cegas, e não apenas da qualidade da recuperação."),
+
+    h3("2.7.5 Posicionamento deste trabalho"),
+    p("Nos trabalhos consultados, não identificamos uma comparação que reúna, sobre um corpus regulatório universitário em português, a busca vetorial, o BM25, a busca textual nativa de um sistema gerenciador de banco de dados e a fusão por RRF, com testes de significância pareados e com a avaliação humana das respostas geradas. Este trabalho busca preencher essa lacuna, com uma pilha integralmente aberta e executável com recursos modestos, e disponibiliza o corpus, o conjunto de avaliação e os scripts para reprodução."),
+
     pageBreak(),
 
     // ════════════════════════════════════════════════════════════════════════
@@ -446,10 +490,28 @@ const textual = {
     // ════════════════════════════════════════════════════════════════════════
     titulo("3 Metodologia"),
     p("O trabalho é organizado em cinco fases sequenciais: coleta do corpus, indexação, implementação dos métodos de recuperação, desenvolvimento da interface web e avaliação experimental."),
+    p("A Figura 1 resume a arquitetura do sistema. A indexação, executada uma vez, transforma as resoluções em trechos com embeddings e índices no PostgreSQL; a consulta, executada a cada pergunta, recupera os cinco trechos mais relevantes e, quando se deseja uma resposta em linguagem natural, os fornece a um modelo de linguagem. O Quadro 1 relaciona cada componente ao arquivo que o implementa."),
+    ...figura("DOCUMENTO-ENVIO/figuras/fig_arquitetura.png", 15.5, "Figura 1 — Arquitetura do sistema: (a) indexação e (b) consulta.", "Fonte: elaborada pelos autores (2026)."),
+    caption("Quadro 1 — Componentes do sistema e arquivos que os implementam."),
+    tabela([1700, 2900, 4400], [
+      ["Componente", "Arquivo", "Responsabilidade"],
+      ["Coleta", "scripts/scrape_legislacao.py", "Baixa as resoluções do portal e registra a coleta em manifest.json."],
+      ["Segmentação", "src/chunk.py", `Janela deslizante de ${CFG.chunk_palavras} palavras, com sobreposição de ${CFG.chunk_sobreposicao}.`],
+      ["Embeddings", "src/embeddings.py", `${CFG.embedding_model.split("/")[1]} (sentence-transformers), com os prefixos query: e passage:.`],
+      ["Banco de dados", "src/db.py", "Esquema, índices HNSW e GIN e as buscas vetorial, FTS-PG e híbrida (RRF)."],
+      ["BM25", "src/bm25.py", "Índice invertido em memória, construído sobre os lexemas do PostgreSQL."],
+      ["Geração", "src/llm.py", "Prompts e chamada ao Groq, com e sem recuperação."],
+      ["API", "app/main.py", "Endpoints /api/ask, /api/search e /api/health (FastAPI)."],
+      ["Interface", "frontend/", "Chat em React + Vite, com seletor do método de busca."],
+      ["Avaliação", "scripts/evaluate.py", "Hit@K, MRR, latência e testes de significância."],
+    ], true),
+    fonte("Fonte: elaborado pelos autores (2026)."),
 
     h2("3.1 Fase 1 — Coleta e Pré-processamento do Corpus"),
     p("O corpus é composto por 936 resoluções da UNESP publicadas entre 2016 e 2026, coletadas da base de resoluções do sistema sistemas.unesp.br/legislacao-web por meio de um scraper Python desenvolvido com as bibliotecas requests e BeautifulSoup. Portarias e documentos anteriores a 2016 não foram coletados. O scraper percorre a lista de documentos disponível na página inicial do portal, extrai os metadados (número, ano, data) de cada resolução e realiza requisições GET individuais ao endpoint de texto integral. Foi adotado um intervalo de 1,2 segundo entre requisições, com novas tentativas em caso de falha do servidor. O processo é controlado por um arquivo manifest.json que registra os documentos já coletados, permitindo retomada incremental."),
     p("O texto integral de cada resolução é extraído do elemento HTML div.painelTexto, preservando as quebras de linha e removendo os espaços em branco das extremidades de cada linha; respostas sem documento (texto com menos de 500 caracteres ou correspondente à página padrão do portal) são descartadas. Como os documentos são publicados originalmente em HTML, não apresentam os artefatos típicos da extração de PDF, como cabeçalhos, rodapés e numeração de página, e nenhuma limpeza adicional foi necessária. Os textos foram armazenados em UTF-8 em data/legislacao/, no formato resolucao_AAAA_NNNN.txt. As resoluções somam cerca de 1,15 milhão de palavras, com mediana de 570 palavras por documento (mínimo de 124 e máximo de 74.640)."),
+    p("A Figura 2 mostra a composição do corpus. As resoluções distribuem-se de forma irregular entre os anos, com picos em 2019 e 2023; o ano de 2026 está incompleto porque a coleta foi feita em junho. Metade das resoluções tem até 570 palavras, isto é, cabe em um ou dois trechos, mas há documentos muito longos: os maiores são as normas dos processos seletivos (Olimpíadas Científicas e Vestibular), que incluem tabelas de vagas por curso e chegam a 74.640 palavras."),
+    ...figura("DOCUMENTO-ENVIO/figuras/fig_corpus.png", 15.5, "Figura 2 — Composição do corpus: (a) resoluções por ano e (b) distribuição do tamanho.", "Fonte: elaborada pelos autores (2026), a partir de data/legislacao/."),
     p(`Para garantir a reprodutibilidade, o corpus foi congelado em um pacote (${CORPUS.pacote}, com ${CORPUS.documentos} resoluções e o arquivo manifest.json) e identificado pela soma de verificação SHA-256 ${CORPUS.sha256_pacote}. A soma de cada arquivo está registrada no repositório do projeto, o que permite conferir se uma cópia do corpus é idêntica à utilizada nos experimentos. A coleta ocorreu entre ${CORPUS.coleta.inicio.split("-").reverse().join("/")} e ${CORPUS.coleta.fim.split("-").reverse().join("/")}; resoluções publicadas ou alteradas depois dessa data não fazem parte do corpus.`),
 
     h2("3.2 Fase 2 — Indexação: Chunking, Embeddings e pgvector"),
@@ -471,7 +533,14 @@ const textual = {
     p("A busca híbrida combina os rankings vetorial e BM25 via Reciprocal Rank Fusion com k = 60. Os 50 primeiros resultados de cada método são recuperados; a pontuação RRF de cada chunk é calculada como 1/(60 + rank_vetorial) + 1/(60 + rank_BM25), em que um chunk ausente de um dos rankings não recebe a parcela correspondente. Os chunks são reordenados pela pontuação RRF combinada e os K melhores são retornados."),
 
     h2("3.4 Fase 4 — Interface Web"),
-    p("Uma interface de consulta foi desenvolvida para o contexto de uso em biblioteca universitária. O backend é implementado em FastAPI (Python), expondo os endpoints POST /api/ask (recuperação + geração com LLM), POST /api/search (apenas recuperação) e GET /api/health. O LLM utilizado é o LLaMA 3.3 70B Versatile, acessado via API Groq (tier gratuito, compatível com OpenAI), com temperatura 0,1 e máximo de 800 tokens por resposta. O prompt do sistema instrui o modelo a responder exclusivamente com base nos trechos fornecidos, citando a resolução de origem."),
+    p("Uma interface de consulta foi desenvolvida para o contexto de uso em biblioteca universitária. O backend é implementado em FastAPI (Python), expondo os endpoints POST /api/ask (recuperação + geração com LLM), POST /api/search (apenas recuperação) e GET /api/health. O LLM utilizado é o gpt-oss-120b (OpenAI, pesos abertos), acessado via API Groq (tier gratuito, compatível com OpenAI), com temperatura 0,1, nível de raciocínio médio e máximo de 2.000 tokens por resposta, já que os tokens de raciocínio do modelo contam nesse limite. O modelo inicialmente adotado, o LLaMA 3.3 70B Versatile, deixou de ser oferecido pelo provedor durante o desenvolvimento e foi substituído por um modelo de porte e licença comparáveis. O prompt do sistema instrui o modelo a responder exclusivamente com base nos trechos fornecidos, citando a resolução de origem (Quadro 2). Para o experimento de avaliação da geração, o mesmo modelo é usado também sem recuperação (condição sem contexto), com um prompt que pede apenas que ele admita quando não souber."),
+    caption("Quadro 2 — Prompts do sistema nas duas condições de geração."),
+    tabela([2100, 6900], [
+      ["Condição", "Prompt do sistema"],
+      ["Com recuperação (RAG)", CFG.prompt_rag],
+      ["Sem recuperação", CFG.prompt_sem_contexto],
+    ], true),
+    fonte("Fonte: elaborado pelos autores (2026), a partir de src/llm.py."),
     p("O frontend é implementado em React + Vite com uma interface de chat: o usuário digita a pergunta em uma caixa de texto, o sistema recupera os chunks mais relevantes pelo método selecionado, o LLM gera uma resposta fundamentada nas fontes e a interface exibe a resposta com cards expansíveis mostrando os trechos de origem e a pontuação de relevância. O método de busca pode ser alternado entre Híbrido (RRF), Vetorial, BM25 e FTS-PG por um seletor no rodapé da tela. O tempo de resposta é exibido ao final de cada mensagem."),
 
     h2("3.5 Fase 5 — Avaliação Experimental"),
@@ -551,9 +620,19 @@ const textual = {
     // ════════════════════════════════════════════════════════════════════════
     titulo("Referências"),
 
+    pSR("BESSA, Ana Carolina C.; LOBATO, Fábio M. F.; JUNIOR, Antonio F. L. J. Development and evaluation of a hybrid information retrieval system applied to the Brazilian legal domain. In: INTERNATIONAL CONFERENCE ON COMPUTATIONAL PROCESSING OF PORTUGUESE (PROPOR), 17., 2026, Salvador. Proceedings [...]. v. 2. [S. l.]: Association for Computational Linguistics, 2026. p. 186–190."),
+    br(),
+    pSR("BONIFACIO, Luiz et al. mMARCO: a multilingual version of the MS MARCO passage ranking dataset. arXiv:2108.13897, 2021. Disponível em: https://arxiv.org/abs/2108.13897. Acesso em: 19 out. 2026."),
+    br(),
+    pSR("BUENO, Mirelle et al. Quati: a Brazilian Portuguese information retrieval dataset from native speakers. arXiv:2404.06976, 2024. Disponível em: https://arxiv.org/abs/2404.06976. Acesso em: 19 out. 2026."),
+    br(),
     pSR("CLARKE, Charles L. A.; CORMACK, Gordon V.; TUDHOPE, Elizabeth A. Relevance ranking for one to three term queries. Information Processing & Management, v. 36, n. 2, p. 291–311, 2000."),
     br(),
     pSR("CORMACK, Gordon V.; CLARKE, Charles L. A.; BUETTCHER, Stefan. Reciprocal rank fusion outperforms condorcet and individual rank learning methods. In: ANNUAL INTERNATIONAL ACM SIGIR CONFERENCE ON RESEARCH AND DEVELOPMENT IN INFORMATION RETRIEVAL, 32., 2009, Boston. Proceedings [...]. New York: ACM, 2009. p. 758–759."),
+    br(),
+    pSR("DAHL, Matthew et al. Large legal fictions: profiling legal hallucinations in large language models. Journal of Legal Analysis, v. 16, n. 1, p. 64–93, 2024. DOI 10.1093/jla/laae003."),
+    br(),
+    pSR("ES, Shahul et al. RAGAs: automated evaluation of retrieval augmented generation. In: CONFERENCE OF THE EUROPEAN CHAPTER OF THE ASSOCIATION FOR COMPUTATIONAL LINGUISTICS: SYSTEM DEMONSTRATIONS, 18., 2024, St. Julian's. Proceedings [...]. Stroudsburg: Association for Computational Linguistics, 2024. p. 150–158."),
     br(),
     pSR("GAO, Yunfan et al. Retrieval-augmented generation for large language models: a survey. arXiv:2312.10997, 2023. Disponível em: https://arxiv.org/abs/2312.10997. Acesso em: 5 jun. 2026."),
     br(),
@@ -561,7 +640,13 @@ const textual = {
     br(),
     pSR("JI, Ziwei et al. Survey of hallucination in natural language generation. ACM Computing Surveys, v. 55, n. 12, p. 1–38, mar. 2023."),
     br(),
+    pSR("KARPUKHIN, Vladimir et al. Dense passage retrieval for open-domain question answering. In: CONFERENCE ON EMPIRICAL METHODS IN NATURAL LANGUAGE PROCESSING (EMNLP), 2020, [S. l.]. Proceedings [...]. Stroudsburg: Association for Computational Linguistics, 2020. p. 6769–6781."),
+    br(),
     pSR("LEWIS, Patrick et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. In: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS, 33., 2020, [S. l.]. Proceedings [...]. [S. l.]: NeurIPS, 2020. p. 9459–9474."),
+    br(),
+    pSR("LIN, Jimmy. The neural hype and comparisons against weak baselines. ACM SIGIR Forum, v. 52, n. 2, p. 40–51, 2019."),
+    br(),
+    pSR("MAGESH, Varun et al. Hallucination-free? Assessing the reliability of leading AI legal research tools. Journal of Empirical Legal Studies, v. 22, n. 2, p. 216–242, 2025. DOI 10.1111/jels.12413."),
     br(),
     pSR("MALKOV, Yu. A.; YASHUNIN, D. A. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. IEEE Transactions on Pattern Analysis and Machine Intelligence, v. 42, n. 4, p. 824–836, 2020."),
     br(),
@@ -571,7 +656,15 @@ const textual = {
     br(),
     pSR("ROBERTSON, Stephen; ZARAGOZA, Hugo. The probabilistic relevance framework: BM25 and beyond. Foundations and Trends in Information Retrieval, v. 3, n. 4, p. 333–389, 2009."),
     br(),
+    pSR("ROSA, Guilherme Moraes et al. Yes, BM25 is a strong baseline for legal case retrieval. arXiv:2105.05686, 2021. Disponível em: https://arxiv.org/abs/2105.05686. Acesso em: 19 out. 2026."),
+    br(),
+    pSR("SANTOS, Anna Myllenne Araújo dos et al. LIA: um chatbot para consulta de diretrizes de inteligência artificial em universidades brasileiras. In: SIMPÓSIO BRASILEIRO DE INFORMÁTICA NA EDUCAÇÃO (SBIE), 37., 2026, Goiânia. Anais [...]. Porto Alegre: Sociedade Brasileira de Computação, 2026. p. 487–502. DOI 10.5753/sbie.2026.27205."),
+    br(),
     pSR("SMUCKER, Mark D.; ALLAN, James; CARTERETTE, Ben. A comparison of statistical significance tests for information retrieval evaluation. In: ACM CONFERENCE ON INFORMATION AND KNOWLEDGE MANAGEMENT, 16., 2007, Lisboa. Proceedings [...]. New York: ACM, 2007. p. 623–632."),
+    br(),
+    pSR("SOUSA, Mateus Henrique Ferreira de; SOARES, André Castelo Branco. RAG para atendimento acadêmico: uma avaliação de modelos de embedding compactos no contexto universitário. In: SIMPÓSIO BRASILEIRO DE INFORMÁTICA NA EDUCAÇÃO (SBIE), 37., 2026, Goiânia. Anais [...]. Porto Alegre: Sociedade Brasileira de Computação, 2026. p. 1701–1716. DOI 10.5753/sbie.2026.28059."),
+    br(),
+    pSR("THAKUR, Nandan et al. BEIR: a heterogeneous benchmark for zero-shot evaluation of information retrieval models. In: CONFERENCE ON NEURAL INFORMATION PROCESSING SYSTEMS (NeurIPS), 35., 2021, [S. l.]. Datasets and Benchmarks Track. [S. l.]: NeurIPS, 2021. arXiv:2104.08663. Disponível em: https://arxiv.org/abs/2104.08663. Acesso em: 19 out. 2026."),
     br(),
     pSR("WANG, Liang et al. Text embeddings by weakly-supervised contrastive pre-training. arXiv:2212.03533, 2022. Disponível em: https://arxiv.org/abs/2212.03533. Acesso em: 5 jun. 2026."),
     br(),
