@@ -38,7 +38,12 @@ CHUNK_OVERLAP_WORDS = int(os.getenv("CHUNK_OVERLAP_WORDS", "60"))
 
 # ----- LLM (Groq) -----
 GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# llama-3.3-70b-versatile deixou de existir no Groq (model_not_found em 19/10/2026); o substituto
+# adotado e o openai/gpt-oss-120b (pesos abertos, 120B). Modelos gpt-oss "raciocinam" antes de
+# responder e esses tokens contam em max_tokens, por isso o limite e maior que o de modelos comuns.
+GROQ_MODEL: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+GROQ_MAX_TOKENS: int = int(os.getenv("GROQ_MAX_TOKENS", "2000"))
+GROQ_REASONING_EFFORT: str = os.getenv("GROQ_REASONING_EFFORT", "medium")  # low | medium | high
 
 # ----- Scraper -----
 SCRAPER_SEEDS = [

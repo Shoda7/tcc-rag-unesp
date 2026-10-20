@@ -228,7 +228,7 @@ src/
   bm25.py           # BM25 Okapi sobre os lexemas do PostgreSQL
   db.py             # PostgreSQL + pgvector (schema, busca vetorial/FTS/BM25/RRF)
   embeddings.py     # embeddings locais (sentence-transformers)
-  llm.py            # geração de respostas via Groq
+  llm.py            # geração de respostas via Groq (openai/gpt-oss-120b; com e sem recuperação)
   pipeline.py       # CLI orquestrador
 docker-compose.yml
 requirements.txt

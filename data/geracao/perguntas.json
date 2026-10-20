@@ -1,0 +1,392 @@
+[
+ {
+  "pergunta": "Como um aluno pode abreviar o tempo de conclusão do curso?",
+  "tipo": "respondivel",
+  "origem": "q02",
+  "fontes": [
+   "resolucao_2018_0023.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g01"
+ },
+ {
+  "pergunta": "Quais são os prazos e períodos do ano letivo dos cursos de graduação?",
+  "tipo": "respondivel",
+  "origem": "q04",
+  "fontes": [
+   "resolucao_2024_0068.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g02"
+ },
+ {
+  "pergunta": "Posso receber bolsa para participar de projetos de extensão da UNESP?",
+  "tipo": "respondivel",
+  "origem": "q06",
+  "fontes": [
+   "resolucao_2017_0073.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g03"
+ },
+ {
+  "pergunta": "Quais são os tipos de apoio financeiro disponíveis para alunos da UNESP?",
+  "tipo": "respondivel",
+  "origem": "q08",
+  "fontes": [
+   "resolucao_2017_0004.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g04"
+ },
+ {
+  "pergunta": "Como funciona a votação eletrônica nas eleições da universidade?",
+  "tipo": "respondivel",
+  "origem": "q10",
+  "fontes": [
+   "resolucao_2016_0018.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g05"
+ },
+ {
+  "pergunta": "É possível retomar um curso de graduação após abandono ou cancelamento?",
+  "tipo": "respondivel",
+  "origem": "q12",
+  "fontes": [
+   "resolucao_2019_0057.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g06"
+ },
+ {
+  "pergunta": "Posso fazer parte do meu doutorado em uma universidade estrangeira?",
+  "tipo": "respondivel",
+  "origem": "q15",
+  "fontes": [
+   "resolucao_2024_0058.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g07"
+ },
+ {
+  "pergunta": "Quais são as regras para residentes entregarem o trabalho de conclusão?",
+  "tipo": "respondivel",
+  "origem": "q20",
+  "fontes": [
+   "resolucao_2023_0027.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g08"
+ },
+ {
+  "pergunta": "Posso usar ChatGPT e ferramentas de IA nos meus trabalhos acadêmicos na UNESP?",
+  "tipo": "respondivel",
+  "origem": "q22",
+  "fontes": [
+   "resolucao_2025_0013.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g09"
+ },
+ {
+  "pergunta": "Como funciona um curso de especialização na UNESP e quais são os requisitos?",
+  "tipo": "respondivel",
+  "origem": "q24",
+  "fontes": [
+   "resolucao_2024_0051.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g10"
+ },
+ {
+  "pergunta": "Como posso me transferir de outra universidade para a UNESP?",
+  "tipo": "respondivel",
+  "origem": "q26",
+  "fontes": [
+   "resolucao_2019_0077.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g11"
+ },
+ {
+  "pergunta": "Quais são as modalidades de ingresso e cotas sociais no vestibular da UNESP?",
+  "tipo": "respondivel",
+  "origem": "q30",
+  "fontes": [
+   "resolucao_2016_0061.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g12"
+ },
+ {
+  "pergunta": "Como a UNESP protege invenções e patentes desenvolvidas por pesquisadores?",
+  "tipo": "respondivel",
+  "origem": "q33",
+  "fontes": [
+   "resolucao_2020_0035.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g13"
+ },
+ {
+  "pergunta": "O diploma da UNESP pode ser emitido de forma digital e tem validade jurídica?",
+  "tipo": "respondivel",
+  "origem": "q35",
+  "fontes": [
+   "resolucao_2021_0022.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g14"
+ },
+ {
+  "pergunta": "Atividades de extensão são obrigatórias na grade curricular da graduação?",
+  "tipo": "respondivel",
+  "origem": "q38",
+  "fontes": [
+   "resolucao_2021_0041.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g15"
+ },
+ {
+  "pergunta": "Quais são as regras gerais para projetos e programas de extensão na UNESP?",
+  "tipo": "respondivel",
+  "origem": "q40",
+  "fontes": [
+   "resolucao_2022_0069.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g16"
+ },
+ {
+  "pergunta": "Quais são as condições e requisitos para realizar um pós-doutorado na UNESP?",
+  "tipo": "respondivel",
+  "origem": "q42",
+  "fontes": [
+   "resolucao_2025_0012.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g17"
+ },
+ {
+  "pergunta": "Um aluno com desempenho excepcional pode se formar antes do prazo mínimo do curso?",
+  "tipo": "respondivel",
+  "origem": "q43",
+  "fontes": [
+   "resolucao_2018_0023.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g18"
+ },
+ {
+  "pergunta": "Qual pró-reitoria coordena as bolsas de extensão universitária para graduandos?",
+  "tipo": "respondivel",
+  "origem": "q44",
+  "fontes": [
+   "resolucao_2017_0073.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g19"
+ },
+ {
+  "pergunta": "É possível cursar disciplinas no exterior mantendo vínculo com programa de pós-graduação da UNESP?",
+  "tipo": "respondivel",
+  "origem": "q45",
+  "fontes": [
+   "resolucao_2024_0058.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g20"
+ },
+ {
+  "pergunta": "Posso cursar disciplinas em outra universidade brasileira durante meu programa de pós-graduação?",
+  "tipo": "respondivel",
+  "origem": "q46",
+  "fontes": [
+   "resolucao_2024_0064.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g21"
+ },
+ {
+  "pergunta": "Existe prazo máximo para solicitar reingresso em curso de graduação na UNESP?",
+  "tipo": "respondivel",
+  "origem": "q47",
+  "fontes": [
+   "resolucao_2019_0057.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g22"
+ },
+ {
+  "pergunta": "Como é realizada a eleição eletrônica de dirigentes e órgãos colegiados da UNESP?",
+  "tipo": "respondivel",
+  "origem": "q48",
+  "fontes": [
+   "resolucao_2016_0018.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g23"
+ },
+ {
+  "pergunta": "A UNESP exige que teses e dissertações sejam disponibilizadas em acesso aberto?",
+  "tipo": "respondivel",
+  "origem": "q49",
+  "fontes": [
+   "resolucao_2021_0008.txt"
+  ],
+  "resposta_referencia": null,
+  "id": "g24"
+ },
+ {
+  "pergunta": "Quais tipos de bolsa podem ser pagas com recursos de convênios e contratos da UNESP e quem pode recebê-las?",
+  "tipo": "respondivel",
+  "origem": "nova",
+  "fontes": [
+   "resolucao_2019_0044.txt"
+  ],
+  "resposta_referencia": "Bolsas de ensino, de pesquisa, de extensão e de pós-doutorado (Art. 2º). Podem receber as três primeiras os alunos regulares de graduação, mestrado e doutorado que não recebam outra bolsa ou auxílio que exija exclusividade (Art. 3º). Res. 44/2019.",
+  "id": "g25"
+ },
+ {
+  "pergunta": "Até que data os alunos da graduação da UNESP podem renovar a matrícula para o ano letivo de 2020?",
+  "tipo": "respondivel",
+  "origem": "nova",
+  "fontes": [
+   "resolucao_2019_0073.txt"
+  ],
+  "resposta_referencia": "Até o limite máximo de 17 de janeiro de 2020 (Art. 3º, IX). Res. 73/2019.",
+  "id": "g26"
+ },
+ {
+  "pergunta": "Até que data deve ser concluído o processo seletivo de transferência para o início do ano letivo de 2018 na graduação da UNESP?",
+  "tipo": "respondivel",
+  "origem": "nova",
+  "fontes": [
+   "resolucao_2017_0076.txt"
+  ],
+  "resposta_referencia": "Até o limite máximo de 23/02/2018 para o início de ano (20/07/2018 para o meio de ano) (Art. 3º, VII). Res. 76/2017.",
+  "id": "g27"
+ },
+ {
+  "pergunta": "Quem pode se candidatar ao Vestibular Unesp Meio de Ano 2017?",
+  "tipo": "respondivel",
+  "origem": "nova",
+  "fontes": [
+   "resolucao_2017_0027.txt"
+  ],
+  "resposta_referencia": "Portador de certificado de conclusão do Ensino Médio ou equivalente, quem estiver cursando o Ensino Médio ou equivalente, e portador de diploma de curso superior (Art. 2º). Res. 27/2017.",
+  "id": "g28"
+ },
+ {
+  "pergunta": "Os diplomas de mestrado e doutorado da UNESP são emitidos em formato digital?",
+  "tipo": "respondivel",
+  "origem": "nova",
+  "fontes": [
+   "resolucao_2024_0050.txt"
+  ],
+  "resposta_referencia": "Sim: os diplomas dos concluintes de mestrado e doutorado dos programas stricto sensu passam a ser expedidos e registrados em formato digital (Art. 1º). Res. 50/2024.",
+  "id": "g29"
+ },
+ {
+  "pergunta": "Até que data as unidades da UNESP devem fixar o calendário escolar dos cursos de graduação para o ano letivo de 2017?",
+  "tipo": "respondivel",
+  "origem": "nova",
+  "fontes": [
+   "resolucao_2016_0081.txt"
+  ],
+  "resposta_referencia": "Até 28/11/2016, por Portaria do Diretor, com aprovação da Congregação e do Conselho Diretor (Art. 2º). Res. 81/2016.",
+  "id": "g30"
+ },
+ {
+  "pergunta": "Qual é o horário de funcionamento da biblioteca da Faculdade de Ciências de Bauru?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "sem_ocorrencia",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g31"
+ },
+ {
+  "pergunta": "Como solicito autorização para estacionar meu carro no câmpus de Bauru?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "sem_ocorrencia",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g32"
+ },
+ {
+  "pergunta": "Como me conecto à rede Wi-Fi eduroam nos câmpus da UNESP?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "sem_ocorrencia",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g33"
+ },
+ {
+  "pergunta": "Qual linha de ônibus passa na frente da Faculdade de Ciências de Bauru?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "sem_ocorrencia",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g34"
+ },
+ {
+  "pergunta": "Quais são os horários de funcionamento da piscina e das quadras esportivas da UNESP de Bauru?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "sem_ocorrencia",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g35"
+ },
+ {
+  "pergunta": "Qual é o cardápio do restaurante universitário desta semana?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "quase_respondivel",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g36"
+ },
+ {
+  "pergunta": "Qual é o valor atual da bolsa de iniciação científica da Fapesp?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "quase_respondivel",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g37"
+ },
+ {
+  "pergunta": "Qual é o salário de um professor assistente doutor da UNESP em 2026?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "quase_respondivel",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g38"
+ },
+ {
+  "pergunta": "Qual foi a nota de corte do curso de Sistemas de Informação de Bauru no vestibular de 2026?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "quase_respondivel",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g39"
+ },
+ {
+  "pergunta": "Quando será a próxima colação de grau dos formandos de Sistemas de Informação de Bauru?",
+  "tipo": "sem_resposta",
+  "origem": "nova",
+  "subtipo": "quase_respondivel",
+  "fontes": [],
+  "resposta_referencia": "Não há resposta no corpus; a resposta correta é informar que a informação não foi encontrada nos documentos.",
+  "id": "g40"
+ }
+]
