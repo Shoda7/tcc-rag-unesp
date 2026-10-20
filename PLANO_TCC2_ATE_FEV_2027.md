@@ -280,6 +280,8 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 
 ## Etapa X — *(Opcional)* Ablações
 
+> **Achado em 19/10:** 66% dos chunks de 350 palavras (2.795 de 4.229) passam de 512 tokens, o limite do `multilingual-e5-small`; o vetor só representa o início deles (o BM25 e o FTS usam o texto todo). Com 250 palavras e sobreposição de 40, só 2,4% passam. O texto do TCC ainda não menciona isso. **Script pronto:** `python scripts/ablacao_chunk.py --palavras 250 --sobreposicao 40` (banco separado `tcc_rag_abl_c250`, o índice principal não é tocado; saída em `data/ablacoes/`). A primeira execução foi interrompida em 19/10 (desligamento do notebook) durante os embeddings e **precisa ser refeita** (~15 min de CPU). Depois: escrever a seção "Ablação do tamanho do chunk" no cap. 4 e a limitação em 4.6. Como afeta o resultado central (busca vetorial e híbrida), vale fazer antes de dezembro, mesmo que o resto da Etapa X fique de fora.
+
 - [ ] **Quem:** Claude · **Depende de:** 6
 - **Eu faço:**
   - reindexar em tabelas separadas com `multilingual-e5-base` (768) e `multilingual-e5-large` (1024);
