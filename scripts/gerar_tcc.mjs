@@ -14,6 +14,9 @@ const CORPUS = JSON.parse(readFileSync("data/corpus_release.json", "utf-8"));
 const CFG = JSON.parse(readFileSync("data/config_sistema.json", "utf-8"));
 // Resumo do piloto da geração (prompt v1), arquivado em data/geracao/respostas_piloto_v1.jsonl.
 const PILOTO = JSON.parse(readFileSync("data/geracao/piloto_resumo.json", "utf-8"));
+// Conjuntos de perguntas dos apêndices.
+const EVAL = JSON.parse(readFileSync("data/eval_set.json", "utf-8"));
+const PERGUNTAS_GER = JSON.parse(readFileSync("data/geracao/perguntas.json", "utf-8"));
 const G = R.global;
 const T = R.por_tipo;
 const METODOS = ["vec", "fts", "bm25", "rrf"];
@@ -491,7 +494,7 @@ const textual = {
     // CAP 3 — METODOLOGIA
     // ════════════════════════════════════════════════════════════════════════
     titulo("3 Metodologia"),
-    p("O trabalho é organizado em cinco fases sequenciais: coleta do corpus, indexação, implementação dos métodos de recuperação, desenvolvimento da interface web e avaliação experimental."),
+    p("O trabalho é organizado em seis fases sequenciais: coleta do corpus, indexação, implementação dos métodos de recuperação, desenvolvimento da interface web, avaliação da recuperação e avaliação da geração de respostas."),
     p("A Figura 1 resume a arquitetura do sistema. A indexação, executada uma vez, transforma as resoluções em trechos com embeddings e índices no PostgreSQL; a consulta, executada a cada pergunta, recupera os cinco trechos mais relevantes e, quando se deseja uma resposta em linguagem natural, os fornece a um modelo de linguagem. O Quadro 1 relaciona cada componente ao arquivo que o implementa."),
     ...figura("DOCUMENTO-ENVIO/figuras/fig_arquitetura.png", 15.5, "Figura 1 — Arquitetura do sistema: (a) indexação e (b) consulta.", "Fonte: elaborada pelos autores (2026)."),
     caption("Quadro 1 — Componentes do sistema e arquivos que os implementam."),
@@ -550,13 +553,18 @@ const textual = {
       ? figura("DOCUMENTO-ENVIO/figuras/fig_interface.png", 11.5, "Figura 3 — Interface web do sistema com uma consulta e uma fonte expandida.", "Fonte: captura de tela do sistema desenvolvido (2026).")
       : []),
 
-    h2("3.5 Fase 5 — Avaliação Experimental"),
-    p("A avaliação utiliza um conjunto de 50 consultas anotadas manualmente pelos autores, cada uma associada a um único documento de referência no corpus. As consultas abrangem 25 resoluções distintas e são distribuídas em dois tipos:"),
+    h2("3.5 Fase 5 — Avaliação da Recuperação"),
+    p("A avaliação utiliza um conjunto de 50 consultas anotadas manualmente pelos autores (Apêndice A), cada uma associada a um único documento de referência no corpus. As consultas abrangem 25 resoluções distintas e são distribuídas em dois tipos:"),
     alinea("a", "Lexical (26 consultas): termos do documento-alvo aparecem literalmente na pergunta, favorecendo a busca por palavras-chave;"),
     alinea("b", "Semântica (24 consultas): a intenção é expressa por paráfrases ou sinônimos sem coincidência literal com o documento, favorecendo a busca por similaridade semântica."),
     p("Como os métodos retornam chunks e a relevância é atribuída a documentos, cada ranking é convertido em uma lista de documentos distintos, na ordem de sua primeira ocorrência entre os 50 primeiros chunks; as métricas são calculadas sobre os cinco primeiros documentos distintos. As métricas são Hit@K (K = 1, 3, 5), proporção de consultas em que o documento de referência aparece entre os K primeiros documentos, e o Mean Reciprocal Rank (MRR), média do inverso da posição do documento de referência (zero quando ele não aparece entre os cinco primeiros)."),
     p("Para verificar se as diferenças observadas são estatisticamente significativas, aplica-se o teste de aleatorização pareado sobre o recíproco da posição obtido em cada consulta, com 10.000 permutações (SMUCKER; ALLAN; CARTERETTE, 2007), comparando-se a busca híbrida com a vetorial e com o BM25, a vetorial com o BM25 e o BM25 com a busca textual nativa; os valores-p dessas quatro comparações são ajustados pelo método de Holm (1979). Intervalos de confiança de 95% para o MRR são estimados por bootstrap percentil com 10.000 reamostragens."),
     p("Antes das medições, o modelo de embeddings e o índice BM25 são carregados e cada método é executado uma vez (aquecimento), para que o custo de inicialização não seja atribuído à primeira consulta. A latência de cada método é medida com time.perf_counter() e inclui, nos métodos vetorial e híbrido, o tempo de geração do embedding da consulta; são reportados a mediana e o percentil 95 sobre as 50 consultas."),
+
+    h2("3.6 Fase 6 — Avaliação da Geração de Respostas"),
+    p("Para avaliar as respostas geradas pelo LLM, foi montado um conjunto de 40 perguntas (Apêndice B): 30 respondíveis com o corpus, sendo 24 as consultas semânticas da avaliação da recuperação (já escritas como perguntas) e 6 perguntas novas, formuladas sobre resoluções que as anteriores não cobrem e com a resposta de referência extraída do artigo correspondente; e 10 sem resposta no corpus. Entre as 10 sem resposta, cinco tratam de assuntos que não aparecem em nenhuma das 936 resoluções (verificado por busca de palavras-chave) e cinco são \"quase respondíveis\": o tema aparece nas resoluções, mas o dado pedido, não. Um exemplo é o valor da bolsa de iniciação científica da Fapesp, mencionado nas resoluções apenas como base de cálculo de um múltiplo. Essas perguntas verificam se o modelo reconhece a ausência da informação em vez de inventá-la."),
+    p("Cada pergunta é respondida em três condições, com o mesmo modelo e os mesmos parâmetros da Seção 3.4: (i) sem recuperação, apenas com o conhecimento do modelo; (ii) RAG com os cinco trechos mais bem ranqueados pela busca vetorial; e (iii) RAG com os cinco trechos da busca híbrida, o que resulta em 120 respostas. Registram-se também a latência e o número de tokens de cada chamada."),
+    p("As respostas são anotadas pelos dois autores, de forma independente e às cegas quanto à condição, com identificadores anônimos e ordem embaralhada. Os critérios são: correção (0, 1 ou 2, nas perguntas respondíveis); alucinação (sim ou não); citação correta (as resoluções citadas trazem de fato a informação afirmada); e recusa adequada (nas perguntas sem resposta, se o modelo declara não ter encontrado a informação em vez de inventá-la). Define-se alucinação como a presença de afirmação específica (número, data, prazo, artigo ou procedimento) que não consta nas resoluções do corpus ou que as contradiz, isto é, mede-se a fidelidade ao corpus, e não a veracidade no mundo (DAHL et al., 2024; MAGESH et al., 2025). A concordância entre os anotadores é medida pelo kappa de Cohen, ponderado no caso da correção; as divergências são resolvidas por consenso. As condições são comparadas por teste de aleatorização pareado (correção) e por teste binomial exato sobre os pares discordantes (alucinação e recusa), com correção de Holm. A cegueira é parcial, porque as respostas sem recuperação raramente citam resoluções, o que é considerado uma limitação."),
 
     pageBreak(),
 
@@ -578,7 +586,7 @@ const textual = {
     caption("Tabela 2 — Comparações pareadas do MRR (teste de aleatorização com 10.000 permutações; valores-p ajustados pelo método de Holm). Em negrito, diferenças significativas a 5%."),
     sigTable,
     fonte(),
-    p(`A busca híbrida superou a vetorial em ${cmp("rrf", "vec").vitorias_a} consultas e foi superada em ${cmp("rrf", "vec").vitorias_b}, com empate nas ${cmp("rrf", "vec").empates} restantes. O valor-p bruto dessa comparação (${fmtP(cmp("rrf", "vec").p_mrr)}) indicaria significância a 5%, mas deixa de indicá-la após o ajuste de Holm (${fmtP(cmp("rrf", "vec").p_mrr_holm)}). As diferenças entre a busca híbrida e o BM25 (p ajustado ${pEq(cmp("rrf", "bm25").p_mrr_holm)}) e entre a vetorial e o BM25 (p ajustado ${pEq(cmp("vec", "bm25").p_mrr_holm)}) também não são significativas. A única diferença significativa no conjunto completo é a do BM25 sobre a busca textual nativa do PostgreSQL (p ajustado ${pEq(cmp("bm25", "fts").p_mrr_holm)}). Assim, com ${R.meta.n_consultas} consultas, os dados são compatíveis com uma vantagem da busca híbrida, mas não permitem afirmá-la no conjunto completo.`),
+    p(`A Tabela 2 compara os métodos dois a dois. A busca híbrida superou a vetorial em${cmp("rrf", "vec").vitorias_a} consultas e foi superada em ${cmp("rrf", "vec").vitorias_b}, com empate nas ${cmp("rrf", "vec").empates} restantes. O valor-p bruto dessa comparação (${fmtP(cmp("rrf", "vec").p_mrr)}) indicaria significância a 5%, mas deixa de indicá-la após o ajuste de Holm (${fmtP(cmp("rrf", "vec").p_mrr_holm)}). As diferenças entre a busca híbrida e o BM25 (p ajustado ${pEq(cmp("rrf", "bm25").p_mrr_holm)}) e entre a vetorial e o BM25 (p ajustado ${pEq(cmp("vec", "bm25").p_mrr_holm)}) também não são significativas. A única diferença significativa no conjunto completo é a do BM25 sobre a busca textual nativa do PostgreSQL (p ajustado ${pEq(cmp("bm25", "fts").p_mrr_holm)}). Assim, com ${R.meta.n_consultas} consultas, os dados são compatíveis com uma vantagem da busca híbrida, mas não permitem afirmá-la no conjunto completo.`),
 
     h2("4.4 Análise por Tipo de Consulta"),
     caption("Tabela 3 — Hit@1, Hit@5 e MRR por tipo de consulta (K = 5). Em negrito, o melhor valor de cada métrica dentro do tipo."),
@@ -590,7 +598,7 @@ const textual = {
     caption("Tabela 4 — Latência de recuperação por consulta, após aquecimento (inclui a geração do embedding nos métodos vetorial e híbrido)."),
     latTable,
     fonte(),
-    p(`Após o aquecimento, a geração do embedding da consulta levou, em mediana, ${ms(R.embedding_ms.median)} ms. A busca vetorial completa teve mediana de ${ms(G.vec.lat_median_ms)} ms e a híbrida, de ${ms(G.rrf.lat_median_ms)} ms; o BM25 respondeu em ${ms(G.bm25.lat_median_ms)} ms e a busca nativa do PostgreSQL em ${ms(G.fts.lat_median_ms)} ms, pois a combinação por OU torna candidatos muitos chunks, que precisam ser ranqueados. Na versão preliminar deste trabalho, a latência média reportada para a busca vetorial (cerca de 339 ms) incluía o carregamento do modelo na primeira consulta (12,4 s), o que distorcia a média. Em todos os métodos, o percentil 95 da latência de recuperação não passou de ${ms(Math.max(...METODOS.map(m => G[m].lat_p95_ms)))} ms, valor adequado ao uso interativo; o tempo de geração da resposta pelo LLM será medido na avaliação da geração.`),
+    p(`A Tabela 4 resume a latência de cada método. Após o aquecimento, a geração do embedding da consulta levou, em mediana, ${ms(R.embedding_ms.median)} ms. A busca vetorial completa teve mediana de ${ms(G.vec.lat_median_ms)} ms e a híbrida, de ${ms(G.rrf.lat_median_ms)} ms; o BM25 respondeu em ${ms(G.bm25.lat_median_ms)} ms e a busca nativa do PostgreSQL em ${ms(G.fts.lat_median_ms)} ms, pois a combinação por OU torna candidatos muitos chunks, que precisam ser ranqueados. Na versão preliminar deste trabalho, a latência média reportada para a busca vetorial (cerca de 339 ms) incluía o carregamento do modelo na primeira consulta (12,4 s), o que distorcia a média. Em todos os métodos, o percentil 95 da latência de recuperação não passou de ${ms(Math.max(...METODOS.map(m => G[m].lat_p95_ms)))} ms, valor adequado ao uso interativo; o tempo de geração da resposta pelo LLM será medido na avaliação da geração.`),
 
     h2("4.6 Discussão"),
     p(`Os resultados revisados alteram a interpretação apresentada na versão preliminar. Naquela versão, a busca textual parecia falhar nas consultas semânticas (MRR de 0,042), o que sugeria uma vantagem clara da busca vetorial nesse tipo de consulta. A revisão mostrou que o efeito vinha da combinação dos termos por E: com a combinação por OU e o ranqueamento BM25, a busca lexical teve desempenho equivalente ao da vetorial também nas consultas semânticas. Uma explicação plausível é que, mesmo parafraseadas, as consultas compartilham com as resoluções termos institucionais específicos, como "reingresso", "extensão" e "diploma", que o IDF do BM25 valoriza.`),
@@ -676,6 +684,29 @@ const textual = {
     pSR("WANG, Liang et al. Text embeddings by weakly-supervised contrastive pre-training. arXiv:2212.03533, 2022. Disponível em: https://arxiv.org/abs/2212.03533. Acesso em: 5 jun. 2026."),
     br(),
     pSR("WANG, Liang et al. Multilingual E5 text embeddings: a technical report. arXiv:2402.05672, 2024. Disponível em: https://arxiv.org/abs/2402.05672. Acesso em: 19 out. 2026."),
+
+    // ════════════════════════════════════════════════════════════════════════
+    // APÊNDICES (gerados dos arquivos de dados, para não divergirem deles)
+    // ════════════════════════════════════════════════════════════════════════
+    pageBreak(),
+    titulo("Apêndice A — Consultas de avaliação da recuperação"),
+    p("Conjunto de consultas usado na avaliação da recuperação (Capítulo 4). Cada consulta tem um documento de referência."),
+    caption("Quadro A.1 — Consultas de avaliação da recuperação e documento de referência."),
+    tabela([800, 1200, 4600, 2400], [
+      ["ID", "Tipo", "Consulta", "Documento de referência"],
+      ...EVAL.map(q => [q.id, q.type === "lexical" ? "lexical" : "semântica", q.query, q.relevant_sources.join(", ").replaceAll(".txt", "")]),
+    ], true),
+    fonte("Fonte: elaborado pelos autores (2026), a partir de data/eval_set.json."),
+
+    pageBreak(),
+    titulo("Apêndice B — Perguntas do experimento de geração"),
+    p("Perguntas usadas para avaliar as respostas geradas (Capítulo 4): 30 respondíveis com o corpus e 10 sem resposta no corpus, nas quais o comportamento correto é informar que a informação não foi encontrada. As cinco últimas perguntas sem resposta tratam de temas que aparecem nas resoluções, mas sem o dado pedido (\"quase respondíveis\")."),
+    caption("Quadro B.1 — Perguntas do experimento de geração."),
+    tabela([800, 1500, 6700], [
+      ["ID", "Tipo", "Pergunta"],
+      ...PERGUNTAS_GER.map(q => [q.id, q.tipo === "respondivel" ? "respondível" : (q.subtipo === "quase_respondivel" ? "sem resposta (quase respondível)" : "sem resposta"), q.pergunta]),
+    ], true),
+    fonte("Fonte: elaborado pelos autores (2026), a partir de data/geracao/perguntas.json."),
   ]
 };
 

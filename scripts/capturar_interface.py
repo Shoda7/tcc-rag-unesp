@@ -24,7 +24,8 @@ def main() -> int:
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
         navegador = p.chromium.launch(channel="msedge", headless=True)
-        pagina = navegador.new_page(viewport={"width": 980, "height": 1000}, device_scale_factor=2)
+        # janela estreita: na largura da pagina do TCC o texto da interface fica maior e legivel
+        pagina = navegador.new_page(viewport={"width": 760, "height": 980}, device_scale_factor=2)
         pagina.goto(URL)
         pagina.fill("textarea.input-box", pergunta)
         pagina.click("button.send-btn")
