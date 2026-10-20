@@ -259,6 +259,8 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 
 ## Etapa 14 — Apresentação para a banca
 
+> **Já adiantado em 19/10:** `APRESENTACAO/roteiro_banca.md` com os 17 slides e os tempos (versão de 20 min), o roteiro da demonstração (com plano B) e 16 perguntas prováveis com respostas sugeridas. Os trechos que dependem das Etapas 5, 6 e 9 estão marcados com `[ETAPA n]`. **Pendências para antes da banca:** aviso de dados pessoais na interface (as perguntas vão ao Groq), pré-testar as perguntas da demonstração e gravar o vídeo.
+
 - [ ] **Quem:** Ambos · **Depende de:** 13
 - **Eu faço:**
   - slides com roteiro e tempo por slide;

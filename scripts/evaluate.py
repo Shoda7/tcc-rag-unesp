@@ -118,9 +118,9 @@ def retrieve(conn, method: str, query: str, qvec: list[float]) -> list[dict]:
     return db.search_hybrid(conn, qvec, query, k=FETCH, rrf_k=RRF_K, fetch=FETCH)
 
 
-def run(eval_path: Path, k: int = 5) -> list[dict]:
+def run(eval_path: Path, k: int = 5, dbname: str | None = None) -> list[dict]:
     questions = json.loads(eval_path.read_text("utf-8"))
-    conn = db.connect()
+    conn = db.connect(dbname)
 
     # Aquecimento: carrega o modelo de embeddings e o índice BM25 antes de medir,
     # para que a latência da primeira consulta não inclua inicialização.
@@ -274,9 +274,10 @@ if __name__ == "__main__":
     parser.add_argument("--k", type=int, default=5)
     parser.add_argument("--csv", default=None)
     parser.add_argument("--json", default=None)
+    parser.add_argument("--db", default=None, help="banco alternativo (ex.: das ablacoes); padrao: o do .env")
     args = parser.parse_args()
 
-    rows = run(ROOT / args.eval, k=args.k)
+    rows = run(ROOT / args.eval, k=args.k, dbname=args.db)
     summary = summarize(rows, args.k)
     if args.csv:
         save_csv(rows, ROOT / args.csv)
