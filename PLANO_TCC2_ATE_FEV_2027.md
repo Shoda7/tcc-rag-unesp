@@ -95,13 +95,13 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
   - revisar o diff pendente e commitar em commits separados: (a) BM25 e avaliação v2; (b) correções de código; (c) texto do TCC + documento; (d) README e plano;
   - criar a tag `avaliacao-v2` no commit dos resultados;
   - mover as versões antigas (`tcc1_matheus_rafael.tex`, `referencias.bib`, `TCC1_*`, `MELHORIAS.md`) para `DOCUMENTO-ENVIO/arquivo-tcc1/`.
-- **Vocês fazem:** decidir se querem um remoto (GitHub) para backup: hoje o repositório só existe nesta máquina.
+- **Vocês fazem:** nada (o remoto foi adicionado depois, ver abaixo).
 - **Pronto quando:** o `git status` estiver limpo e a tag existir.
 - **Feito em 19/10:**
   - 5 commits: BM25 + avaliação v2 · correções de API/CLI/smoke test · documento do TCC · arquivamento do TCC I · README + plano;
   - tag `avaliacao-v2` no commit dos resultados (`889c928`);
   - versões antigas do TCC I movidas para `DOCUMENTO-ENVIO/arquivo-tcc1/` (o `.tex` continua ao lado do `.bib`);
-  - **sem `push`:** não há remoto configurado. Se criarem um repositório no GitHub, eu adiciono o remoto e envio os commits e a tag.
+  - **remoto e push (19/10, depois):** `origin` = https://github.com/Shoda7/tcc-rag-unesp (**público**, escolha dos autores). `master` e a tag `avaliacao-v2` foram enviadas. **Tudo o que for commitado e enviado fica visível publicamente**, inclusive o rascunho do TCC, as planilhas de anotação e o conjunto de avaliação; se quiserem proteger o trabalho até a banca, basta mudar a visibilidade em Settings do repositório.
 
 ## Etapa 2 — Revisão do documento e contato com o orientador 🔄 (parte do Claude concluída em 19/10/2026)
 

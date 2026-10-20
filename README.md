@@ -47,7 +47,7 @@ Discentes: Matheus Shoda Lima · Rafael Panhozzi Rubio
 ### 1. Clone e ambiente Python
 
 ```powershell
-git clone <repo-url>
+git clone https://github.com/Shoda7/tcc-rag-unesp.git
 cd TCC
 python -m venv .venv
 .venv\Scripts\Activate.ps1
