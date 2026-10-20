@@ -22,7 +22,7 @@ param(
 $ErrorActionPreference = "Stop"
 $docxPath = (Resolve-Path $Docx).Path
 if (-not $Pdf) { $Pdf = [IO.Path]::ChangeExtension($docxPath, ".pdf") }
-$pdfPath = [IO.Path]::GetFullPath((Join-Path (Get-Location) $Pdf))
+$pdfPath = if ([IO.Path]::IsPathRooted($Pdf)) { $Pdf } else { [IO.Path]::GetFullPath((Join-Path (Get-Location) $Pdf)) }
 
 if (Get-Process WINWORD -ErrorAction SilentlyContinue) {
     throw "O Word esta aberto. Feche-o e rode de novo (o script nao mexe em janelas abertas)."

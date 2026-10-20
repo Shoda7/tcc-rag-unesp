@@ -1,0 +1,15 @@
+{
+  "pacote": "corpus-resolucoes-unesp-2016-2026.zip",
+  "sha256_pacote": "91e825b6df098db1cacc60ee41f9f207cd5b8997de369f7ef68d014072aeafd6",
+  "tamanho_bytes": 2435158,
+  "documentos": 936,
+  "palavras": 1148470,
+  "arquivos_no_pacote": 939,
+  "sha256_do_arquivo_de_somas": "33381617f1a38d7899c6a776db39bf802997f7c7ee8a623934f2f0bb2786e5be",
+  "coleta": {
+    "inicio": "2026-06-02",
+    "fim": "2026-06-08"
+  },
+  "fonte": "https://sistemas.unesp.br/legislacao-web/ (base R)",
+  "publicado_em": null
+}

@@ -8,6 +8,8 @@ import { readFileSync, writeFileSync } from "fs";
 // Resultados gerados por `python scripts/evaluate.py --json data/resultados_resumo.json`.
 // As tabelas e os números do texto vêm daqui, para não haver cópia manual.
 const R = JSON.parse(readFileSync("data/resultados_resumo.json", "utf-8"));
+// Corpus congelado por `python scripts/snapshot_corpus.py` (hash do pacote e metadados).
+const CORPUS = JSON.parse(readFileSync("data/corpus_release.json", "utf-8"));
 const G = R.global;
 const T = R.por_tipo;
 const METODOS = ["vec", "fts", "bm25", "rrf"];
@@ -448,6 +450,7 @@ const textual = {
     h2("3.1 Fase 1 — Coleta e Pré-processamento do Corpus"),
     p("O corpus é composto por 936 resoluções da UNESP publicadas entre 2016 e 2026, coletadas da base de resoluções do sistema sistemas.unesp.br/legislacao-web por meio de um scraper Python desenvolvido com as bibliotecas requests e BeautifulSoup. Portarias e documentos anteriores a 2016 não foram coletados. O scraper percorre a lista de documentos disponível na página inicial do portal, extrai os metadados (número, ano, data) de cada resolução e realiza requisições GET individuais ao endpoint de texto integral. Foi adotado um intervalo de 1,2 segundo entre requisições, com novas tentativas em caso de falha do servidor. O processo é controlado por um arquivo manifest.json que registra os documentos já coletados, permitindo retomada incremental."),
     p("O texto integral de cada resolução é extraído do elemento HTML div.painelTexto, preservando as quebras de linha e removendo os espaços em branco das extremidades de cada linha; respostas sem documento (texto com menos de 500 caracteres ou correspondente à página padrão do portal) são descartadas. Como os documentos são publicados originalmente em HTML, não apresentam os artefatos típicos da extração de PDF, como cabeçalhos, rodapés e numeração de página, e nenhuma limpeza adicional foi necessária. Os textos foram armazenados em UTF-8 em data/legislacao/, no formato resolucao_AAAA_NNNN.txt. As resoluções somam cerca de 1,15 milhão de palavras, com mediana de 570 palavras por documento (mínimo de 124 e máximo de 74.640)."),
+    p(`Para garantir a reprodutibilidade, o corpus foi congelado em um pacote (${CORPUS.pacote}, com ${CORPUS.documentos} resoluções e o arquivo manifest.json) e identificado pela soma de verificação SHA-256 ${CORPUS.sha256_pacote}. A soma de cada arquivo está registrada no repositório do projeto, o que permite conferir se uma cópia do corpus é idêntica à utilizada nos experimentos. A coleta ocorreu entre ${CORPUS.coleta.inicio.split("-").reverse().join("/")} e ${CORPUS.coleta.fim.split("-").reverse().join("/")}; resoluções publicadas ou alteradas depois dessa data não fazem parte do corpus.`),
 
     h2("3.2 Fase 2 — Indexação: Chunking, Embeddings e pgvector"),
     p("Os textos pré-processados são segmentados em chunks pelo método de janela deslizante (sliding window), com tamanho de 350 palavras e sobreposição de 60 palavras. O corpus resultou em 4.229 chunks, com média de 318 palavras por chunk; as 369 resoluções com menos de 350 palavras formam um único chunk cada."),

@@ -22,3 +22,6 @@ node_modules/
 
 # Docx descompactados (artefatos de inspeção, redundantes com os binários)
 DOCUMENTO-ENVIO/unpacked_*/
+
+# Pacotes gerados para publicacao (scripts/snapshot_corpus.py)
+dist/

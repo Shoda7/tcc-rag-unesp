@@ -21,7 +21,7 @@
 | 0 | Correções da avaliação e do texto | Claude | — | ✅ 14/10 |
 | 1 | Commit e organização do repositório | Claude | 0 | ✅ 19/10 |
 | 2 | Revisão do documento e contato com o orientador | Ambos | 1 | 🔄 lado do Claude feito em 19/10; faltam vocês |
-| 3 | Congelar o corpus (reprodutibilidade) | Ambos | 1 | out |
+| 3 | Congelar o corpus (reprodutibilidade) | Ambos | 1 | 🔄 técnico feito em 19/10; falta publicar |
 | 4 | Planilhas de julgamento de relevância (*pooling*) | Ambos | 1 | fim de out–nov |
 | 5 | Coleta de perguntas reais de alunos | Ambos | 2 (resposta sobre CEP) | nov |
 | 6 | Reavaliação com julgamentos múltiplos | Claude | 4 (e 5, se houver) | nov |
@@ -123,14 +123,19 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 | 4. Título: manter "UNESP Bauru" ou ajustar para "UNESP" | _(a preencher)_ |
 | 5. Retorno sobre o TCC I | _(a preencher)_ |
 
-## Etapa 3 — Congelar o corpus
+## Etapa 3 — Congelar o corpus 🔄 (parte técnica concluída em 19/10/2026)
 
 - [ ] **Quem:** Ambos · **Depende de:** 1
-- **Eu faço:**
-  - criar o `scripts/snapshot_corpus.py`, que gera um zip de `data/legislacao/` + `manifest.json` + `eval_set.json` com hash SHA-256;
-  - registrar o hash no README e citá-lo na metodologia.
-- **Vocês fazem:** escolher onde publicar (GitHub Release ou Zenodo, que gera DOI) e autorizar a publicação.
-- **Pronto quando:** o pacote estiver publicado e o link e o hash constarem no README e no texto.
+- **Eu fiz (19/10):**
+  - `scripts/snapshot_corpus.py` gera um pacote determinístico (mesmo hash em execuções repetidas): `dist/corpus-resolucoes-unesp-2016-2026.zip`, 2,4 MB, 939 arquivos (936 resoluções, `manifest.json`, `README.md` e `SHA256SUMS`);
+  - **SHA-256 do pacote:** `91e825b6df098db1cacc60ee41f9f207cd5b8997de369f7ef68d014072aeafd6`;
+  - somas de cada arquivo versionadas em `data/corpus_checksums.sha256`, e `python scripts/snapshot_corpus.py --verificar` confere qualquer cópia do corpus;
+  - o hash e o período de coleta (02–08/06/2026) entram no texto, na seção 3.1;
+  - o `eval_set.json` **ficou fora** do pacote de propósito: ele vai mudar nas Etapas 5 e 6 e será publicado à parte, quando estiver final.
+- **Vocês fazem:**
+  - escolher onde publicar (GitHub Release ou Zenodo, que dá DOI) e fazer o envio de `dist/corpus-resolucoes-unesp-2016-2026.zip` (o arquivo é gerado localmente e não vai para o git);
+  - depois, me passar o link para eu registrá-lo no README e no texto.
+- **Pronto quando:** o pacote estiver publicado e o link constar no README e no texto.
 
 ## Etapa 4 — Planilhas de julgamento de relevância (*pooling*)
 

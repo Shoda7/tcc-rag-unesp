@@ -146,6 +146,19 @@ O seletor no rodapé permite alternar entre **Híbrido (RRF)**, **Vetorial**, **
 
 ---
 
+## Corpus congelado
+
+O corpus (936 resoluções) é congelado por `scripts/snapshot_corpus.py`, que gera um pacote determinístico
+em `dist/` (não versionado) e registra no git a soma SHA-256 de cada arquivo (`data/corpus_checksums.sha256`)
+e os metadados do pacote, com o hash (`data/corpus_release.json`).
+
+```powershell
+python scripts/snapshot_corpus.py              # (re)gera o pacote e as somas
+python scripts/snapshot_corpus.py --verificar  # confere o corpus local com as somas versionadas
+```
+
+---
+
 ## Avaliação experimental
 
 ```powershell
