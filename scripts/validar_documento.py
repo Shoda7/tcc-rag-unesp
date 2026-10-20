@@ -42,7 +42,10 @@ def main() -> int:
     paras = paragrafos()
     texto = "\n".join(paras)
     i_ref = max(i for i, p in enumerate(paras) if p.upper() == "REFERÊNCIAS")
-    corpo = "\n".join(paras[:i_ref])
+    # o corpo começa no ÚLTIMO "1 INTRODUÇÃO": depois que o Word preenche o sumário, ele também tem essa
+    # linha (e todas as seções), que não devem ser lidas como texto do trabalho
+    i_corpo = max(i for i, p in enumerate(paras[:i_ref]) if p.startswith("1 INTRODU"))
+    corpo = "\n".join(paras[i_corpo:i_ref])
     # as referências terminam onde começam os apêndices
     i_ap = next((i for i, p in enumerate(paras) if i > i_ref and p.upper().startswith("APÊNDICE")), len(paras))
     refs = paras[i_ref + 1:i_ap]
@@ -124,6 +127,18 @@ def main() -> int:
         if n != vistos.get(pai, 0) + 1:
             erros.append(f"numeracao de secoes: {s} depois de {pai}.{vistos.get(pai, 0)}")
         vistos[pai] = n
+
+    # 7b. toda sigla da lista de siglas e usada no corpo do texto (a ABNT lista so as usadas)
+    try:
+        a = next(i for i, p in enumerate(paras) if p.upper() == "LISTA DE ABREVIATURAS E SIGLAS")
+        b = next(i for i, p in enumerate(paras) if i > a and p.upper() == "SUMÁRIO")
+        siglas = paras[a + 1:b][::2]                       # a tabela gera: sigla, significado, sigla, significado...
+        corpo_tx = corpo
+        for s in siglas:
+            if not re.search(rf"(?<![\w-]){re.escape(s)}(?![\w-])", corpo_tx):
+                erros.append(f"sigla na lista mas nao usada no texto: {s}")
+    except StopIteration:
+        avisos.append("lista de abreviaturas e siglas nao encontrada")
 
     # 8. pendencias conhecidas
     if "a definir" in texto:

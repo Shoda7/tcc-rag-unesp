@@ -35,6 +35,10 @@ SAIDA = ROOT / "data" / "geracao" / "respostas.jsonl"
 CONDICOES = ["closed_book", "rag_vetorial", "rag_hibrido"]
 K = 5
 TPM_ALVO = 8000 * 0.8          # tokens por minuto que aceitamos usar
+# O plano gratuito tambem limita 200 mil tokens/dia, recarregados aos poucos (~139 tokens/min). Cada
+# resposta com recuperacao gasta ~3,4 mil tokens, entao o experimento completo leva mais de um dia:
+# o script espera a recarga (ate 6 h por chamada) em vez de parar.
+ESPERA_MAXIMA = 6 * 3600
 
 
 def feitas() -> set[tuple[str, str]]:
@@ -71,7 +75,7 @@ def main() -> int:
         chunks = recuperar(conn, condicao, q["pergunta"])
         t0 = time.perf_counter()
         try:
-            r = llm.generate(q["pergunta"], chunks)
+            r = llm.generate(q["pergunta"], chunks, espera_maxima=ESPERA_MAXIMA)
         except Exception as exc:  # noqa: BLE001  (limite diario, rede...) -> para sem perder o que ja foi gravado
             print(f"\nPARADO em {q['id']}/{condicao}: {type(exc).__name__}: {str(exc)[:200]}")
             print("Rode o script de novo mais tarde: ele continua de onde parou.")

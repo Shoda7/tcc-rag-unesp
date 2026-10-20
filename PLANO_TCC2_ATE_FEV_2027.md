@@ -14,6 +14,14 @@
   - **Vocês**: precisa ser feito por vocês (anotação, contato com o orientador, decisões);
   - **Ambos**: eu preparo e vocês executam ou validam.
 
+## Decisões que tomei durante as etapas (vocês podem vetar)
+
+1. **Modelo de linguagem: `openai/gpt-oss-120b`.** O `llama-3.3-70b-versatile` deixou de existir no Groq (`model_not_found` em 19/10) e o `/api/ask` estava quebrado. É o substituto mais próximo disponível (pesos abertos, 120 bi de parâmetros, mesmo plano gratuito). Editei o `.env` local (só a linha `GROQ_MODEL`) e o texto do TCC registra a troca. Para reverter ou testar outro modelo (`openai/gpt-oss-20b`, `qwen/qwen3.8-27b`), basta mudar `GROQ_MODEL`.
+2. **Prompts v2.** O piloto de 33 respostas mostrou citações no formato `[1†L1-L9]` (10 de 22 respostas com recuperação) e respostas de ~430 palavras. O prompt agora fixa a citação pelo nome do arquivo e limita a 150 palavras. O piloto está arquivado em `data/geracao/respostas_piloto_v1.jsonl` e descrito no texto (3.4).
+3. **Trabalhos Relacionados como seção 2.7**, e não como capítulo novo, para não renumerar o restante do texto.
+4. **Interface:** passou a renderizar markdown (as respostas do modelo vêm formatadas) e ganhou os acentos que faltavam nos textos.
+5. **10 perguntas "sem resposta" do experimento de geração:** escolhi e verifiquei por busca de palavras-chave; vocês confirmam (Etapa 7).
+
 ## Visão geral
 
 | Nº | Etapa | Quem | Depende de | Quando |
@@ -23,13 +31,13 @@
 | 2 | Revisão do documento e contato com o orientador | Ambos | 1 | 🔄 lado do Claude feito em 19/10; faltam vocês |
 | 3 | Congelar o corpus (reprodutibilidade) | Ambos | 1 | 🔄 técnico feito em 19/10; falta publicar |
 | 4 | Planilhas de julgamento de relevância (*pooling*) | Ambos | 1 | 🔄 planilhas prontas em 19/10; falta anotar |
-| 5 | Coleta de perguntas reais de alunos | Ambos | 2 (resposta sobre CEP) | nov |
-| 6 | Reavaliação com julgamentos múltiplos | Claude | 4 (e 5, se houver) | nov |
-| 7 | Preparar o experimento de geração | Ambos | 1 | nov |
+| 5 | Coleta de perguntas reais de alunos | Ambos | 2 (resposta sobre CEP) | 🔄 texto do formulário pronto; faltam CEP e coleta |
+| 6 | Reavaliação com julgamentos múltiplos | Claude | 4 (e 5, se houver) | 🔄 código pronto e testado; espera a anotação |
+| 7 | Preparar o experimento de geração | Ambos | 1 | 🔄 31 de 120 respostas; limite diário do Groq |
 | 8 | Anotar as respostas geradas | Vocês | 7 | nov–dez |
-| 9 | Análise da geração e texto do capítulo | Claude | 8 | dez |
-| 10 | Trabalhos Relacionados e referências | Ambos | — | nov–dez |
-| 11 | Figuras e capítulo de Desenvolvimento | Claude | 1 | nov–dez |
+| 9 | Análise da geração e texto do capítulo | Claude | 8 | 🔄 código e metodologia (3.6) prontos; faltam resultados |
+| 10 | Trabalhos Relacionados e referências | Ambos | — | ✅ 19/10 (vocês: ler o fichamento) |
+| 11 | Figuras e capítulo de Desenvolvimento | Claude | 1 | ✅ 19/10 |
 | 12 | Formatação final no modelo BSI | Ambos | 2, 6, 9, 10, 11 | jan |
 | 13 | Revisão final e versão para o orientador | Ambos | 12 | meados de jan |
 | 14 | Apresentação para a banca | Ambos | 13 | fim de jan–fev |
@@ -107,7 +115,7 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
     - data de acesso da referência nova.
   - **Referências novas conferidas na web:** Clarke et al. (2000), Holm (1979), Smucker et al. (2007), Malkov e Yashunin (2020) e Wang et al. (2024) estão com título, veículo e páginas corretos.
   - **Sumário:** "Resumo", "Abstract" e "Sumário" saíram da lista (ABNT), e o `scripts/finalizar_docx.ps1` faz o Word preencher o sumário e exportar o PDF. O `.docx` agora já vem com o sumário atualizado (34 entradas).
-  - **PDF para o orientador:** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (25 páginas).
+  - **PDF para o orientador:** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (39 páginas, atualizado depois das etapas 3 a 11).
   - **Rascunho da mensagem:** `DOCUMENTO-ENVIO/mensagem_orientador_2026-10-19.md`.
 - **Vocês fazem:**
   - ler o PDF, principalmente os caps. 4 e 5 (texto novo), e dizer o que quiserem mudar;
@@ -149,41 +157,44 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 - **Vocês fazem:** ler o guia e anotar **separadamente, sem conversar**. Estimativa: 3 a 4 horas cada, em duas ou três sessões. Se for pesado demais, posso gerar uma versão mais curta (`--prof 3`).
 - **Pronto quando:** as duas planilhas estiverem preenchidas em `data/julgamentos/`.
 
-## Etapa 5 — Coleta de perguntas reais de alunos
+## Etapa 5 — Coleta de perguntas reais de alunos 🔄 (texto do formulário pronto em 19/10/2026)
 
 - [ ] **Quem:** Ambos · **Depende de:** 2 (resposta sobre CEP)
-- **Eu faço:**
-  - escrever o texto do formulário (anônimo, sem dados pessoais) e as instruções ("escreva dúvidas reais sobre regras da UNESP, sem consultar os documentos");
-  - depois da coleta: filtrar as perguntas fora do escopo e preparar o `eval_set` ampliado;
-  - rodar o *pooling* (Etapa 4) para as perguntas novas.
-- **Vocês fazem:** divulgar o formulário (colegas, centro acadêmico, biblioteca) e juntar **30 ou mais perguntas**. Depois, anotar a relevância das perguntas novas.
+- **Eu fiz (19/10):** `data/perguntas_reais/FORMULARIO.md`: título, texto de apresentação (anônimo, sem dados pessoais), campos e mensagem final. Lembrar de desligar "Coletar e-mails" e "Limitar a 1 resposta" no Google Forms, pois ambos identificariam a pessoa.
+- **Vocês fazem:**
+  - esperar a resposta do orientador sobre o **CEP** (pergunta 3 da mensagem);
+  - criar o formulário, divulgar (turmas, centro acadêmico, biblioteca) e juntar **30 ou mais perguntas**;
+  - exportar o CSV e colocá-lo em `data/perguntas_reais/respostas_forms.csv`.
+- **Eu faço depois:** remover duplicatas e respostas com dado pessoal, descartar o que estiver fora do escopo, acrescentar as perguntas ao `eval_set.json` (tipo `real`) e gerar as planilhas de julgamento só para elas.
 - **Pronto quando:** houver 80–100 consultas com julgamentos.
 - **Se não der tempo ou não for autorizado:** seguir só com as 50 consultas atuais e declarar isso como limitação.
 
-## Etapa 6 — Reavaliação com julgamentos múltiplos
+## Etapa 6 — Reavaliação com julgamentos múltiplos 🔄 (código pronto em 19/10/2026)
 
 - [ ] **Quem:** Claude · **Depende de:** 4 (e 5, se houver)
-- **Eu faço:**
-  - calcular a concordância entre os anotadores (kappa de Cohen) e consolidar os julgamentos (regra para as divergências);
-  - adaptar o `evaluate.py` para vários documentos relevantes por consulta e incluir **nDCG@5** e **Recall@5**;
-  - rodar tudo de novo, regenerar o documento e atualizar os caps. 3 e 4 (descrição do *pooling*, kappa e novas tabelas);
-  - criar a tag `avaliacao-v3`.
+- **Eu fiz (19/10):** `scripts/avaliar_julgamentos.py`:
+  - lê as duas planilhas e calcula a concordância (simples, kappa de Cohen, kappa ponderado);
+  - gera `divergencias.csv` com a coluna `nota_final` para vocês decidirem cada divergência (recusa rodar sem isso; `--permitir-divergencias` dá um resultado provisório);
+  - calcula nDCG@5, Precision@5, Recall@5, Hit@K e MRR com vários documentos relevantes, comparações pareadas com Holm e IC por *bootstrap*, geral e por tipo de consulta;
+  - **testado com julgamentos sintéticos** (nada disso entra no TCC); o `kappa` reproduz o exemplo clássico (0,4).
+- **Eu faço quando houver anotação:** rodar, regenerar o documento, descrever o *pooling* e o kappa nos caps. 3 e 4, trocar as tabelas, atualizar resumo e conclusões e criar a tag `avaliacao-v3`.
 - **Pronto quando:** o documento estiver regenerado com os resultados v3 e o texto coerente com eles.
 
-## Etapa 7 — Preparar o experimento de geração
+## Etapa 7 — Preparar o experimento de geração 🔄 (infraestrutura pronta; geração em andamento)
 
 - [ ] **Quem:** Ambos · **Depende de:** 1
-- **Eu faço:**
-  - confirmar se o `llama-3.3-70b-versatile` está disponível no Groq e registrar o modelo e a data;
-  - criar o `scripts/gerar_respostas.py` com cerca de 40 perguntas (30 do conjunto de avaliação + **10 sem resposta no corpus**, que eu proponho) em 3 condições:
-    - LLM sem recuperação;
-    - RAG vetorial;
-    - RAG híbrido;
-  - salvar a resposta, o contexto usado, a latência e os tokens de cada execução;
-  - exportar a **planilha de anotação às cegas** (condição oculta, ordem embaralhada) e a chave separada;
-  - escrever um guia com os critérios: correção (0–2), alucinação (sim/não), citação correta (sim/não), recusa adequada (para as perguntas sem resposta).
-- **Vocês fazem:** confirmar que as 10 perguntas "sem resposta" realmente não são respondidas pelo corpus.
-- **Pronto quando:** a planilha de anotação estiver gerada em `data/geracao/`.
+- **Eu fiz (19/10):**
+  - `scripts/montar_perguntas_geracao.py` → `data/geracao/perguntas.json`: **40 perguntas** (24 semânticas do conjunto de avaliação + 6 novas respondíveis, com a resposta de referência extraída do artigo + **10 sem resposta**: 5 sem nenhuma ocorrência no corpus e 5 "quase respondíveis"). A lista completa está no Apêndice B do TCC;
+  - `scripts/gerar_respostas.py`: 3 condições (sem recuperação, RAG vetorial, RAG híbrido), resumível, espaçado pelo limite por minuto, grava resposta, trechos usados, tokens e latência;
+  - `scripts/preparar_anotacao_geracao.py`: planilhas às cegas (condição oculta, ordem embaralhada por anotador, listas de valores válidos, trava contra sobrescrever) e `GUIA_ANOTACAO_GERACAO.md`;
+  - piloto, ajuste dos prompts (v2) e troca do modelo: ver "Decisões que tomei" acima.
+- **Situação da geração (19/10, 22h):** **31 de 120 respostas** feitas com o prompt v2 (g01 a g10 completas). Parou no **limite diário do plano gratuito do Groq: 200 mil tokens/dia** para o `gpt-oss-120b` (a maior parte foi gasta no piloto descartado). O limite se recarrega aos poucos (~139 tokens/min) e cada resposta com recuperação custa ~3,4 mil tokens, então as 89 restantes levam **cerca de 29 horas**.
+- **O que está rodando:** deixei `python scripts/gerar_respostas.py` em segundo plano, esperando a recarga (ele retoma de onde parou; se a sessão fechar, é só rodar de novo).
+- **Vocês fazem:**
+  - **decidir como terminar a geração:** (a) deixar o computador ligado ~1 dia e rodar o script (de graça); ou (b) ativar o **Dev Tier** pago por uso em console.groq.com/settings/billing (só vocês podem fazer isso; este experimento inteiro usa ~300 mil tokens, o que custa centavos de dólar e acaba em minutos);
+  - evitar usar a interface (que consome a mesma cota) enquanto a geração roda;
+  - **confirmar as 10 perguntas "sem resposta"** (Apêndice B): nenhuma deve ter resposta nas resoluções.
+- **Pronto quando:** as 120 respostas existirem e as planilhas de anotação estiverem geradas em `data/geracao/` (`python scripts/preparar_anotacao_geracao.py`).
 
 ## Etapa 8 — Anotar as respostas geradas
 
@@ -194,38 +205,37 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 - **Eu faço:** tiro dúvidas sobre os critérios durante a anotação, se precisarem.
 - **Pronto quando:** as duas planilhas estiverem preenchidas.
 
-## Etapa 9 — Análise da geração e texto do capítulo
+## Etapa 9 — Análise da geração e texto do capítulo 🔄 (código e metodologia prontos em 19/10/2026)
 
 - [ ] **Quem:** Claude · **Depende de:** 8
-- **Eu faço:**
-  - calcular o kappa por critério e, para cada condição: taxa de alucinação, correção média, citação correta, recusa adequada e latência;
-  - fazer testes pareados entre as condições;
-  - acrescentar as tabelas ao JSON e ao documento;
-  - escrever a seção "Avaliação da Geração" (metodologia + resultados + discussão);
-  - atualizar o Resumo/Abstract e as Considerações Finais. Isso cumpre o objetivo (f).
-- **Pronto quando:** o documento estiver regenerado com o capítulo da geração.
+- **Eu fiz (19/10):**
+  - `scripts/analisar_geracao.py`: kappa por critério, divergências em `divergencias_geracao.csv` (coluna `valor_final`), correção, alucinação, citação, recusa, latência e tokens por condição, comparações pareadas (aleatorização para a correção; binomial exato para alucinação e recusa) com Holm. **Testado com anotações sintéticas**, o que revelou e corrigiu dois defeitos;
+  - **seção 3.6 do TCC** (protocolo): 40 perguntas, 3 condições, anotação cega, critérios, definição de alucinação, testes e a limitação da cegueira parcial.
+- **Eu faço quando houver anotação:** rodar a análise, acrescentar as tabelas ao documento, escrever resultados e discussão, atualizar resumo, abstract e considerações finais (objetivo f).
+- **Pronto quando:** o documento estiver regenerado com os resultados da geração.
 
-## Etapa 10 — Trabalhos Relacionados e referências
+## Etapa 10 — Trabalhos Relacionados e referências ✅ (19/10/2026)
 
-- [ ] **Quem:** Ambos · **Depende de:** — (pode começar a qualquer momento)
-- **Eu faço:**
-  - pesquisar e propor de 8 a 12 trabalhos com fichamento curto (problema, método, resultado, relação com o TCC);
-  - temas: RAG em português, RAG em domínio jurídico/institucional, busca densa × BM25 (DPR, BEIR), avaliação de RAG (RAGAS), Llama 3;
-  - redigir o capítulo "Trabalhos Relacionados" e acrescentar as referências em ABNT, conferidas, com a meta de **20 ou mais** no total.
-- **Vocês fazem:** ler pelo menos o resumo dos trabalhos citados (a banca pergunta) e aprovar a seleção.
-- **Pronto quando:** o capítulo estiver no documento e todas as referências forem citadas e conferidas.
+- [x] **Quem:** Ambos · **Depende de:** —
+- **Feito:**
+  - **seção 2.7** (o capítulo 2 virou "Referencial Teórico e Trabalhos Relacionados", sem renumerar o resto): recuperação densa × lexical × híbrida, português e domínio jurídico brasileiro, RAG para atendimento acadêmico, avaliação de RAG e alucinações, posicionamento do trabalho;
+  - **12 referências novas**, todas conferidas em fonte primária (Crossref, ACL Anthology, arXiv, SBC); o total é **25**, todas citadas no texto, em ordem alfabética (o `validar_documento.py` confere isso);
+  - `DOCUMENTO-ENVIO/fichamento_trabalhos_relacionados.md`: o que o TCC afirma de cada trabalho, por que importa, onde ler e perguntas prováveis da banca.
+- **Vocês fazem:** **ler o fichamento e pelo menos o resumo de cada trabalho** (a banca pergunta). Três são de 2026 e só consegui ver a página de resumo, então leiam o texto completo antes de discuti-los.
 
-## Etapa 11 — Figuras e capítulo de Desenvolvimento
+## Etapa 11 — Figuras e capítulo de Desenvolvimento ✅ (19/10/2026)
 
-- [ ] **Quem:** Claude · **Depende de:** 1
-- **Eu faço:**
-  - diagrama da arquitetura (coleta → indexação → 4 métodos → API → interface);
-  - gráficos do corpus (resoluções por ano, distribuição de tamanho);
-  - **capturas de tela da interface** (vou rodar o backend e o frontend no navegador);
-  - inserir tudo no documento com legenda e "Fonte:", e redigir a seção que descreve a implementação (módulos, API, prompt do sistema).
-- **Pronto quando:** as figuras estiverem no documento e citadas no texto.
+- [x] **Quem:** Claude · **Depende de:** 1
+- **Feito (o "capítulo de Desenvolvimento" ficou dentro do Cap. 3, para não renumerar o texto):**
+  - **Figura 1** (arquitetura), **Figura 2** (resoluções por ano e distribuição do tamanho) e **Figura 3** (interface), todas com "Fonte:" e citadas no texto; geradas por `scripts/gerar_figuras.py` e `scripts/capturar_interface.py`;
+  - **Quadro 1** (componentes e arquivos) e **Quadro 2** (prompts do sistema, lidos do código);
+  - **Apêndice A** (50 consultas da avaliação) e **Apêndice B** (40 perguntas da geração), gerados dos JSON;
+  - a Figura 3 mostra uma resposta cujo conteúdo conferi no texto da norma; uma captura anterior foi descartada por trazer um detalhe que a resolução não contém;
+  - interface: renderiza o markdown das respostas e ganhou os acentos que faltavam.
 
 ## Etapa 12 — Formatação final no modelo BSI
+
+> **Já adiantado em 19/10:** lista de abreviaturas e siglas (só as usadas, conferido pelo validador), siglas por extenso na primeira menção, apêndices e legendas com "Fonte:". **Falta:** decisão do orientador sobre o modelo Word oficial, ficha catalográfica, nomes da banca, ano 2027 na capa e (opcional) listas de ilustrações e de tabelas.
 
 - [ ] **Quem:** Ambos · **Depende de:** 2 (decisão do formato), 6, 9, 10, 11
 - **Eu faço:**
@@ -236,6 +246,8 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 - **Pronto quando:** o documento estiver completo no formato exigido.
 
 ## Etapa 13 — Revisão final e versão para o orientador
+
+> **Ferramenta pronta:** `python scripts/validar_documento.py` repete a validação texto × dados × código (números dos resultados, hash do corpus, modelos e parâmetros, caminhos de arquivos citados, referências citadas, legendas, numeração, siglas). Já apontou, por exemplo, duas tabelas que nunca eram citadas no texto. Rodar antes de qualquer envio.
 
 - [ ] **Quem:** Ambos · **Depende de:** 12
 - **Eu faço:**

@@ -1,7 +1,7 @@
 # Rascunho de mensagem ao orientador (19/10/2026)
 
 **Para:** Prof. Dr. Clayton Reginaldo Pereira
-**Anexo:** `TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (25 páginas)
+**Anexo:** `TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (39 páginas)
 **Assunto:** TCC — versão revisada e dúvidas sobre a entrega de fevereiro
 
 ---
@@ -15,6 +15,8 @@ Tudo bem? Com a greve e o novo calendário, a entrega do nosso TCC passou para f
 - **Revisão da avaliação da recuperação.** Ao conferir o texto com o código, vimos que a nossa linha de base "BM25" usava, na verdade, o ranqueamento nativo do PostgreSQL (`ts_rank_cd`), e exigia que todos os termos da consulta aparecessem no mesmo trecho. Implementamos o BM25 de fato, corrigimos a busca por texto, passamos a medir a latência depois do aquecimento do modelo e incluímos testes de significância estatística.
 - **Resultado.** A busca híbrida (RRF) continua com o melhor desempenho (MRR 0,785, contra 0,718 do BM25 e 0,690 da busca vetorial), mas, com 50 consultas, a diferença não é estatisticamente significativa no conjunto completo. Nas consultas semânticas ela é (p ajustado < 0,05). Reescrevemos os capítulos 4 e 5 e a discussão de acordo, com uma seção de limitações.
 - **Escopo.** O corpus são as 936 resoluções gerais da UNESP (2016–2026); deixamos isso explícito no texto.
+- **Conteúdo novo.** Seção de Trabalhos Relacionados (2.7, com 12 referências novas), protocolo da avaliação da geração de respostas (3.6), figuras (arquitetura, composição do corpus e interface), quadros com os componentes e os prompts do sistema, lista de siglas e apêndices com os conjuntos de perguntas.
+- **Modelo de linguagem.** O LLaMA 3.3 70B deixou de ser oferecido pelo provedor (Groq) durante o desenvolvimento; passamos a usar o gpt-oss-120b (pesos abertos), e o texto registra a troca.
 
 **Próximos passos (a partir de novembro)**
 

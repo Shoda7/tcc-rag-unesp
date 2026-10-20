@@ -55,16 +55,30 @@ def ler_planilha(path: Path) -> dict[tuple[str, str], int | None]:
     return notas
 
 
+def sem_nan(obj):
+    """Troca NaN por None (JSON valido), recursivamente; JSON.parse do Node rejeita NaN."""
+    if isinstance(obj, dict):
+        return {k: sem_nan(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [sem_nan(v) for v in obj]
+    if isinstance(obj, (float, np.floating)) and math.isnan(obj):
+        return None
+    return obj
+
+
 def kappa(a: list[int], b: list[int], pesos: str = "nenhum", categorias: int = 3) -> float:
     """Kappa de Cohen (pesos="nenhum") ou ponderado (linear/quadratico) entre duas listas de notas."""
+    if categorias < 2 or not len(a):
+        return float("nan")      # com uma só categoria (ou sem dados) o kappa não é definido
     obs = np.zeros((categorias, categorias))
     for x, y in zip(a, b):
         obs[x, y] += 1
     obs /= obs.sum()
     esp = np.outer(obs.sum(axis=1), obs.sum(axis=0))
     i, j = np.indices(obs.shape)
-    w = {"nenhum": (i != j).astype(float), "linear": np.abs(i - j) / (categorias - 1),
-         "quadratico": ((i - j) / (categorias - 1)) ** 2}[pesos]
+    w = {"nenhum": lambda: (i != j).astype(float),
+         "linear": lambda: np.abs(i - j) / (categorias - 1),
+         "quadratico": lambda: ((i - j) / (categorias - 1)) ** 2}[pesos]()
     denom = (w * esp).sum()
     return float("nan") if denom == 0 else 1.0 - (w * obs).sum() / denom
 
@@ -189,7 +203,7 @@ def main() -> int:
             "julgada_nota_2": float(np.mean([r["referencia_antiga_nota"] == 2 for r in linhas if r["referencia_antiga_nota"] is not None])),
         },
     }
-    (d / "resultados_pooling.json").write_text(json.dumps(resumo, ensure_ascii=False, indent=2), encoding="utf-8")
+    (d / "resultados_pooling.json").write_text(json.dumps(sem_nan(resumo), ensure_ascii=False, indent=2), encoding="utf-8")
     with open(d / "resultados_pooling.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(linhas[0]))
         w.writeheader()

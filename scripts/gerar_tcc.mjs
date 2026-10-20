@@ -133,6 +133,34 @@ const figura = (arquivo, larguraCm, titulo, fonteTxt) => {
   ];
 };
 
+// ── lista de abreviaturas e siglas (ordem alfabética) ───────────────────────
+const SEM_BORDA = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+const SIGLAS = [
+  ["ANN", "Approximate Nearest Neighbors (vizinhos mais próximos aproximados)"],
+  ["API", "Application Programming Interface (interface de programação de aplicações)"],
+  ["BEIR", "Benchmarking Information Retrieval"],
+  ["BM25", "Best Match 25"],
+  ["COLIEE", "Competition on Legal Information Extraction and Entailment"],
+  ["CPU", "Central Processing Unit (unidade central de processamento)"],
+  ["FTS-PG", "Full-Text Search (busca de texto completo) nativa do PostgreSQL"],
+  ["GIN", "Generalized Inverted Index"],
+  ["HNSW", "Hierarchical Navigable Small World"],
+  ["HTML", "HyperText Markup Language"],
+  ["IDF", "Inverse Document Frequency (frequência inversa de documentos)"],
+  ["LLM", "Large Language Model (modelo de linguagem de grande porte)"],
+  ["MRR", "Mean Reciprocal Rank (média do inverso da posição)"],
+  ["nDCG", "normalized Discounted Cumulative Gain"],
+  ["PDF", "Portable Document Format"],
+  ["RAG", "Retrieval-Augmented Generation (recuperação aumentada por geração)"],
+  ["RAM", "Random Access Memory (memória de acesso aleatório)"],
+  ["RI", "Recuperação de Informação"],
+  ["RRF", "Reciprocal Rank Fusion"],
+  ["SQL", "Structured Query Language"],
+  ["TCC", "Trabalho de Conclusão de Curso"],
+  ["TF", "Term Frequency (frequência de termos)"],
+  ["UNESP", "Universidade Estadual Paulista \"Júlio de Mesquita Filho\""],
+];
+
 // ── tabelas genéricas ───────────────────────────────────────────────────────
 const border = { style: BorderStyle.SINGLE, size: 4, color: "999999" };
 const borders = { top: border, bottom: border, left: border, right: border };
@@ -376,6 +404,28 @@ const preTextual = {
 
     pageBreak(),
 
+    // ── LISTA DE ABREVIATURAS E SIGLAS ──────────────────────────────────────
+    tituloPre("Lista de abreviaturas e siglas"),
+    new Table({
+      width: { size: 9000, type: WidthType.DXA },
+      columnWidths: [1900, 7100],
+      borders: { top: SEM_BORDA, bottom: SEM_BORDA, left: SEM_BORDA, right: SEM_BORDA, insideHorizontal: SEM_BORDA, insideVertical: SEM_BORDA },
+      rows: SIGLAS.map(([sigla, significado]) => new TableRow({
+        children: [sigla, significado].map((texto, ci) => new TableCell({
+          width: { size: ci === 0 ? 1900 : 7100, type: WidthType.DXA },
+          borders: { top: SEM_BORDA, bottom: SEM_BORDA, left: SEM_BORDA, right: SEM_BORDA },
+          margins: { top: 40, bottom: 40, left: 60, right: 60 },
+          children: [new Paragraph({
+            alignment: AlignmentType.LEFT,
+            spacing: { line: 300, lineRule: "auto" },
+            children: [new TextRun({ text: texto, font: FONT, size: SIZE, bold: ci === 0 })]
+          })]
+        }))
+      }))
+    }),
+
+    pageBreak(),
+
     // ── SUMÁRIO ─────────────────────────────────────────────────────────────
     tituloPre("Sumário"),
     new TableOfContents("Sumário", {
@@ -411,7 +461,7 @@ const textual = {
     p("A Recuperação Aumentada por Geração (RAG, do inglês Retrieval-Augmented Generation), proposta por Lewis et al. (2020), surge como solução ao combinar a capacidade generativa dos LLMs com a recuperação de trechos relevantes de uma base de conhecimento externa. Em vez de depender exclusivamente do conhecimento paramétrico do modelo, o sistema RAG recupera documentos pertinentes à consulta do usuário e os fornece como contexto ao LLM, restringindo a geração às informações presentes nas fontes originais."),
 
     h2("1.1 Problema de Pesquisa"),
-    p("Dada a dificuldade de acesso eficiente à legislação institucional da UNESP Bauru, o presente trabalho formula a seguinte questão de pesquisa: em que medida um sistema RAG baseado em busca vetorial por similaridade semântica, busca textual BM25 e sua fusão por Reciprocal Rank Fusion (RRF) se diferenciam na recuperação de documentos regulatórios institucionais em língua portuguesa, e qual combinação oferece o melhor desempenho?"),
+    p("Dada a dificuldade de acesso eficiente à legislação institucional da UNESP Bauru, o presente trabalho formula a seguinte questão de pesquisa: em que medida um sistema RAG baseado em busca vetorial por similaridade semântica, busca textual BM25 (Best Match 25) e sua fusão por Reciprocal Rank Fusion (RRF) se diferenciam na recuperação de documentos regulatórios institucionais em língua portuguesa, e qual combinação oferece o melhor desempenho?"),
 
     h2("1.2 Objetivos"),
     h3("1.2.1 Objetivo Geral"),
@@ -420,10 +470,10 @@ const textual = {
     h3("1.2.2 Objetivos Específicos"),
     alinea("a", "Coletar, pré-processar e organizar o corpus de 936 resoluções da UNESP publicadas no portal sistemas.unesp.br/legislacao-web;"),
     alinea("b", "Implementar o pipeline de indexação composto por segmentação em chunks (sliding window 350 palavras, sobreposição de 60), geração de embeddings multilinguais (intfloat/multilingual-e5-small, 384 dimensões) e persistência em PostgreSQL 16 com pgvector;"),
-    alinea("c", "Implementar os mecanismos de recuperação: vetorial (HNSW + similaridade cosseno), lexical com BM25, busca textual nativa do PostgreSQL (tsvector + GIN + ts_rank_cd), como linha de base adicional, e híbrido (RRF combinando os rankings vetorial e BM25);"),
-    alinea("d", "Avaliar os métodos com um conjunto de 50 consultas anotadas manualmente, utilizando as métricas Hit@K (K = 1, 3, 5), MRR e latência, com testes de significância estatística pareados;"),
+    alinea("c", "Implementar os mecanismos de recuperação: vetorial (índice HNSW, do inglês Hierarchical Navigable Small World, com similaridade cosseno), lexical com BM25, busca textual nativa do PostgreSQL (FTS-PG, do inglês Full-Text Search; tsvector com índice GIN, do inglês Generalized Inverted Index, e ranqueamento ts_rank_cd), como linha de base adicional, e híbrido (RRF combinando os rankings vetorial e BM25);"),
+    alinea("d", "Avaliar os métodos com um conjunto de 50 consultas anotadas manualmente, utilizando as métricas Hit@K (K = 1, 3, 5), MRR (Mean Reciprocal Rank) e latência, com testes de significância estatística pareados;"),
     alinea("e", "Desenvolver uma interface web (FastAPI + React) para uso em contexto de biblioteca universitária, integrando recuperação e geração de respostas via LLM (Groq/gpt-oss-120b);"),
-    alinea("f", "Avaliar a qualidade das respostas geradas quanto à correção, à fidelidade às fontes recuperadas e à citação dos documentos de origem (etapa prevista para o TCC II)."),
+    alinea("f", "Avaliar a qualidade das respostas geradas quanto à correção, à fidelidade às fontes recuperadas e à citação dos documentos de origem (etapa prevista para o Trabalho de Conclusão de Curso II (TCC II))."),
 
     h2("1.3 Justificativa"),
     p("A adoção de sistemas RAG para documentos institucionais representa contribuição tanto prática quanto científica. Do ponto de vista prático, o sistema automatiza respostas a dúvidas recorrentes de estudantes — sobre aproveitamento de estudos, reingresso, transferência, calendário escolar, bolsas e emissão de diplomas — liberando servidores para demandas mais complexas. O contexto de uso em biblioteca universitária (kiosque de consulta) é especialmente adequado, pois integra o serviço ao ambiente físico de orientação acadêmica já existente. Embora o contexto de uso seja o câmpus de Bauru, o corpus reúne as resoluções gerais da UNESP, que regem todas as unidades da universidade, inclusive a Faculdade de Ciências de Bauru; normas específicas de unidade ou de curso não foram incluídas nesta etapa."),
@@ -468,7 +518,7 @@ const textual = {
     p("onde rankᵢ(d) é a posição de d no ranking i e k é um parâmetro de suavização (tipicamente 60). O método demonstrou superar estratégias de fusão por aprendizado e métodos de ranqueamento individuais em benchmarks de recuperação ad hoc. No contexto RAG, o RRF é especialmente atraente por combinar a precisão lexical do BM25 com a compreensão semântica da busca vetorial, compensando as fraquezas de cada método em diferentes tipos de consulta."),
 
     h2("2.6 Avaliação de Sistemas de Recuperação"),
-    p("A avaliação de sistemas de recuperação de informação compara os rankings produzidos com julgamentos de relevância previamente anotados. Quando cada consulta possui um documento relevante conhecido, são adequadas métricas orientadas à posição desse documento: Hit@K, que indica se ele aparece entre os K primeiros resultados, e o Mean Reciprocal Rank (MRR), média do inverso da posição em que ele aparece. Como essas métricas são médias sobre um conjunto finito de consultas, diferenças entre sistemas podem decorrer do acaso. Smucker, Allan e Carterette (2007) compararam testes de significância usados em RI e recomendam o teste de aleatorização pareado (randomization test), que não pressupõe distribuição normal das diferenças. Quando várias comparações são feitas sobre os mesmos dados, os valores-p devem ser ajustados, por exemplo pelo método sequencial de Holm (1979), para controlar a probabilidade de falsos positivos."),
+    p("A avaliação de sistemas de recuperação de informação (RI) compara os rankings produzidos com julgamentos de relevância previamente anotados. Quando cada consulta possui um documento relevante conhecido, são adequadas métricas orientadas à posição desse documento: Hit@K, que indica se ele aparece entre os K primeiros resultados, e o Mean Reciprocal Rank (MRR), média do inverso da posição em que ele aparece. Como essas métricas são médias sobre um conjunto finito de consultas, diferenças entre sistemas podem decorrer do acaso. Smucker, Allan e Carterette (2007) compararam testes de significância usados em RI e recomendam o teste de aleatorização pareado (randomization test), que não pressupõe distribuição normal das diferenças. Quando várias comparações são feitas sobre os mesmos dados, os valores-p devem ser ajustados, por exemplo pelo método sequencial de Holm (1979), para controlar a probabilidade de falsos positivos."),
 
     h2("2.7 Trabalhos Relacionados"),
     p("Esta seção situa o trabalho em relação a estudos sobre recuperação densa e lexical, sobre recuperação de informação em português e no domínio jurídico brasileiro, sobre sistemas RAG para atendimento acadêmico e sobre a avaliação de respostas geradas e de alucinações."),
@@ -538,7 +588,7 @@ const textual = {
     p("A busca híbrida combina os rankings vetorial e BM25 via Reciprocal Rank Fusion com k = 60. Os 50 primeiros resultados de cada método são recuperados; a pontuação RRF de cada chunk é calculada como 1/(60 + rank_vetorial) + 1/(60 + rank_BM25), em que um chunk ausente de um dos rankings não recebe a parcela correspondente. Os chunks são reordenados pela pontuação RRF combinada e os K melhores são retornados."),
 
     h2("3.4 Fase 4 — Interface Web"),
-    p("Uma interface de consulta foi desenvolvida para o contexto de uso em biblioteca universitária. O backend é implementado em FastAPI (Python), expondo os endpoints POST /api/ask (recuperação + geração com LLM), POST /api/search (apenas recuperação) e GET /api/health. O LLM utilizado é o gpt-oss-120b (OpenAI, pesos abertos), acessado via API Groq (tier gratuito, compatível com OpenAI), com temperatura 0,1, nível de raciocínio médio e máximo de 2.000 tokens por resposta, já que os tokens de raciocínio do modelo contam nesse limite. O modelo inicialmente adotado, o LLaMA 3.3 70B Versatile, deixou de ser oferecido pelo provedor durante o desenvolvimento e foi substituído por um modelo de porte e licença comparáveis. O prompt do sistema instrui o modelo a responder exclusivamente com base nos trechos fornecidos, citando a resolução de origem (Quadro 2). Para o experimento de avaliação da geração, o mesmo modelo é usado também sem recuperação (condição sem contexto), com um prompt que pede apenas que ele admita quando não souber."),
+    p("Uma interface de consulta foi desenvolvida para o contexto de uso em biblioteca universitária. O backend é implementado em FastAPI (Python), expondo os endpoints POST /api/ask (recuperação + geração com LLM), POST /api/search (apenas recuperação) e GET /api/health. O LLM utilizado é o gpt-oss-120b (OpenAI, pesos abertos), acessado via API (Application Programming Interface) do Groq (tier gratuito, compatível com OpenAI), com temperatura 0,1, nível de raciocínio médio e máximo de 2.000 tokens por resposta, já que os tokens de raciocínio do modelo contam nesse limite. O modelo inicialmente adotado, o LLaMA 3.3 70B Versatile, deixou de ser oferecido pelo provedor durante o desenvolvimento e foi substituído por um modelo de porte e licença comparáveis. O prompt do sistema instrui o modelo a responder exclusivamente com base nos trechos fornecidos, citando a resolução de origem (Quadro 2). Para o experimento de avaliação da geração, o mesmo modelo é usado também sem recuperação (condição sem contexto), com um prompt que pede apenas que ele admita quando não souber."),
     caption("Quadro 2 — Prompts do sistema nas duas condições de geração."),
     tabela([2100, 6900], [
       ["Condição", "Prompt do sistema"],

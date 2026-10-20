@@ -46,7 +46,7 @@ _SYSTEM_SEM_CONTEXTO = (
     "certeza, diga claramente que não sabe, sem inventar informações."
 )
 
-_MAX_TENTATIVAS = 8
+_MAX_TENTATIVAS = 12
 
 
 def _montar_mensagens(query: str, chunks: list[dict] | None) -> list[dict]:
@@ -67,11 +67,15 @@ def _montar_mensagens(query: str, chunks: list[dict] | None) -> list[dict]:
     ]
 
 
-def generate(query: str, chunks: list[dict] | None = None, model: str | None = None) -> dict:
+def generate(query: str, chunks: list[dict] | None = None, model: str | None = None,
+             espera_maxima: float = 300.0) -> dict:
     """Gera a resposta e devolve também os metadados da chamada.
 
     chunks: lista de dicts com 'source', 'chunk_index', 'content'; None ou vazia = sem recuperação.
     Em caso de limite de uso do plano gratuito (HTTP 429), espera o tempo indicado e tenta de novo.
+    espera_maxima: se o Groq pedir para esperar mais que isso (segundos), a exceção sobe. O padrão
+    (5 min) serve à API, que não deve travar o usuário; o experimento em lote usa um valor maior,
+    porque o limite diário do plano gratuito (200 mil tokens/dia) se recarrega aos poucos.
     """
     from openai import RateLimitError
 
@@ -91,7 +95,7 @@ def generate(query: str, chunks: list[dict] | None = None, model: str | None = N
             if tentativa == _MAX_TENTATIVAS:
                 raise
             espera = float(exc.response.headers.get("retry-after", 20)) + 1.0
-            if espera > 300:  # limite diario esgotado: esperar horas nao compensa; quem chamou decide
+            if espera > espera_maxima:
                 raise
             print(f"    [limite do Groq] aguardando {espera:.0f}s (tentativa {tentativa}/{_MAX_TENTATIVAS})")
             time.sleep(espera)

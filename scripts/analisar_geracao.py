@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from avaliar_julgamentos import kappa  # noqa: E402
+from avaliar_julgamentos import kappa, sem_nan  # noqa: E402
 from evaluate import bootstrap_ci, holm, randomization_test  # noqa: E402
 
 CONDICOES = ["closed_book", "rag_vetorial", "rag_hibrido"]
@@ -135,7 +135,8 @@ def main() -> int:
     reg = {}
     for i in itens:
         qid, cond = chave[i]["pergunta_id"], chave[i]["condicao"]
-        reg[(qid, cond)] = {**final[i], "tipo": perguntas[qid]["tipo"], "subtipo": perguntas[qid].get("subtipo"), **respostas[(qid, cond)]}
+        # perguntas.json é a fonte do tipo; vem por último para não ser sobrescrito pelo campo gravado na resposta
+        reg[(qid, cond)] = {**respostas[(qid, cond)], **final[i], "tipo": perguntas[qid]["tipo"], "subtipo": perguntas[qid].get("subtipo")}
 
     def resumo(cond: str) -> dict:
         resp = [v for (q, c), v in reg.items() if c == cond and v["tipo"] == "respondivel"]
@@ -200,7 +201,7 @@ def main() -> int:
 
     saida = {"concordancia": conc, "provisorio": bool(pendentes), "n_perguntas": len(qids),
              "por_condicao": por_cond, "comparacoes": comps, "nomes": NOME}
-    (d / "resultados_geracao.json").write_text(json.dumps(saida, ensure_ascii=False, indent=2), encoding="utf-8")
+    (d / "resultados_geracao.json").write_text(json.dumps(sem_nan(saida), ensure_ascii=False, indent=2), encoding="utf-8")
 
     print("concordancia:", {c: round(v["kappa"], 3) for c, v in conc.items()})
     print(f"{'condicao':<18}{'corr.media':>11}{'nota2':>8}{'aluc.resp':>11}{'aluc.sem':>10}{'recusa':>8}{'cita':>7}{'cit.ok':>8}{'lat.med':>9}")

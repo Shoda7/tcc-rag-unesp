@@ -162,15 +162,17 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Planilhas de anotacao da geracao")
     ap.add_argument("--anotadores", nargs="+", default=["matheus", "rafael"])
     ap.add_argument("--forcar", action="store_true")
+    ap.add_argument("--dir", default=str(GER), help="diretorio com perguntas.json e respostas.jsonl (e onde saem as planilhas)")
     args = ap.parse_args()
+    ger = Path(args.dir)
 
     for nome in args.anotadores:
-        n = ja_anotada(GER / f"anotacao_{nome}.xlsx")
+        n = ja_anotada(ger / f"anotacao_{nome}.xlsx")
         if n and not args.forcar:
             sys.exit(f"RECUSADO: anotacao_{nome}.xlsx ja tem {n} linha(s) anotada(s). Use --forcar se for isso mesmo que quer.")
 
-    perguntas = {q["id"]: q for q in json.loads((GER / "perguntas.json").read_text("utf-8"))}
-    respostas = [json.loads(x) for x in (GER / "respostas.jsonl").read_text("utf-8").splitlines()]
+    perguntas = {q["id"]: q for q in json.loads((ger / "perguntas.json").read_text("utf-8"))}
+    respostas = [json.loads(x) for x in (ger / "respostas.jsonl").read_text("utf-8").splitlines()]
     manifest = json.loads((LEG / "manifest.json").read_text("utf-8"))
     conn = db.connect()
 
@@ -206,9 +208,9 @@ def main() -> None:
                     "referencia": refs[qid], "citadas": "\n".join(citadas) or "(nenhuma)",
                     "links": "\n".join(l for l in links if l),
                 })
-        escrever(GER / f"anotacao_{nome}.xlsx", nome, linhas)
-        print(f"  {nome}: {len(linhas)} linhas -> {GER / f'anotacao_{nome}.xlsx'}")
-    (GER / "chave_condicoes.json").write_text(json.dumps(chave, ensure_ascii=False, indent=1), encoding="utf-8")
+        escrever(ger / f"anotacao_{nome}.xlsx", nome, linhas)
+        print(f"  {nome}: {len(linhas)} linhas -> {ger / f'anotacao_{nome}.xlsx'}")
+    (ger / "chave_condicoes.json").write_text(json.dumps(chave, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":
