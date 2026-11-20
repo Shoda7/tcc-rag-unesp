@@ -1,0 +1,482 @@
+{
+ "R265": {
+  "pergunta_id": "g01",
+  "condicao": "closed_book"
+ },
+ "R177": {
+  "pergunta_id": "g01",
+  "condicao": "rag_vetorial"
+ },
+ "R302": {
+  "pergunta_id": "g01",
+  "condicao": "rag_hibrido"
+ },
+ "R433": {
+  "pergunta_id": "g02",
+  "condicao": "closed_book"
+ },
+ "R124": {
+  "pergunta_id": "g02",
+  "condicao": "rag_vetorial"
+ },
+ "R137": {
+  "pergunta_id": "g02",
+  "condicao": "rag_hibrido"
+ },
+ "R374": {
+  "pergunta_id": "g03",
+  "condicao": "closed_book"
+ },
+ "R148": {
+  "pergunta_id": "g03",
+  "condicao": "rag_vetorial"
+ },
+ "R287": {
+  "pergunta_id": "g03",
+  "condicao": "rag_hibrido"
+ },
+ "R398": {
+  "pergunta_id": "g04",
+  "condicao": "closed_book"
+ },
+ "R129": {
+  "pergunta_id": "g04",
+  "condicao": "rag_vetorial"
+ },
+ "R359": {
+  "pergunta_id": "g04",
+  "condicao": "rag_hibrido"
+ },
+ "R209": {
+  "pergunta_id": "g05",
+  "condicao": "closed_book"
+ },
+ "R119": {
+  "pergunta_id": "g05",
+  "condicao": "rag_vetorial"
+ },
+ "R144": {
+  "pergunta_id": "g05",
+  "condicao": "rag_hibrido"
+ },
+ "R322": {
+  "pergunta_id": "g06",
+  "condicao": "closed_book"
+ },
+ "R314": {
+  "pergunta_id": "g06",
+  "condicao": "rag_vetorial"
+ },
+ "R135": {
+  "pergunta_id": "g06",
+  "condicao": "rag_hibrido"
+ },
+ "R223": {
+  "pergunta_id": "g07",
+  "condicao": "closed_book"
+ },
+ "R146": {
+  "pergunta_id": "g07",
+  "condicao": "rag_vetorial"
+ },
+ "R382": {
+  "pergunta_id": "g07",
+  "condicao": "rag_hibrido"
+ },
+ "R317": {
+  "pergunta_id": "g08",
+  "condicao": "closed_book"
+ },
+ "R130": {
+  "pergunta_id": "g08",
+  "condicao": "rag_vetorial"
+ },
+ "R389": {
+  "pergunta_id": "g08",
+  "condicao": "rag_hibrido"
+ },
+ "R163": {
+  "pergunta_id": "g09",
+  "condicao": "closed_book"
+ },
+ "R214": {
+  "pergunta_id": "g09",
+  "condicao": "rag_vetorial"
+ },
+ "R422": {
+  "pergunta_id": "g09",
+  "condicao": "rag_hibrido"
+ },
+ "R421": {
+  "pergunta_id": "g10",
+  "condicao": "closed_book"
+ },
+ "R450": {
+  "pergunta_id": "g10",
+  "condicao": "rag_vetorial"
+ },
+ "R131": {
+  "pergunta_id": "g10",
+  "condicao": "rag_hibrido"
+ },
+ "R395": {
+  "pergunta_id": "g11",
+  "condicao": "closed_book"
+ },
+ "R399": {
+  "pergunta_id": "g11",
+  "condicao": "rag_vetorial"
+ },
+ "R303": {
+  "pergunta_id": "g11",
+  "condicao": "rag_hibrido"
+ },
+ "R125": {
+  "pergunta_id": "g12",
+  "condicao": "closed_book"
+ },
+ "R213": {
+  "pergunta_id": "g12",
+  "condicao": "rag_vetorial"
+ },
+ "R123": {
+  "pergunta_id": "g12",
+  "condicao": "rag_hibrido"
+ },
+ "R385": {
+  "pergunta_id": "g13",
+  "condicao": "closed_book"
+ },
+ "R168": {
+  "pergunta_id": "g13",
+  "condicao": "rag_vetorial"
+ },
+ "R248": {
+  "pergunta_id": "g13",
+  "condicao": "rag_hibrido"
+ },
+ "R443": {
+  "pergunta_id": "g14",
+  "condicao": "closed_book"
+ },
+ "R173": {
+  "pergunta_id": "g14",
+  "condicao": "rag_vetorial"
+ },
+ "R376": {
+  "pergunta_id": "g14",
+  "condicao": "rag_hibrido"
+ },
+ "R160": {
+  "pergunta_id": "g15",
+  "condicao": "closed_book"
+ },
+ "R392": {
+  "pergunta_id": "g15",
+  "condicao": "rag_vetorial"
+ },
+ "R257": {
+  "pergunta_id": "g15",
+  "condicao": "rag_hibrido"
+ },
+ "R386": {
+  "pergunta_id": "g16",
+  "condicao": "closed_book"
+ },
+ "R192": {
+  "pergunta_id": "g16",
+  "condicao": "rag_vetorial"
+ },
+ "R152": {
+  "pergunta_id": "g16",
+  "condicao": "rag_hibrido"
+ },
+ "R397": {
+  "pergunta_id": "g17",
+  "condicao": "closed_book"
+ },
+ "R416": {
+  "pergunta_id": "g17",
+  "condicao": "rag_vetorial"
+ },
+ "R196": {
+  "pergunta_id": "g17",
+  "condicao": "rag_hibrido"
+ },
+ "R290": {
+  "pergunta_id": "g18",
+  "condicao": "closed_book"
+ },
+ "R149": {
+  "pergunta_id": "g18",
+  "condicao": "rag_vetorial"
+ },
+ "R380": {
+  "pergunta_id": "g18",
+  "condicao": "rag_hibrido"
+ },
+ "R132": {
+  "pergunta_id": "g19",
+  "condicao": "closed_book"
+ },
+ "R388": {
+  "pergunta_id": "g19",
+  "condicao": "rag_vetorial"
+ },
+ "R437": {
+  "pergunta_id": "g19",
+  "condicao": "rag_hibrido"
+ },
+ "R205": {
+  "pergunta_id": "g20",
+  "condicao": "closed_book"
+ },
+ "R354": {
+  "pergunta_id": "g20",
+  "condicao": "rag_vetorial"
+ },
+ "R372": {
+  "pergunta_id": "g20",
+  "condicao": "rag_hibrido"
+ },
+ "R318": {
+  "pergunta_id": "g21",
+  "condicao": "closed_book"
+ },
+ "R260": {
+  "pergunta_id": "g21",
+  "condicao": "rag_vetorial"
+ },
+ "R338": {
+  "pergunta_id": "g21",
+  "condicao": "rag_hibrido"
+ },
+ "R332": {
+  "pergunta_id": "g22",
+  "condicao": "closed_book"
+ },
+ "R285": {
+  "pergunta_id": "g22",
+  "condicao": "rag_vetorial"
+ },
+ "R253": {
+  "pergunta_id": "g22",
+  "condicao": "rag_hibrido"
+ },
+ "R227": {
+  "pergunta_id": "g23",
+  "condicao": "closed_book"
+ },
+ "R413": {
+  "pergunta_id": "g23",
+  "condicao": "rag_vetorial"
+ },
+ "R224": {
+  "pergunta_id": "g23",
+  "condicao": "rag_hibrido"
+ },
+ "R141": {
+  "pergunta_id": "g24",
+  "condicao": "closed_book"
+ },
+ "R394": {
+  "pergunta_id": "g24",
+  "condicao": "rag_vetorial"
+ },
+ "R368": {
+  "pergunta_id": "g24",
+  "condicao": "rag_hibrido"
+ },
+ "R353": {
+  "pergunta_id": "g25",
+  "condicao": "closed_book"
+ },
+ "R275": {
+  "pergunta_id": "g25",
+  "condicao": "rag_vetorial"
+ },
+ "R329": {
+  "pergunta_id": "g25",
+  "condicao": "rag_hibrido"
+ },
+ "R247": {
+  "pergunta_id": "g26",
+  "condicao": "closed_book"
+ },
+ "R454": {
+  "pergunta_id": "g26",
+  "condicao": "rag_vetorial"
+ },
+ "R417": {
+  "pergunta_id": "g26",
+  "condicao": "rag_hibrido"
+ },
+ "R362": {
+  "pergunta_id": "g27",
+  "condicao": "closed_book"
+ },
+ "R420": {
+  "pergunta_id": "g27",
+  "condicao": "rag_vetorial"
+ },
+ "R184": {
+  "pergunta_id": "g27",
+  "condicao": "rag_hibrido"
+ },
+ "R414": {
+  "pergunta_id": "g28",
+  "condicao": "closed_book"
+ },
+ "R458": {
+  "pergunta_id": "g28",
+  "condicao": "rag_vetorial"
+ },
+ "R350": {
+  "pergunta_id": "g28",
+  "condicao": "rag_hibrido"
+ },
+ "R315": {
+  "pergunta_id": "g29",
+  "condicao": "closed_book"
+ },
+ "R120": {
+  "pergunta_id": "g29",
+  "condicao": "rag_vetorial"
+ },
+ "R139": {
+  "pergunta_id": "g29",
+  "condicao": "rag_hibrido"
+ },
+ "R431": {
+  "pergunta_id": "g30",
+  "condicao": "closed_book"
+ },
+ "R274": {
+  "pergunta_id": "g30",
+  "condicao": "rag_vetorial"
+ },
+ "R279": {
+  "pergunta_id": "g30",
+  "condicao": "rag_hibrido"
+ },
+ "R401": {
+  "pergunta_id": "g31",
+  "condicao": "closed_book"
+ },
+ "R333": {
+  "pergunta_id": "g31",
+  "condicao": "rag_vetorial"
+ },
+ "R442": {
+  "pergunta_id": "g31",
+  "condicao": "rag_hibrido"
+ },
+ "R147": {
+  "pergunta_id": "g32",
+  "condicao": "closed_book"
+ },
+ "R238": {
+  "pergunta_id": "g32",
+  "condicao": "rag_vetorial"
+ },
+ "R342": {
+  "pergunta_id": "g32",
+  "condicao": "rag_hibrido"
+ },
+ "R133": {
+  "pergunta_id": "g33",
+  "condicao": "closed_book"
+ },
+ "R430": {
+  "pergunta_id": "g33",
+  "condicao": "rag_vetorial"
+ },
+ "R258": {
+  "pergunta_id": "g33",
+  "condicao": "rag_hibrido"
+ },
+ "R328": {
+  "pergunta_id": "g34",
+  "condicao": "closed_book"
+ },
+ "R245": {
+  "pergunta_id": "g34",
+  "condicao": "rag_vetorial"
+ },
+ "R297": {
+  "pergunta_id": "g34",
+  "condicao": "rag_hibrido"
+ },
+ "R277": {
+  "pergunta_id": "g35",
+  "condicao": "closed_book"
+ },
+ "R111": {
+  "pergunta_id": "g35",
+  "condicao": "rag_vetorial"
+ },
+ "R336": {
+  "pergunta_id": "g35",
+  "condicao": "rag_hibrido"
+ },
+ "R190": {
+  "pergunta_id": "g36",
+  "condicao": "closed_book"
+ },
+ "R143": {
+  "pergunta_id": "g36",
+  "condicao": "rag_vetorial"
+ },
+ "R256": {
+  "pergunta_id": "g36",
+  "condicao": "rag_hibrido"
+ },
+ "R449": {
+  "pergunta_id": "g37",
+  "condicao": "closed_book"
+ },
+ "R226": {
+  "pergunta_id": "g37",
+  "condicao": "rag_vetorial"
+ },
+ "R115": {
+  "pergunta_id": "g37",
+  "condicao": "rag_hibrido"
+ },
+ "R155": {
+  "pergunta_id": "g38",
+  "condicao": "closed_book"
+ },
+ "R296": {
+  "pergunta_id": "g38",
+  "condicao": "rag_vetorial"
+ },
+ "R419": {
+  "pergunta_id": "g38",
+  "condicao": "rag_hibrido"
+ },
+ "R363": {
+  "pergunta_id": "g39",
+  "condicao": "closed_book"
+ },
+ "R289": {
+  "pergunta_id": "g39",
+  "condicao": "rag_vetorial"
+ },
+ "R435": {
+  "pergunta_id": "g39",
+  "condicao": "rag_hibrido"
+ },
+ "R201": {
+  "pergunta_id": "g40",
+  "condicao": "closed_book"
+ },
+ "R200": {
+  "pergunta_id": "g40",
+  "condicao": "rag_vetorial"
+ },
+ "R334": {
+  "pergunta_id": "g40",
+  "condicao": "rag_hibrido"
+ }
+}
