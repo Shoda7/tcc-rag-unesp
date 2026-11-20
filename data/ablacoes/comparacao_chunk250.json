@@ -1,0 +1,255 @@
+{
+  "base": {
+    "chunking": {
+      "palavras": 350,
+      "sobreposicao": 60,
+      "chunks": 4229,
+      "tokens_mediana": 541,
+      "tokens_p95": 661,
+      "limite_tokens": 512,
+      "chunks_truncados": 2795,
+      "pct_truncados": 66.1
+    },
+    "global": {
+      "vec": {
+        "hit1": 0.56,
+        "hit5": 0.9,
+        "mrr": 0.6903333333333334,
+        "mrr_ci95": [
+          0.5849916666666667,
+          0.7936666666666667
+        ]
+      },
+      "fts": {
+        "hit1": 0.32,
+        "hit5": 0.64,
+        "mrr": 0.439,
+        "mrr_ci95": [
+          0.325,
+          0.5566666666666668
+        ]
+      },
+      "bm25": {
+        "hit1": 0.66,
+        "hit5": 0.84,
+        "mrr": 0.718,
+        "mrr_ci95": [
+          0.6053333333333333,
+          0.8273333333333334
+        ]
+      },
+      "rrf": {
+        "hit1": 0.7,
+        "hit5": 0.9,
+        "mrr": 0.785,
+        "mrr_ci95": [
+          0.6833333333333335,
+          0.88
+        ]
+      }
+    }
+  },
+  "ablacao": {
+    "chunking": {
+      "palavras": 250,
+      "sobreposicao": 40,
+      "chunks": 5714,
+      "tokens_mediana": 392.0,
+      "tokens_p95": 480,
+      "limite_tokens": 512,
+      "chunks_truncados": 136,
+      "pct_truncados": 2.4
+    },
+    "global": {
+      "vec": {
+        "hit1": 0.5,
+        "hit5": 0.84,
+        "mrr": 0.6516666666666667,
+        "mrr_ci95": [
+          0.5449583333333333,
+          0.755
+        ]
+      },
+      "fts": {
+        "hit1": 0.22,
+        "hit5": 0.66,
+        "mrr": 0.36599999999999994,
+        "mrr_ci95": [
+          0.2643333333333333,
+          0.4726749999999999
+        ]
+      },
+      "bm25": {
+        "hit1": 0.66,
+        "hit5": 0.82,
+        "mrr": 0.72,
+        "mrr_ci95": [
+          0.6033333333333333,
+          0.83
+        ]
+      },
+      "rrf": {
+        "hit1": 0.64,
+        "hit5": 0.9,
+        "mrr": 0.7523333333333333,
+        "mrr_ci95": [
+          0.6506666666666666,
+          0.8490000000000001
+        ]
+      }
+    },
+    "latencia_mediana_ms": {
+      "vec": 109.16,
+      "fts": 128.055,
+      "bm25": 5.69,
+      "rrf": 102.215
+    }
+  },
+  "n_consultas": 50,
+  "comparacoes": [
+    {
+      "metodo": "vec",
+      "mrr_base": 0.6903333333333334,
+      "mrr_ablacao": 0.6516666666666667,
+      "delta_mrr": -0.03866666666666663,
+      "p_mrr": 0.42245775422457754,
+      "melhora": 8,
+      "piora": 12,
+      "empates": 30,
+      "p_mrr_holm": 1.0
+    },
+    {
+      "metodo": "fts",
+      "mrr_base": 0.439,
+      "mrr_ablacao": 0.36599999999999994,
+      "delta_mrr": -0.07300000000000006,
+      "p_mrr": 0.103989601039896,
+      "melhora": 8,
+      "piora": 15,
+      "empates": 27,
+      "p_mrr_holm": 0.415958404159584
+    },
+    {
+      "metodo": "bm25",
+      "mrr_base": 0.718,
+      "mrr_ablacao": 0.72,
+      "delta_mrr": 0.0020000000000000018,
+      "p_mrr": 0.9494050594940506,
+      "melhora": 6,
+      "piora": 5,
+      "empates": 39,
+      "p_mrr_holm": 1.0
+    },
+    {
+      "metodo": "rrf",
+      "mrr_base": 0.785,
+      "mrr_ablacao": 0.7523333333333333,
+      "delta_mrr": -0.03266666666666673,
+      "p_mrr": 0.36876312368763126,
+      "melhora": 3,
+      "piora": 8,
+      "empates": 39,
+      "p_mrr_holm": 1.0
+    }
+  ],
+  "por_tipo": {
+    "lexical": {
+      "n": 26,
+      "comparacoes": [
+        {
+          "metodo": "vec",
+          "mrr_base": 0.8493589743589745,
+          "mrr_ablacao": 0.8429487179487178,
+          "delta_mrr": -0.0064102564102566095,
+          "p_mrr": 0.9819018098190181,
+          "melhora": 4,
+          "piora": 5,
+          "empates": 17,
+          "p_mrr_holm": 1.0
+        },
+        {
+          "metodo": "fts",
+          "mrr_base": 0.641025641025641,
+          "mrr_ablacao": 0.5217948717948718,
+          "delta_mrr": -0.11923076923076914,
+          "p_mrr": 0.0846915308469153,
+          "melhora": 3,
+          "piora": 12,
+          "empates": 11,
+          "p_mrr_holm": 0.3387661233876612
+        },
+        {
+          "metodo": "bm25",
+          "mrr_base": 0.8974358974358974,
+          "mrr_ablacao": 0.9358974358974359,
+          "delta_mrr": 0.03846153846153855,
+          "p_mrr": 0.6163383661633837,
+          "melhora": 3,
+          "piora": 1,
+          "empates": 22,
+          "p_mrr_holm": 1.0
+        },
+        {
+          "metodo": "rrf",
+          "mrr_base": 0.8493589743589745,
+          "mrr_ablacao": 0.9038461538461539,
+          "delta_mrr": 0.054487179487179405,
+          "p_mrr": 0.37896210378962103,
+          "melhora": 3,
+          "piora": 1,
+          "empates": 22,
+          "p_mrr_holm": 1.0
+        }
+      ]
+    },
+    "semantic": {
+      "n": 24,
+      "comparacoes": [
+        {
+          "metodo": "vec",
+          "mrr_base": 0.5180555555555556,
+          "mrr_ablacao": 0.4444444444444444,
+          "delta_mrr": -0.07361111111111118,
+          "p_mrr": 0.28517148285171484,
+          "melhora": 4,
+          "piora": 7,
+          "empates": 13,
+          "p_mrr_holm": 0.8555144485551445
+        },
+        {
+          "metodo": "fts",
+          "mrr_base": 0.22013888888888888,
+          "mrr_ablacao": 0.19722222222222222,
+          "delta_mrr": -0.02291666666666667,
+          "p_mrr": 0.7071292870712929,
+          "melhora": 5,
+          "piora": 3,
+          "empates": 16,
+          "p_mrr_holm": 0.9661033896610339
+        },
+        {
+          "metodo": "bm25",
+          "mrr_base": 0.5236111111111111,
+          "mrr_ablacao": 0.4861111111111111,
+          "delta_mrr": -0.03750000000000003,
+          "p_mrr": 0.48305169483051696,
+          "melhora": 3,
+          "piora": 4,
+          "empates": 17,
+          "p_mrr_holm": 0.9661033896610339
+        },
+        {
+          "metodo": "rrf",
+          "mrr_base": 0.7152777777777777,
+          "mrr_ablacao": 0.5881944444444445,
+          "delta_mrr": -0.12708333333333321,
+          "p_mrr": 0.014298570142985701,
+          "melhora": 0,
+          "piora": 7,
+          "empates": 17,
+          "p_mrr_holm": 0.057194280571942806
+        }
+      ]
+    }
+  }
+}

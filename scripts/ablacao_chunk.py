@@ -7,6 +7,8 @@ chunks ainda passam de 512 tokens e roda a mesma avaliacao (scripts/evaluate.py)
 
 Uso:
   python scripts/ablacao_chunk.py --palavras 250 --sobreposicao 40
+  python scripts/ablacao_chunk.py --palavras 350 --sobreposicao 60 --so-estatisticas   # configuracao principal
+  python scripts/comparar_ablacao.py   # depois: compara com a configuracao principal (teste pareado)
 Saida: data/ablacoes/chunk<palavras>_resumo.json (+ _resultados.csv) e o banco tcc_rag_abl_c<palavras>.
 """
 from __future__ import annotations
@@ -39,6 +41,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--palavras", type=int, required=True)
     ap.add_argument("--sobreposicao", type=int, required=True)
+    ap.add_argument("--so-estatisticas", action="store_true",
+                    help="so mede os tokens por chunk (grava chunk<palavras>_estatisticas.json), sem banco nem avaliacao")
     args = ap.parse_args()
 
     nome_db = f"tcc_rag_abl_c{args.palavras}"
@@ -61,6 +65,11 @@ def main() -> None:
         "limite_tokens": limite, "chunks_truncados": truncados, "pct_truncados": round(100 * truncados / len(n_tok), 1),
     }
     print(json.dumps(estat, ensure_ascii=False))
+    if args.so_estatisticas:
+        # usado para a configuracao principal (350/60): mede o truncamento sem reindexar nada
+        (saida / f"chunk{args.palavras}_estatisticas.json").write_text(json.dumps(estat, ensure_ascii=False, indent=2), "utf-8")
+        print("so estatisticas: nenhum banco foi criado nem avaliado")
+        return
 
     print("Gerando embeddings...")
     vetores = embed_passages([c.text for c in chunks])

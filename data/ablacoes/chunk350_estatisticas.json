@@ -1,0 +1,10 @@
+{
+  "palavras": 350,
+  "sobreposicao": 60,
+  "chunks": 4229,
+  "tokens_mediana": 541,
+  "tokens_p95": 661,
+  "limite_tokens": 512,
+  "chunks_truncados": 2795,
+  "pct_truncados": 66.1
+}

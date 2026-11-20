@@ -69,6 +69,15 @@ def main() -> int:
     for n, rotulo in ((R["meta"]["n_consultas"], "consultas"),):
         if f"{n} {rotulo}" not in texto:
             avisos.append(f"'{n} {rotulo}' nao aparece literalmente")
+    abl = ROOT / "data" / "ablacoes" / "comparacao_chunk250.json"
+    if abl.exists():
+        A = json.loads(abl.read_text("utf-8"))
+        vec = next(c for c in A["comparacoes"] if c["metodo"] == "vec")
+        for nome, v in (("MRR vetorial com chunk de 250", br(vec["mrr_ablacao"])),
+                        ("% de chunks truncados (350)", br(A["base"]["chunking"]["pct_truncados"], 1) + "%"),
+                        ("% de chunks truncados (250)", br(A["ablacao"]["chunking"]["pct_truncados"], 1) + "%")):
+            if v not in texto:
+                erros.append(f"{nome} ({v}) nao aparece no texto: secao da ablacao desatualizada em relacao a {abl.name}?")
     C = json.loads((ROOT / "data" / "corpus_release.json").read_text("utf-8"))
     if C["sha256_pacote"] not in texto:
         erros.append("o SHA-256 do corpus no texto difere de data/corpus_release.json")
@@ -119,7 +128,8 @@ def main() -> int:
             erros.append(f"numeracao de {tipo}s nao sequencial: {sorted(map(int, legendas))}")
 
     # 7. secoes
-    secoes = re.findall(r"^(\d+(?:\.\d+)+) \S", corpo, flags=re.M)
+    # titulo comeca com maiuscula; evita confundir numeros em celulas de tabela ("2.795 de 4.229") com secoes
+    secoes = re.findall(r"^(\d+(?:\.\d+)+) [A-ZÀ-Ý]", corpo, flags=re.M)
     vistos: dict[str, int] = {}
     for s in secoes:
         pai, _, filho = s.rpartition(".")

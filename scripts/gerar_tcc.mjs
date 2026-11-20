@@ -17,6 +17,11 @@ const PILOTO = JSON.parse(readFileSync("data/geracao/piloto_resumo.json", "utf-8
 // Conjuntos de perguntas dos apêndices.
 const EVAL = JSON.parse(readFileSync("data/eval_set.json", "utf-8"));
 const PERGUNTAS_GER = JSON.parse(readFileSync("data/geracao/perguntas.json", "utf-8"));
+// Ablação do tamanho do chunk: `python scripts/ablacao_chunk.py ...` e depois `python scripts/comparar_ablacao.py`.
+const ABL = JSON.parse(readFileSync("data/ablacoes/comparacao_chunk250.json", "utf-8"));
+const ablCmp = (m) => ABL.comparacoes.find(c => c.metodo === m);
+const ablCmpT = (tipo, m) => ABL.por_tipo[tipo].comparacoes.find(c => c.metodo === m);
+const milhar = (n) => n.toLocaleString("pt-BR");
 const G = R.global;
 const T = R.por_tipo;
 const METODOS = ["vec", "fts", "bm25", "rrf"];
@@ -245,6 +250,22 @@ const latTable = tabela([3200, 1500, 1500, 1500, 1500], [
   ["Latência por consulta (ms)", ...METODOS.map(m => NOME[m])],
   ["Mediana", ...METODOS.map(m => fmt(G[m].lat_median_ms, 1))],
   ["Percentil 95", ...METODOS.map(m => fmt(G[m].lat_p95_ms, 1))],
+]);
+
+// ── Tabela 5: ablação do tamanho do chunk ───────────────────────────────────
+const ablTable = tabela([2300, 1500, 1500, 1300, 1300, 1171], [
+  ["Método", `MRR (${ABL.base.chunking.palavras} palavras)`, `MRR (${ABL.ablacao.chunking.palavras} palavras)`, "Δ MRR", "p (Holm)", "Melhora / piora / empate"],
+  ...METODOS.map(m => {
+    const c = ablCmp(m);
+    return [
+      NOME[m], fmt(c.mrr_base), fmt(c.mrr_ablacao),
+      (c.delta_mrr >= 0 ? "+" : "−") + fmt(Math.abs(c.delta_mrr)),
+      fmtP(c.p_mrr_holm) + (c.p_mrr_holm < 0.05 ? " *" : ""),
+      `${c.melhora} / ${c.piora} / ${c.empates}`,
+    ];
+  }),
+  ["Chunks acima de 512 tokens", `${milhar(ABL.base.chunking.chunks_truncados)} de ${milhar(ABL.base.chunking.chunks)} (${fmt(ABL.base.chunking.pct_truncados, 1)}%)`,
+    `${milhar(ABL.ablacao.chunking.chunks_truncados)} de ${milhar(ABL.ablacao.chunking.chunks)} (${fmt(ABL.ablacao.chunking.pct_truncados, 1)}%)`, "", "", ""],
 ]);
 
 // ── cronograma ──────────────────────────────────────────────────────────────
@@ -589,6 +610,7 @@ const textual = {
     h2("3.2 Fase 2 — Indexação: Chunking, Embeddings e pgvector"),
     p("Os textos pré-processados são segmentados em chunks pelo método de janela deslizante (sliding window), com tamanho de 350 palavras e sobreposição de 60 palavras. O corpus resultou em 4.229 chunks, com média de 318 palavras por chunk; as 369 resoluções com menos de 350 palavras formam um único chunk cada."),
     p("Os embeddings são gerados pelo modelo intfloat/multilingual-e5-small (384 dimensões), executado localmente via sentence-transformers sem custo de API. As consultas recebem o prefixo \"query: \" e os documentos o prefixo \"passage: \", conforme especificação do modelo. Os vetores são persistidos na coluna embedding (tipo vector(384)) da tabela chunks no PostgreSQL 16 com pgvector. Um índice HNSW com métrica de distância cosseno (ops: vector_cosine_ops) é criado sobre a coluna para busca ANN eficiente."),
+    p(`O modelo multilingual-e5-small processa no máximo ${ABL.base.chunking.limite_tokens} tokens por texto e descarta o excedente. Com ${ABL.base.chunking.palavras} palavras, os chunks têm mediana de ${milhar(ABL.base.chunking.tokens_mediana)} tokens (já com o prefixo "passage: "), e ${milhar(ABL.base.chunking.chunks_truncados)} dos ${milhar(ABL.base.chunking.chunks)} chunks (${fmt(ABL.base.chunking.pct_truncados, 1)}%) excedem esse limite: nesses casos, o vetor representa apenas o início do trecho, enquanto o BM25 e a busca textual nativa consideram o texto inteiro. O efeito dessa truncagem é examinado na Seção 4.6, que repete a avaliação com chunks de ${ABL.ablacao.chunking.palavras} palavras.`),
     p("Simultaneamente, cada chunk recebe uma coluna content_tsv (tipo tsvector), gerada automaticamente pela expressão to_tsvector('portuguese', unaccent_immutable(content)), onde unaccent_immutable é uma função SQL IMMUTABLE e PARALLEL SAFE que envolve a extensão unaccent. Um índice GIN é criado sobre content_tsv para busca textual eficiente."),
 
     h2("3.3 Fase 3 — Implementação dos Métodos de Recuperação"),
@@ -667,11 +689,19 @@ const textual = {
     fonte(),
     p(`A Tabela 4 resume a latência de cada método. Após o aquecimento, a geração do embedding da consulta levou, em mediana, ${ms(R.embedding_ms.median)} ms. A busca vetorial completa teve mediana de ${ms(G.vec.lat_median_ms)} ms e a híbrida, de ${ms(G.rrf.lat_median_ms)} ms; o BM25 respondeu em ${ms(G.bm25.lat_median_ms)} ms e a busca nativa do PostgreSQL em ${ms(G.fts.lat_median_ms)} ms, pois a combinação por OU torna candidatos muitos chunks, que precisam ser ranqueados. Na versão preliminar deste trabalho, a latência média reportada para a busca vetorial (cerca de 339 ms) incluía o carregamento do modelo na primeira consulta (12,4 s), o que distorcia a média. Em todos os métodos, o percentil 95 da latência de recuperação não passou de ${ms(Math.max(...METODOS.map(m => G[m].lat_p95_ms)))} ms, valor adequado ao uso interativo; o tempo de geração da resposta pelo LLM será medido na avaliação da geração.`),
 
-    h2("4.6 Discussão"),
+    h2("4.6 Ablação do Tamanho do Chunk"),
+    p(`Como descrito na Seção 3.2, ${fmt(ABL.base.chunking.pct_truncados, 1)}% dos chunks de ${ABL.base.chunking.palavras} palavras excedem o limite de ${ABL.base.chunking.limite_tokens} tokens do modelo de embeddings, de modo que a busca vetorial, e por consequência a híbrida, não considera o final desses trechos. Para medir o efeito dessa truncagem, o corpus foi reindexado em um banco separado, com chunks de ${ABL.ablacao.chunking.palavras} palavras e sobreposição de ${ABL.ablacao.chunking.sobreposicao}, proporção de sobreposição semelhante à da configuração principal. Resultaram ${milhar(ABL.ablacao.chunking.chunks)} chunks, com mediana de ${milhar(ABL.ablacao.chunking.tokens_mediana)} tokens, dos quais apenas ${milhar(ABL.ablacao.chunking.chunks_truncados)} (${fmt(ABL.ablacao.chunking.pct_truncados, 1)}%) excedem o limite. As ${ABL.n_consultas} consultas foram avaliadas com o mesmo procedimento da Seção 3.5, e cada método foi comparado com a sua versão na configuração principal pelo teste de aleatorização pareado, com correção de Holm sobre os quatro métodos (Tabela 5).`),
+    caption(`Tabela 5 — Efeito do tamanho do chunk no MRR (${ABL.n_consultas} consultas, K = 5). Melhora / piora / empate: número de consultas em que o recíproco da posição aumentou, diminuiu ou não mudou com o chunk menor.`),
+    ablTable,
+    fonte("Fonte: elaborado pelos autores (2026), a partir de data/ablacoes/."),
+    p(`A redução do tamanho do chunk não melhorou a recuperação. A busca vetorial passou de MRR ${fmt(ablCmp("vec").mrr_base)} para ${fmt(ablCmp("vec").mrr_ablacao)}, piorando em ${ablCmp("vec").piora} consultas e melhorando em ${ablCmp("vec").melhora}; a busca híbrida passou de ${fmt(ablCmp("rrf").mrr_base)} para ${fmt(ablCmp("rrf").mrr_ablacao)}, e o BM25 ficou praticamente inalterado (${fmt(ablCmp("bm25").mrr_base)} para ${fmt(ablCmp("bm25").mrr_ablacao)}). Nenhuma das diferenças foi significativa após o ajuste de Holm. Nas consultas lexicais, a busca híbrida e o BM25 tiveram pequenas melhoras (MRR de ${fmt(ablCmpT("lexical", "rrf").mrr_base)} para ${fmt(ablCmpT("lexical", "rrf").mrr_ablacao)} e de ${fmt(ablCmpT("lexical", "bm25").mrr_base)} para ${fmt(ablCmpT("lexical", "bm25").mrr_ablacao)}); nas semânticas, todos os métodos pioraram, e a maior queda foi a da busca híbrida (de ${fmt(ablCmpT("semantic", "rrf").mrr_base)} para ${fmt(ablCmpT("semantic", "rrf").mrr_ablacao)}; p ajustado ${pEq(ablCmpT("semantic", "rrf").p_mrr_holm)}).`),
+    p(`Esse resultado indica que a truncagem não é o principal limitante da busca vetorial neste corpus. Na mediana, ela descarta apenas ${ABL.base.chunking.tokens_mediana - ABL.base.chunking.limite_tokens} dos ${ABL.base.chunking.tokens_mediana} tokens de um chunk (${fmt(100 * (ABL.base.chunking.tokens_mediana - ABL.base.chunking.limite_tokens) / ABL.base.chunking.tokens_mediana, 1)}%), e o vetor de um chunk truncado ainda representa ${ABL.base.chunking.limite_tokens} tokens, mais do que a mediana de um chunk inteiro de ${ABL.ablacao.chunking.palavras} palavras (${milhar(ABL.ablacao.chunking.tokens_mediana)} tokens). Reduzir o chunk, por outro lado, distribui o texto de cada resolução em mais trechos, cada um com menos contexto, o que é coerente com a queda observada sobretudo nas consultas semânticas. A ablação variou ao mesmo tempo o tamanho e a sobreposição e testou um único tamanho alternativo, de modo que não determina o tamanho ótimo de chunk; ela indica, contudo, que a truncagem não compromete a comparação entre os métodos apresentada nas seções anteriores.`),
+
+    h2("4.7 Discussão"),
     p(`Os resultados revisados alteram a interpretação apresentada na versão preliminar. Naquela versão, a busca textual parecia falhar nas consultas semânticas (MRR de 0,042), o que sugeria uma vantagem clara da busca vetorial nesse tipo de consulta. A revisão mostrou que o efeito vinha da combinação dos termos por E: com a combinação por OU e o ranqueamento BM25, a busca lexical teve desempenho equivalente ao da vetorial também nas consultas semânticas. Uma explicação plausível é que, mesmo parafraseadas, as consultas compartilham com as resoluções termos institucionais específicos, como "reingresso", "extensão" e "diploma", que o IDF do BM25 valoriza.`),
     p(`A busca híbrida foi a mais robusta entre os tipos de consulta: empatou com a vetorial nas consultas lexicais e foi a melhor nas semânticas. Esse comportamento indica que os erros dos métodos vetorial e BM25 são em parte complementares, como prevê a literatura de fusão de rankings (CORMACK et al., 2009). A vantagem global, porém, não foi estatisticamente significativa com ${R.meta.n_consultas} consultas, e a confirmação depende de um conjunto de avaliação maior.`),
     p(`A comparação entre o BM25 e a busca textual nativa do PostgreSQL, que compartilham exatamente o mesmo processamento de texto, isola o efeito da função de ranqueamento: o ts_rank_cd não considera a raridade dos termos na coleção, de modo que termos frequentes e pouco informativos pesam tanto quanto termos raros. A diferença de ${fmt(cmp("bm25", "fts").delta_mrr)} no MRR mostra que a busca textual nativa do PostgreSQL não deve ser tomada como equivalente ao BM25 em comparações experimentais.`),
-    p("Os resultados estão sujeitos a limitações que devem ser consideradas: (i) o conjunto de avaliação é pequeno, com 50 consultas que cobrem apenas 25 das 936 resoluções; (ii) as consultas foram redigidas pelos autores a partir dos títulos das resoluções, o que pode favorecer os métodos lexicais e não representa necessariamente as perguntas de usuários reais; (iii) cada consulta tem um único documento relevante, de modo que outros documentos pertinentes recuperados são contados como erro, o que subestima o desempenho de todos os métodos; (iv) a classificação das consultas em lexicais e semânticas foi feita pelos próprios autores; e (v) foi avaliada apenas a recuperação, e não a qualidade das respostas geradas pelo LLM."),
+    p("Os resultados estão sujeitos a limitações que devem ser consideradas: (i) o conjunto de avaliação é pequeno, com 50 consultas que cobrem apenas 25 das 936 resoluções; (ii) as consultas foram redigidas pelos autores a partir dos títulos das resoluções, o que pode favorecer os métodos lexicais e não representa necessariamente as perguntas de usuários reais; (iii) cada consulta tem um único documento relevante, de modo que outros documentos pertinentes recuperados são contados como erro, o que subestima o desempenho de todos os métodos; (iv) a classificação das consultas em lexicais e semânticas foi feita pelos próprios autores; (v) foi avaliada apenas a recuperação, e não a qualidade das respostas geradas pelo LLM; e (vi) a maior parte dos chunks excede o limite de tokens do modelo de embeddings, o que, segundo a ablação da Seção 4.6, não prejudicou a busca vetorial, embora tenha sido testado um único tamanho alternativo de chunk."),
     p("Como trabalhos futuros, destacam-se: (i) a ampliação do conjunto de avaliação com perguntas reais de estudantes e com julgamentos de relevância múltiplos, obtidos pela combinação (pooling) dos resultados dos quatro métodos; (ii) a avaliação das respostas geradas pelo LLM quanto à correção, à fidelidade às fontes e à citação, comparando-as com as respostas do mesmo modelo sem recuperação; (iii) a avaliação de modelos de embedding de maior dimensão (768 ou 1024); (iv) o reranqueamento dos resultados com um modelo cross-encoder; e (v) o uso de metadados estruturados (número, ano e assunto da resolução) como filtros de busca."),
 
     pageBreak(),
@@ -681,7 +711,7 @@ const textual = {
     // ════════════════════════════════════════════════════════════════════════
     titulo("5 Considerações Finais"),
     p("Este trabalho implementou um sistema RAG para consulta em linguagem natural das resoluções da UNESP, com coleta automatizada do corpus, indexação em PostgreSQL com pgvector, quatro métodos de recuperação e uma interface web voltada ao uso em biblioteca universitária. A comparação experimental dos métodos foi conduzida com métricas de ranking, medição de latência e testes de significância pareados."),
-    p(`Em resposta à questão de pesquisa, a busca híbrida por RRF entre os rankings vetorial e BM25 obteve o melhor desempenho global (MRR = ${fmt(G.rrf.mrr)}) e foi a mais robusta entre os tipos de consulta, com vantagem significativa sobre os métodos individuais nas consultas semânticas. No conjunto completo de ${R.meta.n_consultas} consultas, contudo, sua superioridade sobre a busca vetorial e o BM25 não pôde ser confirmada estatisticamente. A revisão metodológica mostrou ainda que detalhes de implementação, como a forma de combinar os termos da consulta e a função de ranqueamento, alteram substancialmente as conclusões de uma comparação entre busca lexical e vetorial.`),
+    p(`Em resposta à questão de pesquisa, a busca híbrida por RRF entre os rankings vetorial e BM25 obteve o melhor desempenho global (MRR = ${fmt(G.rrf.mrr)}) e foi a mais robusta entre os tipos de consulta, com vantagem significativa sobre os métodos individuais nas consultas semânticas. No conjunto completo de ${R.meta.n_consultas} consultas, contudo, sua superioridade sobre a busca vetorial e o BM25 não pôde ser confirmada estatisticamente. A revisão metodológica mostrou ainda que detalhes de implementação, como a forma de combinar os termos da consulta e a função de ranqueamento, alteram substancialmente as conclusões de uma comparação entre busca lexical e vetorial. Já a redução do tamanho dos chunks, que elimina quase toda a truncagem do texto pelo modelo de embeddings, não melhorou significativamente nenhum dos métodos.`),
     p("As próximas etapas, previstas para o TCC II, são a ampliação do conjunto de avaliação, com perguntas reais e julgamentos de relevância múltiplos, e a avaliação da qualidade das respostas geradas pelo LLM, que completará a avaliação do sistema RAG proposto."),
 
     pageBreak(),
@@ -690,10 +720,10 @@ const textual = {
     // PLANO DE TRABALHO
     // ════════════════════════════════════════════════════════════════════════
     titulo("Plano de Trabalho"),
-    caption("Tabela 5 — Cronograma de atividades, de abril de 2026 a fevereiro de 2027 (X = período de execução realizado ou previsto)."),
+    caption("Tabela 6 — Cronograma de atividades, de abril de 2026 a fevereiro de 2027 (X = período de execução realizado ou previsto)."),
     cronTable,
     fonte(),
-    p("A greve na universidade alterou o calendário acadêmico, e a entrega final do trabalho foi reprogramada para fevereiro de 2027, conforme a Tabela 5. A implementação do sistema e a primeira rodada de avaliação foram concluídas até junho de 2026; em outubro de 2026, a avaliação foi revisada, com a implementação do BM25, a correção da busca textual nativa, a medição da latência após aquecimento e a inclusão de testes de significância. Restam a ampliação do conjunto de avaliação, a avaliação da geração de respostas e a escrita do TCC II."),
+    p("A greve na universidade alterou o calendário acadêmico, e a entrega final do trabalho foi reprogramada para fevereiro de 2027, conforme a Tabela 6. A implementação do sistema e a primeira rodada de avaliação foram concluídas até junho de 2026; em outubro de 2026, a avaliação foi revisada, com a implementação do BM25, a correção da busca textual nativa, a medição da latência após aquecimento e a inclusão de testes de significância. Restam a ampliação do conjunto de avaliação, a avaliação da geração de respostas e a escrita do TCC II."),
 
     pageBreak(),
 
