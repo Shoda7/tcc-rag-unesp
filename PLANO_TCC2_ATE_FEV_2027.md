@@ -1,6 +1,6 @@
 # TCC — plano em etapas até a entrega (fev/2027)
 
-**Atualizado em:** 14/10/2026
+**Atualizado em:** 19/11/2026
 **Calendário:** a greve reprogramou o calendário acadêmico; a entrega final passou para **fevereiro de 2027**.
 **Documento vigente:** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru.docx`, gerado por `node scripts/gerar_tcc.mjs`. As tabelas e os números do texto vêm de `data/resultados_resumo.json`.
 
@@ -33,8 +33,8 @@
 | 4 | Planilhas de julgamento de relevância (*pooling*) | Ambos | 1 | 🔄 planilhas prontas em 19/10; falta anotar |
 | 5 | Coleta de perguntas reais de alunos | Ambos | 2 (resposta sobre CEP) | 🔄 texto do formulário pronto; faltam CEP e coleta |
 | 6 | Reavaliação com julgamentos múltiplos | Claude | 4 (e 5, se houver) | 🔄 código pronto e testado; espera a anotação |
-| 7 | Preparar o experimento de geração | Ambos | 1 | 🔄 31 de 120 respostas; limite diário do Groq |
-| 8 | Anotar as respostas geradas | Vocês | 7 | nov–dez |
+| 7 | Preparar o experimento de geração | Ambos | 1 | ✅ 19/11 (120 respostas e planilhas de anotação) |
+| 8 | Anotar as respostas geradas | Vocês | 7 | **pode começar**: planilhas em `data/geracao/`; nov–dez |
 | 9 | Análise da geração e texto do capítulo | Claude | 8 | 🔄 código e metodologia (3.6) prontos; faltam resultados |
 | 10 | Trabalhos Relacionados e referências | Ambos | — | ✅ 19/10 (vocês: ler o fichamento) |
 | 11 | Figuras e capítulo de Desenvolvimento | Claude | 1 | ✅ 19/10 |
@@ -42,7 +42,7 @@
 | 13 | Revisão final e versão para o orientador | Ambos | 12 | meados de jan |
 | 14 | Apresentação para a banca | Ambos | 13 | fim de jan–fev |
 | 15 | Pós-banca e depósito | Ambos | banca | fev |
-| X | *(Opcional)* Ablações: embeddings maiores e reranker | Claude | 6 | se sobrar tempo |
+| X | *(Opcional)* Ablações: embeddings maiores e reranker | Claude | 6 | 🔄 ablação do chunk feita em 19/11 (seção 4.6); o resto, se sobrar tempo |
 
 **Ondas** (tudo dentro de uma onda pode correr em paralelo):
 
@@ -115,7 +115,7 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
     - data de acesso da referência nova.
   - **Referências novas conferidas na web:** Clarke et al. (2000), Holm (1979), Smucker et al. (2007), Malkov e Yashunin (2020) e Wang et al. (2024) estão com título, veículo e páginas corretos.
   - **Sumário:** "Resumo", "Abstract" e "Sumário" saíram da lista (ABNT), e o `scripts/finalizar_docx.ps1` faz o Word preencher o sumário e exportar o PDF. O `.docx` agora já vem com o sumário atualizado (34 entradas).
-  - **PDF para o orientador:** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (39 páginas, atualizado depois das etapas 3 a 11).
+  - **PDF para o orientador:** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru_rascunho_2026-10-19.pdf` (39 páginas, atualizado depois das etapas 3 a 11). **Versão mais nova (19/11):** `DOCUMENTO-ENVIO/TCC_RAG_UNESP_Bauru_rascunho_2026-11-19.pdf` (44 páginas, com listas de ilustrações e a ablação do chunk na seção 4.6); se ainda não enviaram, enviem esta.
   - **Rascunho da mensagem:** `DOCUMENTO-ENVIO/mensagem_orientador_2026-10-19.md`.
 - **Vocês fazem:**
   - ler o PDF, principalmente os caps. 4 e 5 (texto novo), e dizer o que quiserem mudar;
@@ -180,20 +180,18 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 - **Eu faço quando houver anotação:** rodar, regenerar o documento, descrever o *pooling* e o kappa nos caps. 3 e 4, trocar as tabelas, atualizar resumo e conclusões e criar a tag `avaliacao-v3`.
 - **Pronto quando:** o documento estiver regenerado com os resultados v3 e o texto coerente com eles.
 
-## Etapa 7 — Preparar o experimento de geração 🔄 (infraestrutura pronta; geração em andamento)
+## Etapa 7 — Preparar o experimento de geração ✅ (19/11/2026)
 
-- [ ] **Quem:** Ambos · **Depende de:** 1
+- [x] **Quem:** Ambos · **Depende de:** 1
+- **Concluída em 19/11:** a geração foi retomada (estava parada em 38/120 desde 19/10) e terminou em 29 min, dentro do limite diário do Groq: **120 respostas** (40 perguntas × 3 condições), todas com `finish_reason = stop`, em `data/geracao/respostas.jsonl`. As planilhas cegas foram geradas por `scripts/preparar_anotacao_geracao.py`: `data/geracao/anotacao_matheus.xlsx` e `anotacao_rafael.xlsx` (120 linhas cada). `data/geracao/chave_condicoes.json` liga cada resposta à condição: **não abrir antes de terminar a anotação** (como o `pool.json` da Etapa 4).
+- **Ainda de vocês (antes de anotar):** confirmar as 10 perguntas "sem resposta" (Apêndice B).
 - **Eu fiz (19/10):**
   - `scripts/montar_perguntas_geracao.py` → `data/geracao/perguntas.json`: **40 perguntas** (24 semânticas do conjunto de avaliação + 6 novas respondíveis, com a resposta de referência extraída do artigo + **10 sem resposta**: 5 sem nenhuma ocorrência no corpus e 5 "quase respondíveis"). A lista completa está no Apêndice B do TCC;
   - `scripts/gerar_respostas.py`: 3 condições (sem recuperação, RAG vetorial, RAG híbrido), resumível, espaçado pelo limite por minuto, grava resposta, trechos usados, tokens e latência;
   - `scripts/preparar_anotacao_geracao.py`: planilhas às cegas (condição oculta, ordem embaralhada por anotador, listas de valores válidos, trava contra sobrescrever) e `GUIA_ANOTACAO_GERACAO.md`;
   - piloto, ajuste dos prompts (v2) e troca do modelo: ver "Decisões que tomei" acima.
-- **Situação da geração (19/10, 22h):** **31 de 120 respostas** feitas com o prompt v2 (g01 a g10 completas). Parou no **limite diário do plano gratuito do Groq: 200 mil tokens/dia** para o `gpt-oss-120b` (a maior parte foi gasta no piloto descartado). O limite se recarrega aos poucos (~139 tokens/min) e cada resposta com recuperação custa ~3,4 mil tokens, então as 89 restantes levam **cerca de 29 horas**.
-- **O que está rodando:** deixei `python scripts/gerar_respostas.py` em segundo plano, esperando a recarga (ele retoma de onde parou; se a sessão fechar, é só rodar de novo).
-- **Vocês fazem:**
-  - **decidir como terminar a geração:** (a) deixar o computador ligado ~1 dia e rodar o script (de graça); ou (b) ativar o **Dev Tier** pago por uso em console.groq.com/settings/billing (só vocês podem fazer isso; este experimento inteiro usa ~300 mil tokens, o que custa centavos de dólar e acaba em minutos);
-  - evitar usar a interface (que consome a mesma cota) enquanto a geração roda;
-  - **confirmar as 10 perguntas "sem resposta"** (Apêndice B): nenhuma deve ter resposta nas resoluções.
+- **Histórico (19/10):** a geração parou no limite diário do plano gratuito do Groq (200 mil tokens/dia para o `gpt-oss-120b`, gastos em boa parte no piloto) e depois em 38/120, quando o notebook foi desligado. Com a cota cheia, as 82 restantes couberam em um dia (~188 mil tokens), sem precisar do Dev Tier.
+- **Vocês fazem:** **confirmar as 10 perguntas "sem resposta"** (Apêndice B): nenhuma deve ter resposta nas resoluções.
 - **Pronto quando:** as 120 respostas existirem e as planilhas de anotação estiverem geradas em `data/geracao/` (`python scripts/preparar_anotacao_geracao.py`).
 
 ## Etapa 8 — Anotar as respostas geradas
@@ -280,7 +278,10 @@ O híbrido lidera, mas no conjunto completo não há significância contra a vet
 
 ## Etapa X — *(Opcional)* Ablações
 
-> **Achado em 19/10:** 66% dos chunks de 350 palavras (2.795 de 4.229) passam de 512 tokens, o limite do `multilingual-e5-small`; o vetor só representa o início deles (o BM25 e o FTS usam o texto todo). Com 250 palavras e sobreposição de 40, só 2,4% passam. O texto do TCC ainda não menciona isso. **Script pronto:** `python scripts/ablacao_chunk.py --palavras 250 --sobreposicao 40` (banco separado `tcc_rag_abl_c250`, o índice principal não é tocado; saída em `data/ablacoes/`). A primeira execução foi interrompida em 19/10 (desligamento do notebook) durante os embeddings e **precisa ser refeita** (~15 min de CPU). Depois: escrever a seção "Ablação do tamanho do chunk" no cap. 4 e a limitação em 4.6. Como afeta o resultado central (busca vetorial e híbrida), vale fazer antes de dezembro, mesmo que o resto da Etapa X fique de fora.
+> **Ablação do tamanho do chunk ✅ (19/11/2026).** Achado de 19/10: 66,1% dos chunks de 350 palavras (2.795 de 4.229) passam de 512 tokens, o limite do `multilingual-e5-small`. Refeita em 19/11 com 250 palavras e sobreposição de 40 (5.714 chunks, 2,4% acima do limite; banco separado `tcc_rag_abl_c250`, ~35 min de CPU). **Resultado: o chunk menor não melhorou nenhum método** (MRR vetorial 0,690 → 0,652; híbrido 0,785 → 0,752; BM25 0,718 → 0,720; nenhuma diferença significativa com Holm). Nas semânticas todos pioraram (híbrido 0,715 → 0,588, p Holm = 0,057). Leitura: a truncagem descarta só ~5% dos tokens na mediana, e o chunk menor perde contexto. **Configuração principal mantida (350/60).**
+> - Texto: menção ao limite de 512 tokens na seção 3.2, nova **seção 4.6 "Ablação do Tamanho do Chunk"** com a **Tabela 5** (o cronograma virou Tabela 6), Discussão renumerada para **4.7** com a limitação (vi), e uma frase nas Considerações Finais. Os números vêm de `data/ablacoes/comparacao_chunk250.json`, e o `validar_documento.py` passou a conferir isso.
+> - Reprodução: `python scripts/ablacao_chunk.py --palavras 350 --sobreposicao 60 --so-estatisticas`, depois `python scripts/ablacao_chunk.py --palavras 250 --sobreposicao 40` e por fim `python scripts/comparar_ablacao.py`.
+> - Falta da Etapa X (opcional): embeddings maiores e reranqueamento. Atenção: o `e5-base` e o `e5-large` têm o mesmo limite de 512 tokens.
 
 - [ ] **Quem:** Claude · **Depende de:** 6
 - **Eu faço:**

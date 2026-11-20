@@ -205,6 +205,21 @@ Nas semânticas, o RRF supera vetorial (p=0.045) e BM25 (p=0.025) após Holm.
 > (não é BM25) com termos ligados por E, o que zerava 22 das 50 queries, e a latência média incluía
 > o carregamento do modelo. Detalhes em `PLANO_TCC2_ATE_FEV_2027.md`.
 
+### Ablação do tamanho do chunk
+
+O `multilingual-e5-small` lê no máximo 512 tokens, e 66,1% dos chunks de 350 palavras passam disso.
+A ablação reindexa o corpus com 250 palavras (sobreposição 40) num banco separado (`tcc_rag_abl_c250`;
+o índice principal não é tocado) e compara cada método com a configuração principal (teste pareado + Holm):
+
+```powershell
+python scripts/ablacao_chunk.py --palavras 350 --sobreposicao 60 --so-estatisticas   # só mede a truncagem
+python scripts/ablacao_chunk.py --palavras 250 --sobreposicao 40                     # ~35 min de CPU
+python scripts/comparar_ablacao.py          # -> data/ablacoes/comparacao_chunk250.json (lido pelo gerar_tcc.mjs)
+```
+
+Resultado (19/11/2026): o chunk menor não melhorou nenhum método (MRR vetorial 0.690 → 0.652, híbrido
+0.785 → 0.752, BM25 0.718 → 0.720; nada significativo). A configuração de 350 palavras foi mantida.
+
 ---
 
 ## Estrutura do repositório

@@ -23,7 +23,7 @@
 | 12 | Como avaliamos a geração | 1:30 | 40 perguntas (30 respondíveis, 10 sem resposta), 3 condições (sem recuperação, RAG vetorial, RAG híbrido), anotação cega pelos dois autores | 3.6 |
 | 13 | Resultados da geração | 2:00 | `[ETAPA 9]` correção, alucinação, citação correta e recusa por condição, com testes | cap. 4 (a escrever, Etapa 9) |
 | 14 | Demonstração | 2:30 | Ver seção 2 | — |
-| 15 | Limitações | 1:00 | 50 consultas, relevância por documento único (mitigada em `[ETAPA 6]`), corpus congelado em jun/2026, e5-small trunca chunks longos (ver a pergunta 3.6 abaixo), LLM hospedado | 4.6 |
+| 15 | Limitações | 1:00 | 50 consultas, relevância por documento único (mitigada em `[ETAPA 6]`), corpus congelado em jun/2026, e5-small trunca chunks longos, mas a ablação mostrou que isso não prejudica (pergunta 3.6 abaixo), LLM hospedado | 4.6, 4.7 |
 | 16 | Conclusões e trabalhos futuros | 1:00 | Híbrido é o mais robusto, sobretudo nas perguntas semânticas; próximos passos: reranker, embeddings maiores, perguntas reais | cap. 5 |
 | 17 | Perguntas | — | Slide com o resumo dos números principais | — |
 
@@ -59,7 +59,7 @@ As 936 resoluções são normas gerais, que valem para todos os câmpus, inclusi
 Roda em CPU sem GPU, é gratuito e tem 384 dimensões; Sousa e Soares (2026) mostram que modelos compactos são competitivos em português. Testamos o efeito do tamanho do chunk e, se der tempo, embeddings maiores `[ETAPA X]`.
 
 **3.6. Os chunks de 350 palavras não passam do limite do modelo?**
-Passam: medimos 66% deles acima de 512 tokens (mediana de 541), então o vetor só representa o início do trecho; o BM25 e o FTS usam o texto todo. Reindexamos com chunks de 250 palavras (2,4% acima do limite) em um banco separado e comparamos: `[RESULTADO DA ABLAÇÃO]`.
+Passam: medimos 66% deles acima de 512 tokens (mediana de 541), então o vetor só representa o início do trecho; o BM25 e o FTS usam o texto todo. Reindexamos com chunks de 250 palavras (2,4% acima do limite) em um banco separado e comparamos (seção 4.6, Tabela 5): o chunk menor **não melhorou** nenhum método (vetorial 0,690 → 0,652; híbrido 0,785 → 0,752; BM25 0,718 → 0,720; nada significativo). Na mediana, a truncagem corta só 29 de 541 tokens (~5%), e o trecho truncado ainda tem mais texto que um chunk inteiro de 250 palavras; o chunk menor perde contexto, e as consultas semânticas foram as que mais caíram. Por isso mantivemos 350 palavras.
 
 **3.7. Por que o gpt-oss-120b via Groq?**
 O LLaMA 3.3 70B deixou de ser oferecido pelo Groq durante o trabalho; o gpt-oss-120b tem pesos abertos e o mesmo plano gratuito. Registramos modelo, parâmetros, prompts e todas as respostas no repositório, porque um modelo hospedado pode mudar.
